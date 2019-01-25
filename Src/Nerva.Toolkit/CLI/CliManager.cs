@@ -17,7 +17,6 @@ namespace Nerva.Toolkit.CLI
     public abstract class CliTool<T> where T : CliInterface, new()
     {
         protected bool doCrashCheck = true;
-        protected BackgroundWorker worker = null;
         protected T cliInterface;
         protected Cli controller = null;
 
@@ -54,19 +53,33 @@ namespace Nerva.Toolkit.CLI
             return arg;
         }
 
-        public virtual void StartCrashCheck()
+        protected bool threadRunning = false;
+
+        public void StartCrashCheck()
         {
-            worker = new BackgroundWorker();
-            worker.DoWork += (s, e) =>
+            Thread t = new Thread(new ThreadStart(() =>
             {
+                threadRunning = true;
+                
                 while (doCrashCheck)
                 {
                     try
                     {
                         Process p = null;
+
+                        if (!doCrashCheck)
+                            break;
+
                         if (!controller.IsAlreadyRunning(BaseExeName, out p))
                         {
+                            if (!doCrashCheck)
+                                break;
+
                             ManageCliProcess();
+
+                            if (!doCrashCheck)
+                                break;
+
                             Create(FileNames.GetCliExePath(BaseExeName), GenerateCommandLine());
                             Log.Instance.Write("Connecting to process {0}", BaseExeName);
                         }
@@ -78,35 +91,22 @@ namespace Nerva.Toolkit.CLI
 
                     Thread.Sleep(Constants.ONE_SECOND);
                 }
-            };
 
-            worker.RunWorkerCompleted += (s, e) =>
-            {
-                if (doCrashCheck)
-                    worker.RunWorkerAsync();
-            };
+                threadRunning = false;
+            }));
 
-            worker.RunWorkerAsync();
+            t.Start();
         }
 
-        public virtual void ResumeCrashCheck()
+        public void ResumeCrashCheck()
         {
             doCrashCheck = true;
 
-            if (worker == null)
-            {
+            if (!threadRunning)
                 StartCrashCheck();
-                return;
-            }
-
-            if (!worker.IsBusy)
-            {
-                worker.RunWorkerAsync();
-                return;
-            }
         }
 
-        public virtual void StopCrashCheck()
+        public void StopCrashCheck()
         {
             doCrashCheck = false;
         }
@@ -279,12 +279,6 @@ namespace Nerva.Toolkit.CLI
                 case FileNames.NERVAD:
                     UpdateCheck();
                     break;
-                case FileNames.RPC_WALLET:
-                    LoadWallet();
-                    break;
-                default:
-                    Log.Instance.Write(Log_Severity.Error, "CLI exe file {0} is invalid", exe);
-                    break;
             }
         }
 
@@ -314,21 +308,6 @@ namespace Nerva.Toolkit.CLI
                 }
 
                 Log.Instance.Write("Update check complete");
-            });
-        }
-
-        public void LoadWallet()
-        {
-            Helpers.TaskFactory.Instance.RunTask("loadwallet", "Loading the saved wallet", () =>
-            {
-                while (!IsReady(wallet.BaseExeName))
-                    Thread.Sleep(Constants.ONE_SECOND);
-
-                Application.Instance.AsyncInvoke(() =>
-                {
-                    if (!WalletHelper.OpenSavedWallet())
-                        WalletHelper.Instance.ShowWalletWizard();
-                });
             });
         }
 

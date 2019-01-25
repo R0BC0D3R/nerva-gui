@@ -87,8 +87,14 @@ namespace Nerva.Toolkit
 			var daemon_Restart = new Command { MenuText = "Restart", ToolBarText = "Restart" };
 			daemon_Restart.Executed += daemon_Restart_Clicked;
 
-			var wallet_Select = new Command { MenuText = "Select", ToolBarText = "Select" };
-			wallet_Select.Executed += wallet_Select_Clicked;
+			var wallet_Open = new Command { MenuText = "Open", ToolBarText = "Open" };
+			wallet_Open.Executed += wallet_Open_Clicked;
+
+			var wallet_New = new Command { MenuText = "New", ToolBarText = "New" };
+			wallet_New.Executed += wallet_New_Clicked;
+
+			var wallet_Import = new Command { MenuText = "Import", ToolBarText = "Import" };
+			wallet_Import.Executed += wallet_Import_Clicked;
 
 			var wallet_Store = new Command { MenuText = "Save", ToolBarText = "Save" };
 			wallet_Store.Executed += wallet_Store_Clicked;
@@ -151,7 +157,9 @@ namespace Nerva.Toolkit
 						Text = "&Wallet",
 						Items =
 						{
-							wallet_Select,
+							wallet_New,
+							wallet_Open,
+							wallet_Import,
 							wallet_Stop,
 							new SeparatorMenuItem(),
 							wallet_Store,

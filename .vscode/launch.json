@@ -10,6 +10,7 @@
             "request": "launch",
             "program": "${workspaceRoot}/Bin/Debug/Linux/Nerva.Toolkit.exe",
             "cwd": "${workspaceRoot}/Bin/Debug/Linux",
+            "preLaunchTask": "build-debug-linux",
             "args":[
                 "--log-file", "./app.log",
                 "--config-file", "./app.config"

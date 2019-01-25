@@ -14,8 +14,9 @@ namespace Nerva.Toolkit.Content.Dialogs
 
         public OpenWalletDialog(string title = "Open Wallet") : base(title)
         {
-            if (ddName.Items.Count == 0)
-                foreach (var f in WalletHelper.GetWalletFiles())
+            FileInfo[] files;
+            if (WalletHelper.GetWalletFiles(out files))
+                foreach (var f in files)
                     ddName.Items.Add(Path.GetFileNameWithoutExtension(f.FullName));
 
             ddName.SelectedIndex = 0;

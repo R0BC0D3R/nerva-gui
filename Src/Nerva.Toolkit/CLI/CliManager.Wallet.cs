@@ -1,4 +1,7 @@
+using System;
 using System.Diagnostics;
+using System.IO;
+using System.Threading;
 using AngryWasp.Logger;
 using Nerva.Toolkit.Config;
 using Nerva.Toolkit.Helpers;
@@ -23,18 +26,22 @@ namespace Nerva.Toolkit.CLI
                 CreateNoWindow = true
             });
 
-            controller.DoProcessStarted(exe,  proc);
             proc.WaitForExit();
+        
+            string n = Path.GetFileNameWithoutExtension(exe);
+            var p = CliInterface.GetRunningProcesses(n);
+
+            if (p.Count == 1)
+                controller.DoProcessStarted(exe, p[0]);
+            else
+                Log.Instance.Write(Log_Severity.Fatal, "Error creating CLI process {0}", exe);
         }
 
         public override string GenerateCommandLine()
         {
             string a = GetBaseCommandLine(BaseExeName, Configuration.Instance.Wallet.Rpc);
-            a += " --disable-rpc-login";
+            a +=  " --disable-rpc-login";
             a += $" --wallet-dir {Configuration.Instance.Wallet.WalletDir}";
-            if (!string.IsNullOrEmpty(Configuration.Instance.Wallet.LastOpenedWallet))
-                a += $" --wallet-file {Configuration.Instance.Wallet.LastOpenedWallet}";
-    
             a += $" --daemon-address 127.0.0.1:{Configuration.Instance.Daemon.Rpc.Port}";
             return a;
         }

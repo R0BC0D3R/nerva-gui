@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using AngryWasp.Logger;
 using Eto.Forms;
+using Nerva.Rpc;
 using Nerva.Rpc.Daemon;
 using Nerva.Rpc.Wallet;
 using Nerva.Toolkit.CLI;
@@ -14,6 +15,7 @@ using Nerva.Toolkit.Content.Dialogs;
 using Nerva.Toolkit.Content.Wizard;
 using Nerva.Toolkit.Helpers;
 
+using Configuration = Nerva.Toolkit.Config.Configuration;
 namespace Nerva.Toolkit
 {
     public partial class MainForm : Form
@@ -31,11 +33,6 @@ namespace Nerva.Toolkit
             SuspendLayout();
             ConstructLayout();
             ResumeLayout();
-
-            WalletHelper.Instance.WalletWizardEvent += (Open_Wallet_Dialog_Result result, object additionalData) =>
-            {
-                CloseWallet(false);
-            };
 
             Application.Instance.Initialized += (s, e) =>
             {       
@@ -56,6 +53,7 @@ namespace Nerva.Toolkit
 
             this.Closing += (s, e) =>
             {
+                Cli.Instance.Wallet.StopCrashCheck();
                 Cli.Instance.Wallet.ForceClose();
                 Program.Shutdown();
             };
@@ -261,10 +259,11 @@ namespace Nerva.Toolkit
             Helpers.TaskFactory.Instance.RunTask("closewallet", "Closing the wallet", () => 
             {
                 Log.Instance.Write("Closing wallet");
-                Cli.Instance.Wallet.StopCrashCheck();
                 updateWalletTask.Stop();
-                Cli.Instance.Wallet.ForceClose();
                 lastTxHeight = 0;
+                
+                Cli.Instance.Wallet.Interface.Store();
+                Cli.Instance.Wallet.Interface.StopWallet();
 
                 Application.Instance.AsyncInvoke( () =>
                 {
@@ -281,7 +280,6 @@ namespace Nerva.Toolkit
                 }
                 else
                 {
-                    Cli.Instance.Wallet.ResumeCrashCheck();
                     StartUpdateWalletUiTask();
                 }
             });
@@ -311,9 +309,86 @@ namespace Nerva.Toolkit
             //From here the crash handler should reboot the daemon
         }
 
-        protected void wallet_Select_Clicked(object sender, EventArgs e)
+        protected void wallet_New_Clicked(object sender, EventArgs e)
         {
-            WalletHelper.Instance.ShowWalletWizard();
+            NewWalletDialog d = new NewWalletDialog();
+            if (d.ShowModal() == DialogResult.Ok)
+            {
+                Helpers.TaskFactory.Instance.RunTask("createwallet", $"Creating wallet", () =>
+                {
+                    Cli.Instance.Wallet.Interface.CreateWallet(d.Name, d.Password,
+                        (CreateWalletResponseData result) =>
+                    {
+                        WalletHelper.SaveWalletLogin(d.Name, d.Password);
+                        WalletHelper.OpenWallet(d.Name, d.Password);
+                        CreateSuccess(result.Address);
+                    }, CreateError);
+                });
+            }
+        }
+
+        protected void wallet_Open_Clicked(object sender, EventArgs e)
+        {
+            OpenWalletDialog d = new OpenWalletDialog();
+            if (d.ShowModal() == DialogResult.Ok)
+            {
+                WalletHelper.SaveWalletLogin(d.Name, d.Password);
+                WalletHelper.OpenWallet(d.Name, d.Password);
+            }
+        }
+
+        protected void wallet_Import_Clicked(object sender, EventArgs e)
+        {
+            ImportWalletDialog d = new ImportWalletDialog();
+            if (d.ShowModal() == DialogResult.Ok)
+            {
+                Helpers.TaskFactory.Instance.RunTask("importwallet", $"Importing wallet", () =>
+                {
+                    switch (d.ImportType)
+                    {
+                        case Import_Type.Key:
+                            Cli.Instance.Wallet.Interface.RestoreWalletFromKeys(d.Name, d.Address, d.ViewKey, d.SpendKey, d.Password, d.Language,
+                                (RestoreWalletFromKeysResponseData result) =>
+                            {
+                                WalletHelper.SaveWalletLogin(d.Name, d.Password);
+                                WalletHelper.OpenWallet(d.Name, d.Password);
+                                CreateSuccess(result.Address);
+                            }, CreateError);
+                        break;
+                        case Import_Type.Seed:
+                            Cli.Instance.Wallet.Interface.RestoreWalletFromSeed(d.Name, d.Seed, d.SeedOffset, d.Password, d.Language,
+                            (RestoreWalletFromSeedResponseData result) =>
+                            {
+                                WalletHelper.SaveWalletLogin(d.Name, d.Password);
+                                WalletHelper.OpenWallet(d.Name, d.Password);
+                                CreateSuccess(result.Address);
+                            }, CreateError);
+                        break;
+                    }
+                });
+            }
+        }
+
+        private void CreateSuccess(string address)
+        {
+            Application.Instance.AsyncInvoke( () =>
+            {
+                if (MessageBox.Show(Application.Instance.MainForm, "Wallet creation complete.\nWould you like to use this as the mining address?", "Create Wallet",
+                    MessageBoxButtons.YesNo, MessageBoxType.Question, MessageBoxDefaultButton.Yes) == DialogResult.Yes)
+                {
+                    Configuration.Instance.Daemon.MiningAddress = address;
+                    Configuration.Save();
+                }
+            });
+        }
+
+        private void CreateError(RequestError error)
+        {
+            Application.Instance.AsyncInvoke( () =>
+            {
+                MessageBox.Show(Application.Instance.MainForm, $"Wallet creation failed.\r\nError Code: {error.Code}\r\n{error.Message}", "Create Wallet",
+                MessageBoxButtons.OK, MessageBoxType.Information, MessageBoxDefaultButton.OK);
+            });
         }
 
         protected void wallet_Store_Clicked(object sender, EventArgs e)
