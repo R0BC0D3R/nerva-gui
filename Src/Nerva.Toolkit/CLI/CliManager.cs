@@ -53,64 +53,6 @@ namespace Nerva.Toolkit.CLI
             return arg;
         }
 
-        protected bool threadRunning = false;
-
-        public void StartCrashCheck()
-        {
-            Thread t = new Thread(new ThreadStart(() =>
-            {
-                threadRunning = true;
-                
-                while (doCrashCheck)
-                {
-                    try
-                    {
-                        Process p = null;
-
-                        if (!doCrashCheck)
-                            break;
-
-                        if (!controller.IsAlreadyRunning(BaseExeName, out p))
-                        {
-                            if (!doCrashCheck)
-                                break;
-
-                            ManageCliProcess();
-
-                            if (!doCrashCheck)
-                                break;
-
-                            Create(FileNames.GetCliExePath(BaseExeName), GenerateCommandLine());
-                            Log.Instance.Write("Connecting to process {0}", BaseExeName);
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Log.Instance.WriteFatalException(ex);
-                    }
-
-                    Thread.Sleep(Constants.ONE_SECOND);
-                }
-
-                threadRunning = false;
-            }));
-
-            t.Start();
-        }
-
-        public void ResumeCrashCheck()
-        {
-            doCrashCheck = true;
-
-            if (!threadRunning)
-                StartCrashCheck();
-        }
-
-        public void StopCrashCheck()
-        {
-            doCrashCheck = false;
-        }
-
         public virtual void ForceClose()
         {
             controller.KillCliProcesses(BaseExeName);

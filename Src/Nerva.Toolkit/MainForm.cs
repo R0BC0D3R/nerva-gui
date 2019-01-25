@@ -254,37 +254,6 @@ namespace Nerva.Toolkit
             });
         }
 
-        private void CloseWallet(bool clearSavedWallet)
-        {
-            Helpers.TaskFactory.Instance.RunTask("closewallet", "Closing the wallet", () => 
-            {
-                Log.Instance.Write("Closing wallet");
-                updateWalletTask.Stop();
-                lastTxHeight = 0;
-                
-                Cli.Instance.Wallet.Interface.Store();
-                Cli.Instance.Wallet.Interface.StopWallet();
-
-                Application.Instance.AsyncInvoke( () =>
-                {
-                    balancesPage.Update(null);
-                    transfersPage.Update(null);
-                    lblWalletStatus.Text = "OFFLINE";
-                });
-
-                if (clearSavedWallet)
-                {
-                    Configuration.Instance.Wallet.LastOpenedWallet = null;
-                    Configuration.Instance.Wallet.LastWalletPassword = null;
-                    Configuration.Save();
-                }
-                else
-                {
-                    StartUpdateWalletUiTask();
-                }
-            });
-        }
-
         protected void daemon_ToggleMining_Clicked(object sender, EventArgs e)
         {
             MiningStatusResponseData ms = Cli.Instance.Daemon.Interface.MiningStatus();
@@ -319,7 +288,7 @@ namespace Nerva.Toolkit
                     Cli.Instance.Wallet.Interface.CreateWallet(d.Name, d.Password,
                         (CreateWalletResponseData result) =>
                     {
-                        WalletHelper.SaveWalletLogin(d.Name, d.Password);
+                        WalletHelper.SaveWalletLogin(d.Name);
                         WalletHelper.OpenWallet(d.Name, d.Password);
                         CreateSuccess(result.Address);
                     }, CreateError);
@@ -332,7 +301,7 @@ namespace Nerva.Toolkit
             OpenWalletDialog d = new OpenWalletDialog();
             if (d.ShowModal() == DialogResult.Ok)
             {
-                WalletHelper.SaveWalletLogin(d.Name, d.Password);
+                WalletHelper.SaveWalletLogin(d.Name);
                 WalletHelper.OpenWallet(d.Name, d.Password);
             }
         }
@@ -350,7 +319,7 @@ namespace Nerva.Toolkit
                             Cli.Instance.Wallet.Interface.RestoreWalletFromKeys(d.Name, d.Address, d.ViewKey, d.SpendKey, d.Password, d.Language,
                                 (RestoreWalletFromKeysResponseData result) =>
                             {
-                                WalletHelper.SaveWalletLogin(d.Name, d.Password);
+                                WalletHelper.SaveWalletLogin(d.Name);
                                 WalletHelper.OpenWallet(d.Name, d.Password);
                                 CreateSuccess(result.Address);
                             }, CreateError);
@@ -359,7 +328,7 @@ namespace Nerva.Toolkit
                             Cli.Instance.Wallet.Interface.RestoreWalletFromSeed(d.Name, d.Seed, d.SeedOffset, d.Password, d.Language,
                             (RestoreWalletFromSeedResponseData result) =>
                             {
-                                WalletHelper.SaveWalletLogin(d.Name, d.Password);
+                                WalletHelper.SaveWalletLogin(d.Name);
                                 WalletHelper.OpenWallet(d.Name, d.Password);
                                 CreateSuccess(result.Address);
                             }, CreateError);
@@ -408,7 +377,25 @@ namespace Nerva.Toolkit
 
         protected void wallet_Stop_Clicked(object sender, EventArgs e)
         {
-            CloseWallet(true);
+            Helpers.TaskFactory.Instance.RunTask("closewallet", "Closing the wallet", () => 
+            {
+                Log.Instance.Write("Closing wallet");
+                updateWalletTask.Stop();
+                lastTxHeight = 0;
+
+                Cli.Instance.Wallet.Interface.CloseWallet();
+
+                Application.Instance.AsyncInvoke( () =>
+                {
+                    balancesPage.Update(null);
+                    transfersPage.Update(null);
+                    lblWalletStatus.Text = "OFFLINE";
+                });
+
+                Configuration.Instance.Wallet.LastOpenedWallet = null;
+                Configuration.Save();
+                StartUpdateWalletUiTask();
+            });
         }
 
         protected void wallet_RescanSpent_Clicked(object sender, EventArgs e)

@@ -195,24 +195,15 @@ namespace Nerva.Toolkit.Content.Dialogs
             return Directory.Exists(Configuration.Instance.Wallet.WalletDir);
         }
 
-        public static void SaveWalletLogin(string walletFile, string password)
+        public static void SaveWalletLogin(string walletFile)
         {
             Configuration.Instance.Wallet.LastOpenedWallet = walletFile;
-
-            string formattedPassword = string.IsNullOrEmpty(password) ? string.Empty : password.EncodeBase64();
-
-            if (Configuration.Instance.Wallet.SaveWalletPassword)
-                Configuration.Instance.Wallet.LastWalletPassword = formattedPassword;
-            else
-                Configuration.Instance.Wallet.LastWalletPassword = null;
-
             Configuration.Save();
         }
 
         public static void OpenWallet(string wallet, string password)
         {
-            Cli.Instance.Wallet.Interface.Store();
-            Cli.Instance.Wallet.Interface.StopWallet();
+            Cli.Instance.Wallet.Interface.CloseWallet();
             Cli.Instance.Wallet.Interface.OpenWallet(wallet, password);
             Log.Instance.Write("New wallet {0} opened", wallet);
         }

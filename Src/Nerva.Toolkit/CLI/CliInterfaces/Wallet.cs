@@ -4,6 +4,7 @@ using Nerva.Rpc.Wallet;
 using System.Collections.Generic;
 using Configuration = Nerva.Toolkit.Config.Configuration;
 using Nerva.Rpc;
+using AngryWasp.Logger;
 
 namespace Nerva.Toolkit.CLI
 {
@@ -22,9 +23,14 @@ namespace Nerva.Toolkit.CLI
             return data;
         }
 
+        public bool CloseWallet()
+        {
+            return new CloseWallet(null, null, r.Port).Run(); 
+        }
+
         public bool StopWallet()
         {
-            return new StopWallet(null, null, r.Port).Run();
+            return new StopWallet(null, null, r.Port).Run(); 
         }
 
         public bool CreateWallet(string walletName, string password,

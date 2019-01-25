@@ -65,6 +65,64 @@ namespace Nerva.Toolkit.CLI
             }
         }
 
+        bool threadRunning = false;
+
+        public void StartCrashCheck()
+        {
+            Thread t = new Thread(new ThreadStart(() =>
+            {
+                threadRunning = true;
+                
+                while (doCrashCheck)
+                {
+                    try
+                    {
+                        Process p = null;
+
+                        if (!doCrashCheck)
+                            break;
+
+                        if (!controller.IsAlreadyRunning(BaseExeName, out p))
+                        {
+                            if (!doCrashCheck)
+                                break;
+
+                            ManageCliProcess();
+
+                            if (!doCrashCheck)
+                                break;
+
+                            Create(FileNames.GetCliExePath(BaseExeName), GenerateCommandLine());
+                            Log.Instance.Write("Connecting to process {0}", BaseExeName);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Instance.WriteFatalException(ex);
+                    }
+
+                    Thread.Sleep(Constants.ONE_SECOND);
+                }
+
+                threadRunning = false;
+            }));
+
+            t.Start();
+        }
+
+        public void ResumeCrashCheck()
+        {
+            doCrashCheck = true;
+
+            if (!threadRunning)
+                StartCrashCheck();
+        }
+
+        public void StopCrashCheck()
+        {
+            doCrashCheck = false;
+        }
+
         public override string GenerateCommandLine()
         {
             string a = GetBaseCommandLine(BaseExeName, Configuration.Instance.Daemon.Rpc);

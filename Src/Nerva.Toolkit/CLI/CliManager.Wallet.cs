@@ -27,14 +27,57 @@ namespace Nerva.Toolkit.CLI
             });
 
             proc.WaitForExit();
-        
-            string n = Path.GetFileNameWithoutExtension(exe);
-            var p = CliInterface.GetRunningProcesses(n);
+        }
 
-            if (p.Count == 1)
-                controller.DoProcessStarted(exe, p[0]);
-            else
-                Log.Instance.Write(Log_Severity.Fatal, "Error creating CLI process {0}", exe);
+        bool threadRunning = false;
+
+        public void StartCrashCheck()
+        {
+            Thread t = new Thread(new ThreadStart(() =>
+            {
+                threadRunning = true;
+                
+                while (doCrashCheck)
+                {
+                    try
+                    {
+                        if (!doCrashCheck)
+                            break;
+
+                        Process p = null;
+                        if (!controller.IsAlreadyRunning(BaseExeName, out p))
+                        {
+                            ManageCliProcess();
+                            Create(FileNames.GetCliExePath(BaseExeName), GenerateCommandLine());
+                            if (!doCrashCheck)
+                                break;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Instance.WriteFatalException(ex);
+                    }
+
+                    Thread.Sleep(Constants.ONE_SECOND);
+                }
+
+                threadRunning = false;
+            }));
+
+            t.Start();
+        }
+
+        public void ResumeCrashCheck()
+        {
+            doCrashCheck = true;
+
+            if (!threadRunning)
+                StartCrashCheck();
+        }
+
+        public void StopCrashCheck()
+        {
+            doCrashCheck = false;
         }
 
         public override string GenerateCommandLine()

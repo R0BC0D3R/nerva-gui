@@ -129,7 +129,7 @@ namespace Nerva.Toolkit.Content.Wizard
                 lblImport2.Text = "Press >> to continue";
                 lblImport.Visible = lblImport2.Visible = true;
                 Parent.EnableNextButton(true);  
-                SaveWalletLogin(name, password);
+                Configuration.Instance.Wallet.LastOpenedWallet = name;
                 Configuration.Instance.Daemon.MiningAddress = address;                                          
             });
         }
@@ -143,13 +143,6 @@ namespace Nerva.Toolkit.Content.Wizard
                 lblImport.Visible = lblImport2.Visible = true;
                 Parent.EnableNextButton(true);     
             });
-        }
-
-        public static void SaveWalletLogin(string walletFile, string password)
-        {
-            string formattedPassword = string.IsNullOrEmpty(password) ? string.Empty : password.EncodeBase64();
-            Configuration.Instance.Wallet.LastOpenedWallet = walletFile;
-            Configuration.Instance.Wallet.LastWalletPassword = formattedPassword;
         }
 
         public override void OnAssignContent()

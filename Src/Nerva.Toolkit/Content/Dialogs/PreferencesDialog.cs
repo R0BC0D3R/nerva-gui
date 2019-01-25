@@ -25,14 +25,12 @@ namespace Nerva.Toolkit.Content.Dialogs
         private Button btnGenRandDaemonPort = new Button { Text = "Random", ToolTip = "Generate a random port number" };
         private Button btnUseDefaultPort = new Button { Text = "Default", ToolTip = "Use default port (Recommended)" };
         
-        private TextBox txtWalletPath = new TextBox { PlaceholderText = "Wallet path", ToolTip = "Enter the full path to save NERVA wallets" };
+        private TextBox txtWalletPath = new TextBox { PlaceholderText = "Wallet path", ToolTip = "Enter the full path to save NERVA wallets", ReadOnly = true };
         private Button btnWalletBrowse = new Button { Text = "Browse", ToolTip = "Find NERVA Wallets" };
         
         private TextBox txtLastOpenedWallet = new TextBox { ToolTip = "No saved wallet", ReadOnly = true };
-        private Button btnClearPass = new Button { Text = "Clear Pass", ToolTip = "Clear any saved passwords for the wallet" };
-        private Button btnClearAll = new Button { Text = "Clear All", ToolTip = "Clear all previously opened wallet info" };
+        private Button btnClearAll = new Button { Text = "Clear", ToolTip = "Clear all previously opened wallet info" };
         
-        private CheckBox chkSaveWalletPassword = new CheckBox { Text = "Save wallet password", ToolTip = "Save wallet password. Recommended off" };
         private NumericStepper nsWalletPort = new NumericStepper { MinValue = 1000, MaxValue = 50000, DecimalPlaces = 0, MaximumDecimalPlaces = 0, ToolTip = "Wallet port" };
         private Button btnGenRandWalletPort = new Button { Text = "Random", ToolTip = "Generate a random port number" };
 
@@ -75,10 +73,14 @@ namespace Nerva.Toolkit.Content.Dialogs
                     txtWalletPath.Text = d.Directory;
             };
 
-            btnClearPass.Click += (s, e) => Configuration.Instance.Wallet.LastWalletPassword = null;
             btnClearAll.Click  += (s, e) =>
             {
-                Configuration.Instance.Wallet.LastWalletPassword = null;
+                Configuration.Instance.Wallet.LastOpenedWallet = null;
+                txtLastOpenedWallet.Text = null;
+            };
+
+            txtWalletPath.TextChanged += (s, e) =>
+            {
                 Configuration.Instance.Wallet.LastOpenedWallet = null;
                 txtLastOpenedWallet.Text = null;
             };
@@ -101,7 +103,6 @@ namespace Nerva.Toolkit.Content.Dialogs
 
             txtWalletPath.Text = Configuration.Instance.Wallet.WalletDir;
             txtLastOpenedWallet.Text = Configuration.Instance.Wallet.LastOpenedWallet;
-            chkSaveWalletPassword.Checked = Configuration.Instance.Wallet.SaveWalletPassword;
             nsWalletPort.Value = Configuration.Instance.Wallet.Rpc.Port;
 
             return new TabControl
@@ -217,11 +218,9 @@ namespace Nerva.Toolkit.Content.Dialogs
                                     Items =
                                     {
                                         new StackLayoutItem(txtLastOpenedWallet, true),
-                                        btnClearPass,
                                         btnClearAll
                                     }
                                 },
-                                chkSaveWalletPassword,
                                 new StackLayout
                                 {
                                     Orientation = Orientation.Horizontal,
@@ -258,7 +257,8 @@ namespace Nerva.Toolkit.Content.Dialogs
             if (chkTestnet.Checked != Configuration.Instance.Testnet || // network type changed
                 txtToolsPath.Text != Configuration.Instance.ToolsPath || // tool path changed
                 nsDaemonPort.Value != Configuration.Instance.Daemon.Rpc.Port || // daemon port changed
-                nsWalletPort.Value != Configuration.Instance.Wallet.Rpc.Port ) // wallet port changed
+                nsWalletPort.Value != Configuration.Instance.Wallet.Rpc.Port ||
+                txtWalletPath.Text != Configuration.Instance.Wallet.WalletDir) // wallet port changed
                 restartCliRequired = true;
 
             //Miner details have changed. Only restart miner
@@ -277,7 +277,6 @@ namespace Nerva.Toolkit.Content.Dialogs
             Configuration.Instance.Daemon.Rpc.Port = (uint)nsDaemonPort.Value;
 
             Configuration.Instance.Wallet.WalletDir = txtWalletPath.Text;
-            Configuration.Instance.Wallet.SaveWalletPassword = chkSaveWalletPassword.Checked.Value;
             Configuration.Instance.Wallet.Rpc.Port = (uint)nsWalletPort.Value;
 
             this.Close(DialogResult.Ok);

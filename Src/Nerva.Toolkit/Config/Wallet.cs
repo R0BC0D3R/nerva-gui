@@ -39,10 +39,6 @@ namespace Nerva.Toolkit.Config
 
         public string LastOpenedWallet { get; set; }
 
-        public bool SaveWalletPassword { get; set; } = true;
-
-        public string LastWalletPassword { get; set; }
-
         public int NumTransfersToDisplay { get; set; } = 25;
 
 		public static Wallet New()
@@ -51,9 +47,6 @@ namespace Nerva.Toolkit.Config
             {
                 WalletDir = Path.Combine(Environment.CurrentDirectory, "Wallets"),
                 LastOpenedWallet = null,
-                LastWalletPassword = null,
-                SaveWalletPassword = false,
-
                 Rpc = RpcDetails.New((uint)MathHelper.Random.NextInt(10000, 50000))
             };
         }
