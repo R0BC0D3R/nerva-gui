@@ -201,12 +201,5 @@ namespace Nerva.Toolkit.Content.Dialogs
             Configuration.Instance.Wallet.LastOpenedWallet = walletFile;
             Configuration.Save();
         }
-
-        public static void OpenWallet(string wallet, string password, Action successAction, Action<RequestError> errorAction)
-        {
-            Cli.Instance.Wallet.Interface.CloseWallet();
-            Cli.Instance.Wallet.Interface.OpenWallet(wallet, password, successAction, errorAction);
-            Log.Instance.Write($"New wallet {wallet} opened");
-        }
     }
 }

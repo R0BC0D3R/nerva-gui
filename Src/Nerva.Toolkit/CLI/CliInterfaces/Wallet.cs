@@ -12,20 +12,17 @@ namespace Nerva.Toolkit.CLI
     {
         public WalletInterface() : base(Configuration.Instance.Wallet.Rpc) { }
 
-        public GetAccountsResponseData GetAccounts()
+        public bool GetAccounts(Action<GetAccountsResponseData> successAction, Action<RequestError> errorAction)
         {
-            GetAccountsResponseData data = null;
-
-            new GetAccounts((GetAccountsResponseData result) => {
-                data = result;
-            }, null, r.Port).Run();
-
-            return data;
+            return new GetAccounts(successAction, errorAction, r.Port).Run();
         }
 
-        public bool CloseWallet()
+        public bool CloseWallet(Action successAction, Action<RequestError> errorAction)
         {
-            return new CloseWallet(null, null, r.Port).Run(); 
+            return new CloseWallet((string e) =>
+            {
+                successAction();
+            }, errorAction, r.Port).Run(); 
         }
 
         public bool StopWallet()
@@ -75,44 +72,18 @@ namespace Nerva.Toolkit.CLI
             }, errorAction, r.Port).Run();
         }
 
-        public QueryKeyResponseData QueryKey(string keyType)
+        public bool QueryKey(string keyType, Action<QueryKeyResponseData> successAction)
         {
-            QueryKeyResponseData data = null;
-
-            new QueryKey(new QueryKeyRequestData {
+            return new QueryKey(new QueryKeyRequestData {
                 KeyType = keyType
-            }, (QueryKeyResponseData result) => {
-                data = result;
-            }, null, r.Port).Run();
-
-            return data;
+            }, successAction, null, r.Port).Run();
         }
 
-        public GetTransfersResponseData GetTransfers(uint scanFromHeight, out uint lastTxHeight)
+        public bool GetTransfers(uint scanFromHeight, Action<GetTransfersResponseData> successAction, Action<RequestError> errorAction)//uint scanFromHeight, out uint lastTxHeight)
         {
-            //todo: this only gets transfers for account index 0
-            // need to get all transfers
-            GetTransfersResponseData data = null;
-            uint i = 0, o = 0, l = 0;
-            lastTxHeight = 0;
-
-            new GetTransfers(new GetTransfersRequestData {
+            return new GetTransfers(new GetTransfersRequestData {
                 ScanFromHeight = scanFromHeight
-            }, (GetTransfersResponseData result) =>
-            {
-                if (result.Incoming != null && result.Incoming.Count > 0)
-                    i = result.Incoming[result.Incoming.Count - 1].Height;
-                
-                if (result.Outgoing != null && result.Outgoing.Count > 0)
-                    o = result.Outgoing[result.Outgoing.Count - 1].Height;
-
-                l = Math.Max(i, o);
-
-                data = result;
-            }, null, r.Port).Run();
-
-            lastTxHeight = l;
-            return data;
+            }, successAction, errorAction, r.Port).Run();
         }
 
         public bool RescanSpent()
