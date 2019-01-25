@@ -3,9 +3,11 @@ using AngryWasp.Helpers;
 using AngryWasp.Logger;
 using Eto.Drawing;
 using Eto.Forms;
+using Nerva.Rpc;
+using Nerva.Rpc.Wallet;
 using Nerva.Toolkit.CLI;
-using Nerva.Toolkit.Config;
 using Nerva.Toolkit.Content.Dialogs;
+using Configuration = Nerva.Toolkit.Config.Configuration;
 
 namespace Nerva.Toolkit.Content.Wizard
 {
@@ -17,9 +19,8 @@ namespace Nerva.Toolkit.Content.Wizard
 
         Button btnCreateAccount = new Button { Text = "Create" };
         Button btnImportAccount = new Button { Text = "Import" };
-        Label lblImport = new Label { TextAlignment = TextAlignment.Right };
-        ProgressBar pbImport = new ProgressBar();
-
+        Label lblImport = new Label { TextAlignment = TextAlignment.Right, Visible = false };
+        Label lblImport2 = new Label { TextAlignment = TextAlignment.Right, Visible = false };
         public override Control Content
         {
             get
@@ -36,31 +37,16 @@ namespace Nerva.Toolkit.Content.Wizard
             btnCreateAccount.Click += (s, e) =>
             {
                 Parent.EnableNextButton(false);
+                lblImport.Visible = lblImport2.Visible = false;
                 NewWalletDialog d2 = new NewWalletDialog();
                 if (d2.ShowModal() == DialogResult.Ok)
                 {
                     Helpers.TaskFactory.Instance.RunTask("createwallet", "Creating wallet", () =>
                     {
-                        int result = Cli.Instance.Wallet.Interface.CreateNewWallet(d2.Name, d2.Password);
-
-                        SaveWalletLogin(d2.Name, d2.Password);
-
-                        if (result == 0)
-                        {
-                            Application.Instance.Invoke( () =>
-                            {
-                                lblImport.Text = "Wallet creation complete";
-                                Parent.EnableNextButton(true);                                              
-                            });
-                        }
-                        else
-                        {
-                            Application.Instance.Invoke( () =>
-                            {
-                                lblImport.Text = "Wallet creation failed";
-                                Parent.EnableNextButton(true);     
-                            });
-                        }
+                        Cli.Instance.Wallet.Interface.CreateWallet(d2.Name, d2.Password,
+                        (CreateWalletResponseData result) => {
+                            CreateSuccess(d2.Name, d2.Password, result.Address);
+                        }, CreateError);
                     });
                     
                 }
@@ -71,45 +57,28 @@ namespace Nerva.Toolkit.Content.Wizard
             btnImportAccount.Click += (s, e) =>
             {
                 Parent.EnableNextButton(false);
+                lblImport.Visible = lblImport2.Visible = false;
                 ImportWalletDialog d2 = new ImportWalletDialog();
                 DialogResult dr = d2.ShowModal();
                 if (dr == DialogResult.Ok)
                 {
                     Helpers.TaskFactory.Instance.RunTask("importwallet", "Importing wallet", () =>
                     {
-                        Log.Instance.AddWriter("wizard", new LabelWriter(lblImport, pbImport), false);
-
-                        int result = -1;
                         switch (d2.ImportType)
                         {
                             case Import_Type.Key:
-                                result = Cli.Instance.Wallet.Interface.RestoreWalletFromKeys(d2.Name, d2.ViewKey, d2.SpendKey, d2.Password, d2.Language);
+                                Cli.Instance.Wallet.Interface.RestoreWalletFromKeys(d2.Name, d2.Address, d2.ViewKey, d2.SpendKey, d2.Password, d2.Language,
+                                (RestoreWalletFromKeysResponseData result) => {
+                                    CreateSuccess(d2.Name, d2.Password, result.Address);
+                                }, CreateError);
                             break;
                             case Import_Type.Seed:
-                                result = Cli.Instance.Wallet.Interface.RestoreWalletFromSeed(d2.Name, d2.Seed, d2.Password, d2.Language);
+                                Cli.Instance.Wallet.Interface.RestoreWalletFromSeed(d2.Name, d2.Seed, d2.SeedOffset, d2.Password, d2.Language,
+                                (RestoreWalletFromSeedResponseData result) => {
+                                    CreateSuccess(d2.Name, d2.Password, result.Address);
+                                }, CreateError);
                             break;
                         } 
-                            
-                        Log.Instance.RemoveWriter("wizard");
-                            
-                        SaveWalletLogin(d2.Name, d2.Password);
-
-                        if (result == 0)
-                        {
-                            Application.Instance.Invoke( () =>
-                            {
-                                lblImport.Text = "Wallet import complete";
-                                Parent.EnableNextButton(true);                                              
-                            });
-                        }
-                        else
-                        {
-                            Application.Instance.Invoke( () =>
-                            {
-                                lblImport.Text = "Wallet import failed";
-                                Parent.EnableNextButton(true);     
-                            });
-                        }
                     });
                 }
                 else
@@ -146,10 +115,34 @@ namespace Nerva.Toolkit.Content.Wizard
                             new StackLayoutItem(btnImportAccount, false)
                         }   
                     }, false),
-                    pbImport,
-                    lblImport
+                    lblImport,
+                    lblImport2
                 }
             };
+        }
+
+        private void CreateSuccess(string name, string password, string address)
+        {
+            Application.Instance.Invoke( () =>
+            {
+                lblImport.Text = "Wallet creation complete";
+                lblImport2.Text = "Press >> to continue";
+                lblImport.Visible = lblImport2.Visible = true;
+                Parent.EnableNextButton(true);  
+                SaveWalletLogin(name, password);
+                Configuration.Instance.Daemon.MiningAddress = address;                                          
+            });
+        }
+
+        private void CreateError(RequestError error)
+        {
+            Application.Instance.Invoke( () =>
+            {
+                lblImport.Text = "Wallet creation failed";
+                lblImport2.Text = $"Error {error.Code}: {error.Message}";
+                lblImport.Visible = lblImport2.Visible = true;
+                Parent.EnableNextButton(true);     
+            });
         }
 
         public static void SaveWalletLogin(string walletFile, string password)

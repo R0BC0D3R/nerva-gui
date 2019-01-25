@@ -7,7 +7,6 @@ namespace Nerva.Toolkit.Helpers
     public static class FileNames
     {
         public const string NERVAD = "nervad";
-        public const string CLI_WALLET = "nerva-wallet-cli";
         public const string RPC_WALLET = "nerva-wallet-rpc";
 
         public static string GetCliExePath(string exe)
@@ -23,7 +22,7 @@ namespace Nerva.Toolkit.Helpers
         }
 
         public static string GetCliExeBaseName(string exe) => Path.GetFileNameWithoutExtension(exe).ToLower();
-
+        
         public static bool DirectoryContainsCliTools(string path)
         {
             DirectoryInfo d = new DirectoryInfo(path);
@@ -35,7 +34,6 @@ namespace Nerva.Toolkit.Helpers
 
             bool hasDaemon = false;
             bool hasRpcWallet = false;
-            bool hasCliWallet = false;
 
             foreach (var f in files)
             {
@@ -48,17 +46,14 @@ namespace Nerva.Toolkit.Helpers
                     case RPC_WALLET:
                         hasRpcWallet = true;
                     break;
-                    case CLI_WALLET:
-                        hasCliWallet = true;
-                    break;
                 }
 
                 //early exit if we have found all the cli tools
-                if (hasCliWallet && hasRpcWallet && hasDaemon)
+                if (hasRpcWallet && hasDaemon)
                     return true;
             }
 
-            return (hasCliWallet && hasRpcWallet && hasDaemon);
+            return (hasRpcWallet && hasDaemon);
         }
     }
 }

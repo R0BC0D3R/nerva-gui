@@ -1,13 +1,16 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <Import Project="../Nerva.Toolkit.targets"/>
   <PropertyGroup>
-    <OutputType>Library</OutputType>
+    <OutputType>WinExe</OutputType>
     <RootNamespace>Nerva.Toolkit</RootNamespace>
     <DefineConstants>$(DefineConstants);WINDOWS;</DefineConstants>
-    <AssemblyName>Nerva.Toolkit.Backend</AssemblyName>
+    <AssemblyName>Nerva.Toolkit</AssemblyName>
     <OutputPath>../../Bin/$(Configuration)/Windows</OutputPath>
   </PropertyGroup>
   <ItemGroup>
     <EmbeddedResource Include="../../Content/NERVA-Logo.png"/>
+  </ItemGroup>
+  <ItemGroup> 
+    <PackageReference Include="Eto.Platform.Wpf" Version="2.5.0-ci-10024" />
   </ItemGroup>
 </Project>

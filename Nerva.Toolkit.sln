@@ -1,5 +1,5 @@
 ﻿
-=Microsoft Visual Studio Solution File, Format Version 12.00
+Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27130.2026
 MinimumVisualStudioVersion = 10.0.40219.1
@@ -8,12 +8,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nerva.Toolkit.Windows", "Src/Nerva.Toolkit/Nerva.Toolkit.Windows.csproj", "{1AC47DD1-4744-4442-8790-547F9A05C1BB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nerva.Toolkit.Mac", "Src/Nerva.Toolkit/Nerva.Toolkit.Mac.csproj", "{1AC47DD1-4744-4442-8790-547F9A05C1CC}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nerva.Toolkit.Frontend.Linux", "Src/Nerva.Toolkit.Frontend/Nerva.Toolkit.Frontend.Linux.csproj", "{8B1FE3AF-32BC-415D-A6D2-B59B325C04AA}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nerva.Toolkit.Frontend.Windows", "Src/Nerva.Toolkit.Frontend/Nerva.Toolkit.Frontend.Windows.csproj", "{8B1FE3AF-32BC-415D-A6D2-B59B325C04BB}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nerva.Toolkit.Frontend.Mac", "Src/Nerva.Toolkit.Frontend/Nerva.Toolkit.Frontend.Mac.csproj", "{8B1FE3AF-32BC-415D-A6D2-B59B325C04CC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -28,15 +22,6 @@ Global
 
 		{1AC47DD1-4744-4442-8790-547F9A05C1CC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{1AC47DD1-4744-4442-8790-547F9A05C1CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-
-		{8B1FE3AF-32BC-415D-A6D2-B59B325C04AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8B1FE3AF-32BC-415D-A6D2-B59B325C04AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-
-		{8B1FE3AF-32BC-415D-A6D2-B59B325C04BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8B1FE3AF-32BC-415D-A6D2-B59B325C04BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-
-		{8B1FE3AF-32BC-415D-A6D2-B59B325C04CC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8B1FE3AF-32BC-415D-A6D2-B59B325C04CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

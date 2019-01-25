@@ -134,7 +134,6 @@ namespace Nerva.Toolkit.Helpers
             try
             {
                 Cli.Instance.KillCliProcesses(FileNames.NERVAD);
-                Cli.Instance.KillCliProcesses(FileNames.CLI_WALLET);
                 Cli.Instance.KillCliProcesses(FileNames.RPC_WALLET);
 
                 Log.Instance.Write("Extracting CLI tools");

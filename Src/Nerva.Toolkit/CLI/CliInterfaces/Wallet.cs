@@ -1,18 +1,16 @@
 using System;
-using AngryWasp.Logger;
-using Nerva.Toolkit.Config;
 using Nerva.Toolkit.Helpers;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Nerva.Rpc;
 using Nerva.Rpc.Wallet;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using Configuration = Nerva.Toolkit.Config.Configuration;
+using Nerva.Rpc;
 
 namespace Nerva.Toolkit.CLI
 {
     public partial class WalletInterface : CliInterface
     {
+        public WalletInterface() : base(Configuration.Instance.Wallet.Rpc) { }
+
         public GetAccountsResponseData GetAccounts()
         {
             GetAccountsResponseData data = null;
@@ -29,13 +27,37 @@ namespace Nerva.Toolkit.CLI
             return new StopWallet(null, null, r.Port).Run();
         }
 
-        public bool CreateWallet(string walletName, string password)
+        public bool CreateWallet(string walletName, string password,
+            Action<CreateWalletResponseData> successAction, Action<RequestError> errorAction)
         {
             return new CreateWallet(new CreateWalletRequestData {
                 FileName = walletName,
                 Password = password
-            }, null, null, r.Port).Run();
+            }, successAction, errorAction, r.Port).Run();
         } 
+
+        public bool RestoreWalletFromSeed(string walletName, string seed, string seedOffset, string password, 
+            string language, Action<RestoreWalletFromSeedResponseData> successAction, Action<RequestError> errorAction)
+        {
+            return new RestoreWalletFromSeed(new RestoreWalletFromSeedRequestData {
+                FileName = walletName, 
+                Seed = seed,
+                SeedOffset = seedOffset,
+                Password = password
+            }, successAction, errorAction, r.Port).Run();
+        }
+
+        public bool RestoreWalletFromKeys(string walletName, string address, string viewKey, string spendKey, string password, 
+            string language, Action<RestoreWalletFromKeysResponseData> successAction, Action<RequestError> errorAction)
+        {
+            return new RestoreWalletFromKeys(new RestoreWalletFromKeysRequestData {
+                FileName = walletName, 
+                Address = address,
+                ViewKey = viewKey,
+                SpendKey = spendKey,
+                Password = password
+            }, successAction, errorAction, r.Port).Run();
+        }
 
         public bool OpenWallet(string walletName, string password)
         {

@@ -30,7 +30,11 @@ namespace Nerva.Toolkit.CLI
         public override string GenerateCommandLine()
         {
             string a = GetBaseCommandLine(BaseExeName, Configuration.Instance.Wallet.Rpc);
-            a += $" --disable-rpc-login --wallet-dir {Configuration.Instance.Wallet.WalletDir}";
+            a += " --disable-rpc-login";
+            a += $" --wallet-dir {Configuration.Instance.Wallet.WalletDir}";
+            if (!string.IsNullOrEmpty(Configuration.Instance.Wallet.LastOpenedWallet))
+                a += $" --wallet-file {Configuration.Instance.Wallet.LastOpenedWallet}";
+    
             a += $" --daemon-address 127.0.0.1:{Configuration.Instance.Daemon.Rpc.Port}";
             return a;
         }

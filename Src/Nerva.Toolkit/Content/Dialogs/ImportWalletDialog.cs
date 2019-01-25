@@ -19,6 +19,9 @@ namespace Nerva.Toolkit.Content.Dialogs
         protected string viewKey;
         protected string spendKey;
         protected string seed;
+        protected string seedOffset;
+        protected string address;
+
         protected Import_Type importType;
         protected string lang;
 
@@ -26,14 +29,18 @@ namespace Nerva.Toolkit.Content.Dialogs
         public string ViewKey => viewKey;
         public string SpendKey => spendKey;
         public string Seed => seed;
+        public string SeedOffset => seedOffset;
+        public string Address => address;
         public Import_Type ImportType => importType;
 
         public string Language => lang;
 
         TextBox txtName = new TextBox();
+        TextBox txtAddress = new TextBox();
         TextBox txtViewKey = new TextBox();
         TextBox txtSpendKey = new TextBox();
         TextArea txtSeed = new TextArea();
+        TextBox txtSeedOffset = new TextBox();
 
         TabControl tc = new TabControl();
         ComboBox cbxLang = new ComboBox();
@@ -138,6 +145,8 @@ namespace Nerva.Toolkit.Content.Dialogs
                             VerticalContentAlignment = VerticalAlignment.Stretch,
                             Items =
                             {
+                                new StackLayoutItem(new Label { Text = "Address" }),
+                                new StackLayoutItem(txtAddress, true),
                                 new StackLayoutItem(new Label { Text = "View Key" }),
                                 new StackLayoutItem(txtViewKey, true),
                                 new StackLayoutItem(new Label { Text = "Spend Key" }),
@@ -159,6 +168,8 @@ namespace Nerva.Toolkit.Content.Dialogs
                             {
                                 new StackLayoutItem(new Label { Text = "Seed" }),
                                 new StackLayoutItem(txtSeed, true),
+                                new StackLayoutItem(new Label { Text = "Seed Offset" }),
+                                new StackLayoutItem(txtSeedOffset, false),
                             }
                         }
                     }

@@ -1,0 +1,13 @@
+
+#!/bin/bash
+
+BUILDER_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source ${BUILDER_DIR}/helpers
+detectversion
+
+function build()
+{
+    msbuild /t:restore /t:build \
+    /p:GenerateFullPaths=true /p:Configuration=Release /p:TrimUnusedDependencies=true \
+    /p:OutputPath=${NERVA_DIR}/Bin/Release/$1 ${NERVA_DIR}/Src/Nerva.Toolkit.Frontend/Nerva.Toolkit.Frontend.Linux.csproj
+}

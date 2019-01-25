@@ -9,9 +9,9 @@ using Nerva.Toolkit.CLI;
 using Nerva.Toolkit.Config;
 using Nerva.Toolkit.Helpers;
 
-namespace Nerva.Toolkit.Frontend
+namespace Nerva.Toolkit
 {
-    class MainClass
+    public class Program
 	{
 		/// <summary>
 		/// Program entry point
@@ -66,7 +66,12 @@ namespace Nerva.Toolkit.Frontend
 				Configuration.Save();
 				Log.Instance.Write(Log_Severity.Fatal, "PROGRAM TERMINATED");
 			}
+			
+			Shutdown();
+		}
 
+		public static void Shutdown()
+		{
 			//Prevent the daemon restarting automatically before telling it to stop
 			if (Configuration.Instance.Daemon.StopOnExit)
 			{

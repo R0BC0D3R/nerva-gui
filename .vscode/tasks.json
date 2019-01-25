@@ -11,7 +11,7 @@
                 // Ask msbuild to generate full paths for file names.
                 "/t:build", "/p:GenerateFullPaths=true", "/p:Configuration=Debug", "/p:TrimUnusedDependencies=true",
                 "/p:OutputPath=${workspaceRoot}/Bin/Debug/Linux",
-                "${workspaceRoot}/Src/Nerva.Toolkit.Frontend/Nerva.Toolkit.Frontend.Linux.csproj"
+                "${workspaceRoot}/Src/Nerva.Toolkit/Nerva.Toolkit.Linux.csproj"
             ],
             "group": {
                 "kind": "build",
@@ -32,7 +32,7 @@
                 // Ask msbuild to generate full paths for file names.
                 "/t:build", "/p:GenerateFullPaths=true", "/p:Configuration=Debug", "/p:TrimUnusedDependencies=true",
                 "/p:OutputPath=${workspaceRoot}/Bin/Debug/Windows",
-                "${workspaceRoot}/Src/Nerva.Toolkit.Frontend/Nerva.Toolkit.Frontend.Windows.csproj"
+                "${workspaceRoot}/Src/Nerva.Toolkit/Nerva.Toolkit.Windows.csproj"
             ],
             "group": {
                 "kind": "build",

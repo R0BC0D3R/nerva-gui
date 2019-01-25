@@ -57,6 +57,7 @@ namespace Nerva.Toolkit
             this.Closing += (s, e) =>
             {
                 Cli.Instance.Wallet.ForceClose();
+                Program.Shutdown();
             };
         }
 

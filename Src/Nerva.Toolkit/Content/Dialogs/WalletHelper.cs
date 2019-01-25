@@ -4,9 +4,12 @@ using AngryWasp.Helpers;
 using AngryWasp.Logger;
 using Eto.Drawing;
 using Eto.Forms;
+using Nerva.Rpc;
+using Nerva.Rpc.Wallet;
 using Nerva.Toolkit.CLI;
 using Nerva.Toolkit.Config;
 using Nerva.Toolkit.Helpers;
+using Configuration = Nerva.Toolkit.Config.Configuration;
 
 namespace Nerva.Toolkit.Content.Dialogs
 {
@@ -304,29 +307,16 @@ namespace Nerva.Toolkit.Content.Dialogs
                                 {
                                     Helpers.TaskFactory.Instance.RunTask("createwallet", $"Creating wallet", () =>
                                     {
-                                        int result = Cli.Instance.Wallet.Interface.CreateNewWallet(d2.Name, d2.Password);
-
-                                        if (result == 0)
+                                        Cli.Instance.Wallet.Interface.CreateWallet(d2.Name, d2.Password,
+                                        (CreateWalletResponseData result) =>
                                         {
                                             SaveWalletLogin(d2.Name, d2.Password);
                                             wizardRunning = false;
-                                            WalletWizardEvent?.Invoke(Open_Wallet_Dialog_Result.New, null);
-                                            Application.Instance.AsyncInvoke( () =>
-                                            {
-                                                MessageBox.Show(Application.Instance.MainForm, "Wallet creation complete", "Create Wallet",
-                                                    MessageBoxButtons.OK, MessageBoxType.Information, MessageBoxDefaultButton.OK);
-                                            });
-                                        }
-                                        else
-                                        {
-                                            Application.Instance.AsyncInvoke( () =>
-                                            {
-                                                MessageBox.Show(Application.Instance.MainForm, "Wallet creation failed.\r\nCheck the log file for errors", "Create Wallet",
-                                                    MessageBoxButtons.OK, MessageBoxType.Information, MessageBoxDefaultButton.OK);
-                                            });
-                                        }
+                                            WalletWizardEvent?.Invoke(Open_Wallet_Dialog_Result.New, result);
+                                            CreateSuccess(result.Address);
+                                        }, CreateError);
                                     });
-                                    
+
                                     wizardRunning = false;
                                     return;
                                 }
@@ -345,35 +335,28 @@ namespace Nerva.Toolkit.Content.Dialogs
                                 {
                                     Helpers.TaskFactory.Instance.RunTask("importwallet", $"Importing wallet", () =>
                                     {
-                                        int result = -1;
                                         switch (d2.ImportType)
                                         {
                                             case Import_Type.Key:
-                                                result = Cli.Instance.Wallet.Interface.RestoreWalletFromKeys(d2.Name, d2.ViewKey, d2.SpendKey, d2.Password, d2.Language);
+                                                Cli.Instance.Wallet.Interface.RestoreWalletFromKeys(d2.Name, d2.Address, d2.ViewKey, d2.SpendKey, d2.Password, d2.Language,
+                                                    (RestoreWalletFromKeysResponseData result) =>
+                                                {
+                                                    wizardRunning = false;
+                                                    SaveWalletLogin(d2.Name, d2.Password);
+                                                    WalletWizardEvent?.Invoke(Open_Wallet_Dialog_Result.Import, result);
+                                                    CreateSuccess(result.Address);
+                                                }, CreateError);
                                             break;
                                             case Import_Type.Seed:
-                                                result = Cli.Instance.Wallet.Interface.RestoreWalletFromSeed(d2.Name, d2.Seed, d2.Password, d2.Language);
+                                                Cli.Instance.Wallet.Interface.RestoreWalletFromSeed(d2.Name, d2.Seed, d2.SeedOffset, d2.Password, d2.Language,
+                                                (RestoreWalletFromSeedResponseData result) =>
+                                                {
+                                                    wizardRunning = false;
+                                                    SaveWalletLogin(d2.Name, d2.Password);
+                                                    WalletWizardEvent?.Invoke(Open_Wallet_Dialog_Result.Import, result);
+                                                    CreateSuccess(result.Address);
+                                                }, CreateError);
                                             break;
-                                        } 
-
-                                        SaveWalletLogin(d2.Name, d2.Password);
-                                        WalletWizardEvent?.Invoke(Open_Wallet_Dialog_Result.Import, result);
-
-                                        if (result == 0)
-                                        {
-                                            Application.Instance.AsyncInvoke( () =>
-                                            {
-                                                MessageBox.Show(Application.Instance.MainForm, "Wallet import complete", "Import Wallet",
-                                                    MessageBoxButtons.OK, MessageBoxType.Information, MessageBoxDefaultButton.OK);
-                                            });
-                                        }
-                                        else
-                                        {
-                                            Application.Instance.AsyncInvoke( () =>
-                                            {
-                                                MessageBox.Show(Application.Instance.MainForm, "Wallet import failed.\r\nCheck the log file for errors", "Import Wallet",
-                                                    MessageBoxButtons.OK, MessageBoxType.Information, MessageBoxDefaultButton.OK);
-                                            });
                                         }
                                     });
                                     
@@ -392,6 +375,28 @@ namespace Nerva.Toolkit.Content.Dialogs
                         }
                 }
             }
+        }
+    
+        private void CreateSuccess(string address)
+        {
+            Application.Instance.AsyncInvoke( () =>
+            {
+                if (MessageBox.Show(Application.Instance.MainForm, "Wallet creation complete.\nWould you like to use this as the mining address?", "Create Wallet",
+                    MessageBoxButtons.YesNo, MessageBoxType.Question, MessageBoxDefaultButton.Yes) == DialogResult.Yes)
+                {
+                    Configuration.Instance.Daemon.MiningAddress = address;
+                    Configuration.Save();
+                }
+            });
+        }
+
+        private void CreateError(RequestError error)
+        {
+            Application.Instance.AsyncInvoke( () =>
+            {
+                MessageBox.Show(Application.Instance.MainForm, $"Wallet creation failed.\r\nError Code: {error.Code}\r\n{error.Message}", "Create Wallet",
+                MessageBoxButtons.OK, MessageBoxType.Information, MessageBoxDefaultButton.OK);
+            });
         }
     }
 }

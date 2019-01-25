@@ -1,10 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <Import Project="../Nerva.Toolkit.targets"/>
   <PropertyGroup>
-    <OutputType>Library</OutputType>
+    <OutputType>WinExe</OutputType>
     <RootNamespace>Nerva.Toolkit</RootNamespace>
     <DefineConstants>$(DefineConstants);UNIX;</DefineConstants>
-    <AssemblyName>Nerva.Toolkit.Backend</AssemblyName>
+    <AssemblyName>Nerva.Toolkit</AssemblyName>
     <OutputPath>../../Bin/$(Configuration)/Linux</OutputPath>
   </PropertyGroup>
   <ItemGroup>
@@ -12,5 +12,8 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Mono.Posix"/>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Eto.Platform.Gtk" Version="2.5.0-ci-10024" />
   </ItemGroup>
 </Project>
