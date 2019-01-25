@@ -161,7 +161,7 @@ namespace Nerva.Toolkit.Content
                     while ((height = merged[i].Height) > lastHeight)
                     {
                         ++i;
-                        Log.Instance.Write("Found TX on block {0}", height);
+                        Log.Instance.Write($"Found TX on block {height}");
 
                         if (i >= merged.Count)
                             break;

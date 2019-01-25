@@ -16,7 +16,7 @@ namespace Nerva.Toolkit.CLI
 
         public override void Create(string exe, string args)
         {
-            Log.Instance.Write("Starting process {0} {1}", exe, args);
+            Log.Instance.Write($"Starting process {exe} {args}");
 
             Process proc = Process.Start(new ProcessStartInfo(exe, args)
             {

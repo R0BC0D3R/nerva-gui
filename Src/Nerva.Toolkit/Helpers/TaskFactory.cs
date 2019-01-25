@@ -89,7 +89,7 @@ namespace Nerva.Toolkit.Helpers
             }
             else
             {
-                Log.Instance.Write(Log_Severity.Error, "Task with name {0} already running", name);
+                Log.Instance.Write(Log_Severity.Error, $"Task {name} is already running");
                 return null;
             }
         }
@@ -107,7 +107,7 @@ namespace Nerva.Toolkit.Helpers
                 {
                     TaskContainer tc = null;
                     if (!containers.TryRemove(c.Key, out tc))
-                        Log.Instance.Write(Log_Severity.Error, "Failed to remove task {0} from TaskFactory");
+                        Log.Instance.Write(Log_Severity.Error, $"Failed to remove task {c.Key} from TaskFactory");
                 }
             }
         }

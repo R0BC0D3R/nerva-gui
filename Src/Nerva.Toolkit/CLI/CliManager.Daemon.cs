@@ -16,7 +16,7 @@ namespace Nerva.Toolkit.CLI
 
         public override void Create(string exe, string args)
         {
-            Log.Instance.Write("Starting process {0} {1}", exe, args);
+            Log.Instance.Write($"Starting process {exe} {args}");
 
             switch (OS.Type)
             {
@@ -45,7 +45,7 @@ namespace Nerva.Toolkit.CLI
                     if (p.Count == 1)
                         controller.DoProcessStarted(exe, p[0]);
                     else
-                        Log.Instance.Write(Log_Severity.Fatal, "Error creating CLI process {0}", exe);
+                        Log.Instance.Write(Log_Severity.Fatal, $"Error creating CLI process {exe}");
                 }
                 break;
                 case OS_Type.Windows:
@@ -93,7 +93,7 @@ namespace Nerva.Toolkit.CLI
                                 break;
 
                             Create(FileNames.GetCliExePath(BaseExeName), GenerateCommandLine());
-                            Log.Instance.Write("Connecting to process {0}", BaseExeName);
+                            Log.Instance.Write($"Connecting to process {BaseExeName}");
                         }
                     }
                     catch (Exception ex)
@@ -131,7 +131,7 @@ namespace Nerva.Toolkit.CLI
             {
                 string ma = Configuration.Instance.Daemon.MiningAddress;
 
-                Log.Instance.Write("Enabling startup mining @ {0}", ma);
+                Log.Instance.Write($"Enabling startup mining @ {ma}");
                 a += $" --start-mining {ma} --mining-threads {Configuration.Instance.Daemon.MiningThreads}";
             }
             

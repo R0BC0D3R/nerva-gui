@@ -50,7 +50,7 @@ namespace Nerva.Toolkit
 			try
 			{
 				Platform platform = Eto.Platform.Detect;
-				Log.Instance.Write("Platform detected as {0}", platform.ToString());
+				Log.Instance.Write($"Platform detected as {platform.ToString()}");
 				new Application(platform).Run(new MainForm(newFile));
 			}
 			catch (Exception ex)
@@ -115,18 +115,18 @@ namespace Nerva.Toolkit
 		private static void InitializeLog(string logPath)
 		{
 			Log.CreateInstance(true, logPath);
-			Log.Instance.Write("NERVA Unified Toolkit. Version {0}", Constants.LONG_VERSION);
+			Log.Instance.Write($"NERVA Unified Toolkit. Version {Constants.LONG_VERSION}");
 
 			//Crash the program if not 64-bit
 			if (!Environment.Is64BitOperatingSystem)
 				Log.Instance.Write(Log_Severity.Fatal, "The NERVA Unified Toolkit is only available for 64-bit platforms");
 
 			Log.Instance.Write(Log_Severity.None, "System Information:");
-			Log.Instance.Write(Log_Severity.None, "OS: {0} {1}", Environment.OSVersion.Platform, Environment.OSVersion.Version);
-			Log.Instance.Write(Log_Severity.None, "CPU Count: {0}", Environment.ProcessorCount);
+			Log.Instance.Write(Log_Severity.None, $"OS: {Environment.OSVersion.Platform} {Environment.OSVersion.Version}");
+			Log.Instance.Write(Log_Severity.None, $"CPU Count: {Environment.ProcessorCount}");
 			
 			if (logPath != null)
-				Log.Instance.Write("Writing log to file '{0}'", logPath);
+				Log.Instance.Write($"Writing log to file '{logPath}'");
 		}
 	}
 }

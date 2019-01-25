@@ -265,9 +265,7 @@ namespace Nerva.Toolkit
             }
             else
                 if (Cli.Instance.Daemon.Interface.StartMining())
-                Log.Instance.Write("Mining started for @ {0} on {1} threads",
-                    Conversions.WalletAddressShortForm(Configuration.Instance.Daemon.MiningAddress),
-                    Configuration.Instance.Daemon.MiningThreads);
+                Log.Instance.Write($"Mining started for @ {Conversions.WalletAddressShortForm(Configuration.Instance.Daemon.MiningAddress)} on {Configuration.Instance.Daemon.MiningThreads} threads");
         }
 
         protected void daemon_Restart_Clicked(object sender, EventArgs e)
@@ -288,8 +286,9 @@ namespace Nerva.Toolkit
                     Cli.Instance.Wallet.Interface.CreateWallet(d.Name, d.Password,
                         (CreateWalletResponseData result) =>
                     {
-                        WalletHelper.SaveWalletLogin(d.Name);
-                        WalletHelper.OpenWallet(d.Name, d.Password);
+                        WalletHelper.OpenWallet(d.Name, d.Password, () => {
+                            WalletHelper.SaveWalletLogin(d.Name);
+                        }, OpenError);
                         CreateSuccess(result.Address);
                     }, CreateError);
                 });
@@ -301,8 +300,9 @@ namespace Nerva.Toolkit
             OpenWalletDialog d = new OpenWalletDialog();
             if (d.ShowModal() == DialogResult.Ok)
             {
-                WalletHelper.SaveWalletLogin(d.Name);
-                WalletHelper.OpenWallet(d.Name, d.Password);
+                WalletHelper.OpenWallet(d.Name, d.Password, () => {
+                    WalletHelper.SaveWalletLogin(d.Name);
+                }, OpenError);
             }
         }
 
@@ -319,8 +319,10 @@ namespace Nerva.Toolkit
                             Cli.Instance.Wallet.Interface.RestoreWalletFromKeys(d.Name, d.Address, d.ViewKey, d.SpendKey, d.Password, d.Language,
                                 (RestoreWalletFromKeysResponseData result) =>
                             {
-                                WalletHelper.SaveWalletLogin(d.Name);
-                                WalletHelper.OpenWallet(d.Name, d.Password);
+                                WalletHelper.OpenWallet(d.Name, d.Password, () =>
+                                {
+                                    WalletHelper.SaveWalletLogin(d.Name);
+                                }, OpenError);
                                 CreateSuccess(result.Address);
                             }, CreateError);
                         break;
@@ -328,8 +330,10 @@ namespace Nerva.Toolkit
                             Cli.Instance.Wallet.Interface.RestoreWalletFromSeed(d.Name, d.Seed, d.SeedOffset, d.Password, d.Language,
                             (RestoreWalletFromSeedResponseData result) =>
                             {
-                                WalletHelper.SaveWalletLogin(d.Name);
-                                WalletHelper.OpenWallet(d.Name, d.Password);
+                                WalletHelper.OpenWallet(d.Name, d.Password, () =>
+                                {
+                                    WalletHelper.SaveWalletLogin(d.Name);
+                                }, OpenError);
                                 CreateSuccess(result.Address);
                             }, CreateError);
                         break;
@@ -356,7 +360,20 @@ namespace Nerva.Toolkit
             Application.Instance.AsyncInvoke( () =>
             {
                 MessageBox.Show(Application.Instance.MainForm, $"Wallet creation failed.\r\nError Code: {error.Code}\r\n{error.Message}", "Create Wallet",
-                MessageBoxButtons.OK, MessageBoxType.Information, MessageBoxDefaultButton.OK);
+                MessageBoxButtons.OK, MessageBoxType.Error, MessageBoxDefaultButton.OK);
+            });
+        }
+
+        private void OpenError(RequestError error)
+        {
+            Application.Instance.AsyncInvoke( () =>
+            {
+                if (error.Code != -1)
+                    MessageBox.Show(Application.Instance.MainForm, $"Failed to open the wallet.\r\nError Code: {error.Code}\r\n{error.Message}", "Open Wallet",
+                        MessageBoxButtons.OK, MessageBoxType.Error, MessageBoxDefaultButton.OK);
+                else
+                    MessageBox.Show(Application.Instance.MainForm, $"Failed to open the wallet.\r\nPlease check your password and make sure the network type is correct", "Open Wallet",
+                        MessageBoxButtons.OK, MessageBoxType.Error, MessageBoxDefaultButton.OK);
             });
         }
 

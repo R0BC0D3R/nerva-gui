@@ -113,7 +113,7 @@ namespace Nerva.Toolkit.CLI
             catch (Exception)
             {
                 logFile = FileHelper.RenameDuplicateFile(logFile);
-                Log.Instance.Write(Log_Severity.Warning, "Cannot cycle log file. New log will be written to {0}", logFile);
+                Log.Instance.Write(Log_Severity.Warning, $"Cannot cycle log file. New log will be written to {logFile}");
                 return logFile;
             }
 
@@ -151,7 +151,7 @@ namespace Nerva.Toolkit.CLI
 
                 if (p == null || p.HasExited)
                 {
-                    Log.Instance.Write(Log_Severity.Warning, "CLI tool {0} exited unexpectedly. Restarting", exe);
+                    Log.Instance.Write(Log_Severity.Warning, $"CLI tool {exe} exited unexpectedly. Restarting");
                     p = null;
                     return false;
                 }
@@ -188,7 +188,7 @@ namespace Nerva.Toolkit.CLI
             {
                 foreach (Process p in pl)
                 {
-                    Log.Instance.Write(Log_Severity.Warning, "Killing running instance of {0} with id {1}", p.ProcessName, p.Id);
+                    Log.Instance.Write(Log_Severity.Warning, $"Killing running instance of {p.ProcessName} with id {p.Id}");
                     p.Kill();
                     p.WaitForExit();
                 }

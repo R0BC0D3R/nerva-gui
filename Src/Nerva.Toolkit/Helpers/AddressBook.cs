@@ -42,12 +42,12 @@ namespace Nerva.Toolkit.Helpers
             {
                 instance = New();
         
-                Log.Instance.Write("Address Book created at '{0}'", file);
+                Log.Instance.Write($"Address Book created at '{file}'");
                 new ObjectSerializer().Serialize(instance, file);
             }
             else
             {
-                Log.Instance.Write("Address Book loaded from '{0}'", file);
+                Log.Instance.Write($"Address Book loaded from '{file}'");
                 instance = new ObjectSerializer().Deserialize<AddressBook>(XHelper.LoadDocument(file));
             }
         }
@@ -55,7 +55,7 @@ namespace Nerva.Toolkit.Helpers
         public static void Save()
         {
             new ObjectSerializer().Serialize(instance, file);
-            Log.Instance.Write("Address Book saved to '{0}'", file);
+            Log.Instance.Write($"Address Book saved to '{file}'");
         }
     }
 }

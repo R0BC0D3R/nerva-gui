@@ -44,9 +44,7 @@ namespace Nerva.Toolkit.Content
 				Log.Instance.Write("Mining stopped");
 
 				if (Cli.Instance.Daemon.Interface.StartMining())
-					Log.Instance.Write("Mining started for @ {0} on {1} threads", 
-						Conversions.WalletAddressShortForm(Configuration.Instance.Daemon.MiningAddress),
-						Configuration.Instance.Daemon.MiningThreads);
+					Log.Instance.Write($"Mining started for @ {Conversions.WalletAddressShortForm(Configuration.Instance.Daemon.MiningAddress)} on {Configuration.Instance.Daemon.MiningThreads} threads");
 			};
 
 			ctx_Info.Executed += (s, e) =>

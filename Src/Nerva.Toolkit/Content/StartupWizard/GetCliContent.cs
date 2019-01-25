@@ -187,7 +187,7 @@ namespace Nerva.Toolkit.Content.Wizard
                     { 
                         Parent.EnableNextButton(true);
                         Configuration.Instance.ToolsPath = dest;
-                        Log.Instance.Write("Setting Config.ToolsPath: {0}", dest);
+                        Log.Instance.Write($"Setting Config.ToolsPath: {dest}");
                     }
                     else
                     {

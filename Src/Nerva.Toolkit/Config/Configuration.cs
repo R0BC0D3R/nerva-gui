@@ -70,7 +70,7 @@ namespace Nerva.Toolkit.Config
             }
             else
             {
-                Log.Instance.Write("Configuration loaded from '{0}'", loadedConfigFile);
+                Log.Instance.Write($"Configuration loaded from '{loadedConfigFile}'");
                 var os = new ObjectSerializer();
                 instance = os.Deserialize<Configuration>(XHelper.LoadDocument(loadedConfigFile));
                 newFile = false;
@@ -80,7 +80,7 @@ namespace Nerva.Toolkit.Config
         public static void Save()
         {
             new ObjectSerializer().Serialize(instance, loadedConfigFile);
-            Log.Instance.Write("Configuration saved to '{0}'", loadedConfigFile);
+            Log.Instance.Write($"Configuration saved to '{loadedConfigFile}'");
         }
 
         #endregion

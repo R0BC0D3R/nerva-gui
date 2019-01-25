@@ -41,7 +41,7 @@ namespace Nerva.Toolkit.Helpers
 
                 if (newCliVersion > currentVersion)
                 {
-                    Log.Instance.Write("New CLI version available: '{0}'", versionInfo.CliVersion);
+                    Log.Instance.Write($"New CLI version available: '{versionInfo.CliVersion}'");
 
                     TaskFactory.Instance.RunTask("killcli", "Killing old CLI processes", () =>
                     {
@@ -69,7 +69,7 @@ namespace Nerva.Toolkit.Helpers
 
                 ulong currentGuiVersion = Conversions.OctetSetToInt(Constants.VERSION);
                 if (newGuiVersion > currentGuiVersion)
-                    Log.Instance.Write("New GUI version available: '{0}'", versionInfo.GuiVersion);
+                    Log.Instance.Write($"New GUI version available: '{versionInfo.GuiVersion}'");
                 else
                     Log.Instance.Write("GUI up to date");
 
@@ -99,7 +99,7 @@ namespace Nerva.Toolkit.Helpers
 
                 if (File.Exists(destFile))
                 {
-                    Log.Instance.Write("CLI tools found @ {0}", destFile);
+                    Log.Instance.Write($"CLI tools found @ {destFile}");
                     ExtractFile(destDir, destFile, onComplete);
                 }
                 else
@@ -141,7 +141,7 @@ namespace Nerva.Toolkit.Helpers
                 ZipArchive archive = ZipFile.Open(destFile, ZipArchiveMode.Read);
                 foreach (var a in archive.Entries)
                 {
-                    Log.Instance.Write("Extracting {0}", a.FullName);
+                    Log.Instance.Write($"Extracting {a.FullName}");
                     string extFile = Path.Combine(destDir, a.FullName);
                     a.ExtractToFile(extFile, true);
 

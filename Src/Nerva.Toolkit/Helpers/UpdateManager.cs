@@ -45,7 +45,7 @@ namespace Nerva.Toolkit.Helpers
             }
             catch (Exception ex)
             {
-                Log.Instance.Write(Log_Severity.Warning, "Error attempting HTTP request {0}", url);
+                Log.Instance.Write(Log_Severity.Warning, $"Error attempting HTTP request {url}");
                 Log.Instance.WriteNonFatalException(ex);
                 returnString = null;
                 return false;
@@ -73,7 +73,7 @@ namespace Nerva.Toolkit.Helpers
             if (currentRemoteVersion == 0)
                 return;
 
-            Log.Instance.Write("Installed CLI version {0}", version);
+            Log.Instance.Write($"Installed CLI version {version}");
             updateStatus = (currentRemoteVersion == currentLocalVersion) ? Update_Status_Code.UpToDate : Update_Status_Code.NewVersionAvailable;
         }
         
@@ -89,7 +89,7 @@ namespace Nerva.Toolkit.Helpers
                 return 0;
             }
 
-            Log.Instance.Write("Available CLI version {0}", versionString);
+            Log.Instance.Write($"Available CLI version {versionString}");
             return Conversions.OctetSetToInt(versionString);
         }
     }

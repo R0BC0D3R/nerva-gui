@@ -1,3 +1,4 @@
+using System;
 using System.Diagnostics;
 using System.IO;
 using AngryWasp.Helpers;
@@ -201,11 +202,11 @@ namespace Nerva.Toolkit.Content.Dialogs
             Configuration.Save();
         }
 
-        public static void OpenWallet(string wallet, string password)
+        public static void OpenWallet(string wallet, string password, Action successAction, Action<RequestError> errorAction)
         {
             Cli.Instance.Wallet.Interface.CloseWallet();
-            Cli.Instance.Wallet.Interface.OpenWallet(wallet, password);
-            Log.Instance.Write("New wallet {0} opened", wallet);
+            Cli.Instance.Wallet.Interface.OpenWallet(wallet, password, successAction, errorAction);
+            Log.Instance.Write($"New wallet {wallet} opened");
         }
     }
 }

@@ -65,12 +65,14 @@ namespace Nerva.Toolkit.CLI
             }, successAction, errorAction, r.Port).Run();
         }
 
-        public bool OpenWallet(string walletName, string password)
+        public bool OpenWallet(string walletName, string password, Action successAction, Action<RequestError> errorAction)
         {
             return new OpenWallet(new OpenWalletRequestData {
                 FileName = walletName,
                 Password = password
-            }, null, null, r.Port).Run();
+            }, (string result) => {
+                successAction();
+            }, errorAction, r.Port).Run();
         }
 
         public QueryKeyResponseData QueryKey(string keyType)
