@@ -4,46 +4,29 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "build-debug-linux",
+            "label": "linux-dev-build",
             "type": "shell",
-            "command": "msbuild",
+            "command": "${workspaceRoot}/builder/build",
             "args": [
-                // Ask msbuild to generate full paths for file names.
-                "/t:build", "/p:GenerateFullPaths=true", "/p:Configuration=Debug", "/p:TrimUnusedDependencies=true",
-                "/p:OutputPath=${workspaceRoot}/Bin/Debug/Linux",
-                "${workspaceRoot}/Src/Nerva.Toolkit/Nerva.Toolkit.Linux.csproj"
+                "dev-linux"
             ],
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
-            "presentation": {
-                // Reveal the output only if unrecognized errors occur.
-                "reveal": "silent"
-            },
-            // Use the standard MS compiler pattern to detect errors, warnings and infos
-            "problemMatcher": "$msCompile"
+            "problemMatcher": []
         },
         {
-            "label": "build-debug-windows",
+            "label": "windows-dev-build",
             "type": "shell",
-            "command": "msbuild",
+            "command": "${workspaceRoot}/builder/build",
             "args": [
-                // Ask msbuild to generate full paths for file names.
-                "/t:build", "/p:GenerateFullPaths=true", "/p:Configuration=Debug", "/p:TrimUnusedDependencies=true",
-                "/p:OutputPath=${workspaceRoot}/Bin/Debug/Windows",
-                "${workspaceRoot}/Src/Nerva.Toolkit/Nerva.Toolkit.Windows.csproj"
-            ],
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
-            "presentation": {
-                // Reveal the output only if unrecognized errors occur.
-                "reveal": "silent"
-            },
-            // Use the standard MS compiler pattern to detect errors, warnings and infos
-            "problemMatcher": "$msCompile"
+                "dev-windows"
+            ]
+        },
+        {
+            "label": "mac-dev-build",
+            "type": "shell",
+            "command": "${workspaceRoot}/builder/build",
+            "args": [
+                "dev-mac"
+            ]
         }
     ]
 }

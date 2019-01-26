@@ -48,9 +48,7 @@ The build instructions are the same for Linux and Windows
 - All systems
     
     `git clone https://bitbucket.org/nerva-project/nerva-unified-toolkit`  
-    `cd ./nerva-unified-toolkit`  
-    `dotnet restore`  
-    `msbuild`
+    `./nerva-unified-toolkit/builder/build release-<os>`, where `<os>` is any one of `linux`, `windows` or `mac`  
 
 ## Development
 

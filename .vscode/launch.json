@@ -8,21 +8,34 @@
             "name": "Debug-Linux",
             "type": "mono",
             "request": "launch",
-            "program": "${workspaceRoot}/Bin/Debug/Linux/Nerva.Toolkit.exe",
-            "cwd": "${workspaceRoot}/Bin/Debug/Linux",
-            "preLaunchTask": "build-debug-linux",
+            "program": "${workspaceRoot}/Bin/Dev/Linux/Nerva.Toolkit.exe",
+            "cwd": "${workspaceRoot}/Bin/Dev/Linux",
+            "preLaunchTask": "linux-dev-build",
             "args":[
                 "--log-file", "./app.log",
-                "--config-file", "./app.config"
+                "--config-file", "./app.config",
+                " 2> /dev/null"
             ]
         },
         {
             "name": "Debug-Windows",
             "type": "clr",
             "request": "launch",
-            "program": "${workspaceRoot}/Bin/Debug/Windows/Nerva.Toolkit.exe",
-            "cwd": "${workspaceRoot}/Bin/Debug/Windows",
+            "program": "${workspaceRoot}/Bin/Dev/Windows/Nerva.Toolkit.exe",
+            "cwd": "${workspaceRoot}/Bin/Dev/Windows",
             "preLaunchTask": "build-debug-windows",
+            "args":[
+                "--log-file", "./app.log",
+                "--config-file", "./app.config"
+            ]
+        },
+        {
+            "name": "Debug-Mac",
+            "type": "clr",
+            "request": "launch",
+            "program": "${workspaceRoot}/Bin/Dev/Mac/Nerva.Toolkit.exe",
+            "cwd": "${workspaceRoot}/Bin/Dev/Mac",
+            "preLaunchTask": "build-debug-mac",
             "args":[
                 "--log-file", "./app.log",
                 "--config-file", "./app.config"

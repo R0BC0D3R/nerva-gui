@@ -352,9 +352,11 @@ namespace Nerva.Toolkit
                 }, OpenError);
             }, (RequestError error) =>
             {
-                Log.Instance.Write(Log_Severity.Error, $"Error closing wallet: {error.Message}");
+                if (error.Code != -13)
+                    Log.Instance.Write(Log_Severity.Error, $"Error closing wallet: {error.Message}");
+
                 Cli.Instance.Wallet.Interface.OpenWallet(name, password, () => {
-                    Log.Instance.Write("Opened wallet");
+                    Log.Instance.Write($"Opened wallet {name}");
                     WalletHelper.SaveWalletLogin(name);
                 }, OpenError);
             });

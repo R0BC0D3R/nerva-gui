@@ -36,7 +36,7 @@ namespace Nerva.Toolkit.CLI
         {
             string e = FileNames.GetCliExePath(exe);
 
-            string arg = $"--log-file {controller.CycleLogFile(e)}";
+            string arg = $"--log-file \"{controller.CycleLogFile(e)}\"";
 
             if (Configuration.Instance.Testnet)
             {

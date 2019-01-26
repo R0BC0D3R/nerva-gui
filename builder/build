@@ -16,17 +16,83 @@ function postclean()
 
 function build()
 {
+    rm -rf ${NERVA_DIR}/Bin/$1/$2
+
     preclean
 
     msbuild /t:restore /t:build \
-    /p:GenerateFullPaths=true /p:Configuration=Release /p:TrimUnusedDependencies=true \
-    /p:OutputPath=${NERVA_DIR}/Bin/Release/$1 ${NERVA_DIR}/Src/Nerva.Toolkit.Frontend/Nerva.Toolkit.Frontend.$1.csproj
+    /p:GenerateFullPaths=true /p:Configuration=$1 /p:TrimUnusedDependencies=true \
+    /p:OutputPath=${NERVA_DIR}/Bin/$1/$2 ${NERVA_DIR}/Src/Nerva.Toolkit/Nerva.Toolkit.$2.csproj
 
     postclean
 }
 
-rm -rf ${NERVA_DIR}/Bin/Release
+function dev()
+{
+    rm -rf ${NERVA_DIR}/Bin/Dev/$1
 
-build Linux
-build Mac
-build Windows
+    msbuild /t:restore /t:build \
+    /p:GenerateFullPaths=true /p:Configuration=Debug /p:TrimUnusedDependencies=true \
+    /p:OutputPath=${NERVA_DIR}/Bin/Dev/$1 ${NERVA_DIR}/Src/Nerva.Toolkit/Nerva.Toolkit.$1.csproj
+}
+
+function release-linux()
+{
+    build Release Linux
+}
+
+function release-mac()
+{
+    build Release Mac
+}
+
+function release-windows()
+{
+    build Release Windows
+}
+
+function debug-linux()
+{
+    build Debug Linux
+}
+
+function debug-mac()
+{
+    build Debug Mac
+}
+
+function debug-windows()
+{
+    build Debug Windows
+}
+
+function dev-linux()
+{
+    dev Linux
+}
+
+function dev-mac()
+{
+    dev Mac
+}
+
+function dev-windows()
+{
+    dev Windows
+}
+
+function release-all()
+{
+    release-mac
+    release-windows
+    release-linux
+}
+
+function debug-all()
+{
+    debug-mac
+    debug-windows
+    debug-linux
+}
+
+$1

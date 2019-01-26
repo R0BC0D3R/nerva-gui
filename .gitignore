@@ -1,6 +1,5 @@
 Bin
 /Src/Nerva.Toolkit/obj
-/Src/Nerva.Toolkit.Frontend/obj
 builder/output
 .DS_Store
 .vs

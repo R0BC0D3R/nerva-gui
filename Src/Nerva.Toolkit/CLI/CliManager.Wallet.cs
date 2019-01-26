@@ -84,7 +84,7 @@ namespace Nerva.Toolkit.CLI
         {
             string a = GetBaseCommandLine(BaseExeName, Configuration.Instance.Wallet.Rpc);
             a +=  " --disable-rpc-login";
-            a += $" --wallet-dir {Configuration.Instance.Wallet.WalletDir}";
+            a += $" --wallet-dir \"{Configuration.Instance.Wallet.WalletDir}\"";
             a += $" --daemon-address 127.0.0.1:{Configuration.Instance.Daemon.Rpc.Port}";
             return a;
         }
