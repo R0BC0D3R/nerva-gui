@@ -3,6 +3,7 @@ using System.IO;
 using AngryWasp.Helpers;
 using AngryWasp.Logger;
 using AngryWasp.Serializer;
+using AngryWasp.Serializer.Serializers;
 using Eto;
 using Eto.Forms;
 using Nerva.Toolkit.CLI;
@@ -19,6 +20,7 @@ namespace Nerva.Toolkit
 		/// --log-file: Location to write a log file to
 		/// --config-file: Location to load a config file from
 		/// --new-daemon: Kill any running daemon instances and restart them.
+		/// --rpc-log-level: Log level fo the RPC library
 		/// </summary>
 		[STAThread]
 		public static void Main(string[] args)
@@ -46,6 +48,15 @@ namespace Nerva.Toolkit
 			Cli.Instance.KillCliProcesses(FileNames.RPC_WALLET);
 
 			Configuration.Instance.NewDaemonOnStartup = cmd["new-daemon"] != null;
+
+			if (cmd["rpc-log-level"] != null)
+				Nerva.Rpc.Configuration.ErrorLogVerbosity = (Rpc.Error_Log_Verbosity)new UintSerializer().Deserialize(cmd["rpc-log-level"].Value);
+
+			if (Nerva.Rpc.Configuration.ErrorLogVerbosity != Rpc.Error_Log_Verbosity.None)
+			{
+				Log.Instance.Write(Log_Severity.Warning, "RPC logging != NONE. Sensitive information may be written to the terminal or log file");
+				Nerva.Rpc.Configuration.TraceRpcData = true;
+			}
 
 			try
 			{

@@ -44,19 +44,21 @@ namespace Nerva.Toolkit.Content.Wizard
                 default:
                     {
                         string link = null;
+                        string defPath = FileNames.GetCliExePath(FileNames.NERVAD);
+                        bool defPathExists = File.Exists(defPath);
                         switch (OS.Type)
                         {
                             case OS_Type.Windows:
                                 link = VersionManager.VersionInfo.WindowsLink;
-                                existingCli = false;
+                                existingCli = defPathExists;
                                 break;
                             case OS_Type.Linux:
                                 link = VersionManager.VersionInfo.LinuxLink;
-                                existingCli = File.Exists(Path.Combine(Environment.GetEnvironmentVariable("HOME"), ".local/bin/nervad"));
+                                existingCli = defPathExists || File.Exists(Path.Combine(Environment.GetEnvironmentVariable("HOME"), ".local/bin/nervad"));
                                 break;
                             case OS_Type.Mac:
                                 link = VersionManager.VersionInfo.MacLink;
-                                existingCli = File.Exists("/usr/local/bin/nervad");
+                                existingCli = defPathExists || File.Exists("/usr/local/bin/nervad");
                                 break;
                         }
 
@@ -123,7 +125,14 @@ namespace Nerva.Toolkit.Content.Wizard
 
         private void GetExistingCliPath()
         {
-            string dest = null;
+            string dest = FileNames.GetCliExePath(FileNames.NERVAD);
+            if (File.Exists(dest))
+            {
+                dest = Path.GetDirectoryName(dest);
+                Configuration.Instance.ToolsPath = dest;
+                return;
+            }
+            
             if (OS.IsMac())
                 dest = "/usr/local/bin";
             else if (OS.IsLinux())

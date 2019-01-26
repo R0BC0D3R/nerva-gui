@@ -4,30 +4,59 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "linux-dev-build",
+            "label": "linux-debug",
             "type": "shell",
-            "command": "${workspaceRoot}/builder/build",
+            "command": "msbuild",
             "args": [
-                "dev-linux"
+                "/t:restore", "/t:clean", "/t:build", "/p:GenerateFullPaths=true",
+                "/p:Configuration=Debug", "/p:TrimUnusedDependencies=true",
+                "/p:OutputPath=${workspaceRoot}/Bin/Debug/Linux",
+                "${workspaceRoot}/Src/Nerva.Toolkit/Nerva.Toolkit.Linux.csproj"
             ],
-            "problemMatcher": []
+            "group": "build",
+            "presentation": {
+                // Reveal the output only if unrecognized errors occur.
+                "reveal": "silent"
+            },
+            // Use the standard MS compiler pattern to detect errors, warnings and infos
+            "problemMatcher": "$msCompile"
         },
         {
-            "label": "windows-dev-build",
+            "label": "windows-debug",
             "type": "shell",
-            "command": "${workspaceRoot}/builder/build",
+            "command": "msbuild",
             "args": [
-                "dev-windows"
-            ]
+                "/t:restore", "/t:clean", "/t:build", "/p:GenerateFullPaths=true",
+                "/p:Configuration=Debug", "/p:TrimUnusedDependencies=true",
+                "/p:OutputPath=${workspaceRoot}/Bin/Debug/Windows",
+                "${workspaceRoot}\\Src\\Nerva.Toolkit\\Nerva.Toolkit.Windows.csproj"
+            ],
+            "group": "build",
+            "presentation": {
+                // Reveal the output only if unrecognized errors occur.
+                "reveal": "silent"
+            },
+            // Use the standard MS compiler pattern to detect errors, warnings and infos
+            "problemMatcher": "$msCompile"
         },
         {
-            "label": "mac-dev-build",
+            "label": "mac-debug",
             "type": "shell",
-            "command": "${workspaceRoot}/builder/build",
+            "command": "msbuild",
             "args": [
-                "dev-mac"
-            ]
-        }
+                "/t:restore", "/t:clean", "/t:build", "/p:GenerateFullPaths=true",
+                "/p:Configuration=Debug", "/p:TrimUnusedDependencies=true",
+                "/p:OutputPath=${workspaceRoot}/Bin/Debug/Mac",
+                "${workspaceRoot}/Src/Nerva.Toolkit/Nerva.Toolkit.Mac.csproj"
+            ],
+            "group": "build",
+            "presentation": {
+                // Reveal the output only if unrecognized errors occur.
+                "reveal": "silent"
+            },
+            // Use the standard MS compiler pattern to detect errors, warnings and infos
+            "problemMatcher": "$msCompile"
+        },
     ]
 }
 

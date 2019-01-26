@@ -80,7 +80,7 @@ namespace Nerva.Toolkit.Helpers
         private static ulong CheckAvailableVersion()
         {
             string infoJson = null;
-            MakeHttpRequest("http://api.getnerva.org/getinfo.php", out infoJson);
+            MakeHttpRequest("https://api.getnerva.org/getinfo.php", out infoJson);
             string versionString = JsonConvert.DeserializeObject<ResponseData<GetInfoResponseData>>(infoJson).Result.Version;
 
             if (versionString == null)

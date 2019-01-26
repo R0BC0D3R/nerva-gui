@@ -39,7 +39,7 @@ namespace Nerva.Toolkit.Config
         {
             return new Configuration
             {
-                ToolsPath = string.Empty,
+                ToolsPath = Path.Combine(Environment.CurrentDirectory, "CLI"),
                 CheckForUpdateOnStartup = false,
                 Testnet = false,
 

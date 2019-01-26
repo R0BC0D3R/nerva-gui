@@ -8,34 +8,34 @@
             "name": "Debug-Linux",
             "type": "mono",
             "request": "launch",
-            "program": "${workspaceRoot}/Bin/Dev/Linux/Nerva.Toolkit.exe",
-            "cwd": "${workspaceRoot}/Bin/Dev/Linux",
-            "preLaunchTask": "linux-dev-build",
-            "args":[
-                "--log-file", "./app.log",
-                "--config-file", "./app.config",
-                " 2> /dev/null"
-            ]
-        },
-        {
-            "name": "Debug-Windows",
-            "type": "clr",
-            "request": "launch",
-            "program": "${workspaceRoot}/Bin/Dev/Windows/Nerva.Toolkit.exe",
-            "cwd": "${workspaceRoot}/Bin/Dev/Windows",
-            "preLaunchTask": "build-debug-windows",
+            "program": "${workspaceRoot}/Bin/Debug/Linux/Nerva.Toolkit.exe",
+            "cwd": "${workspaceRoot}/Bin/Debug/Linux",
+            "preLaunchTask": "linux-debug",
             "args":[
                 "--log-file", "./app.log",
                 "--config-file", "./app.config"
             ]
         },
         {
-            "name": "Debug-Mac",
+            "name": "Debug-Windows",
             "type": "clr",
             "request": "launch",
-            "program": "${workspaceRoot}/Bin/Dev/Mac/Nerva.Toolkit.exe",
-            "cwd": "${workspaceRoot}/Bin/Dev/Mac",
-            "preLaunchTask": "build-debug-mac",
+            "program": "${workspaceRoot}/Bin/Debug/Windows/Nerva.Toolkit.exe",
+            "cwd": "${workspaceRoot}/Bin/Debug/Windows",
+            "preLaunchTask": "windows-debug",
+            "args":[
+                "--log-file", "./app.log",
+                "--config-file", "./app.config",
+                "--rpc-log-level", "4"
+            ]
+        },
+        {
+            "name": "Debug-Mac",
+            "type": "mono",
+            "request": "launch",
+            "program": "${workspaceRoot}/Bin/Debug/Mac/Nerva.Toolkit.exe",
+            "cwd": "${workspaceRoot}/Bin/Debug/Mac",
+            "preLaunchTask": "mac-debug",
             "args":[
                 "--log-file", "./app.log",
                 "--config-file", "./app.config"

@@ -7,6 +7,9 @@
     <AssemblyName>Nerva.Toolkit</AssemblyName>
     <OutputPath>../../Bin/$(Configuration)/Windows</OutputPath>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DebugType>portable</DebugType>
+  </PropertyGroup>
   <ItemGroup>
     <EmbeddedResource Include="../../Content/NERVA-Logo.png"/>
   </ItemGroup>

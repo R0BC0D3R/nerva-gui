@@ -15,21 +15,10 @@ namespace Nerva.Toolkit.Config
         //So we make sure it is there when getting and setting
         public string WalletDir
         {
-            get
-            {
-                if (OS.IsWindows())
-                    if (!walletDir.EndsWith(Path.DirectorySeparatorChar.ToString()))
-                        walletDir = walletDir + Path.DirectorySeparatorChar;
-
-                return walletDir;
-            }
+            get { return walletDir; }
 
             set
             {
-                if (OS.IsWindows())
-                    if (!value.EndsWith(Path.DirectorySeparatorChar.ToString()))
-                        value = value + Path.DirectorySeparatorChar;
-                
                 if (!Directory.Exists(value))
                     Directory.CreateDirectory(value);
 

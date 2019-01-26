@@ -22,18 +22,9 @@ function build()
 
     msbuild /t:restore /t:build \
     /p:GenerateFullPaths=true /p:Configuration=$1 /p:TrimUnusedDependencies=true \
-    /p:OutputPath=${NERVA_DIR}/Bin/$1/$2 ${NERVA_DIR}/Src/Nerva.Toolkit/Nerva.Toolkit.$2.csproj
+    ${NERVA_DIR}/Src/Nerva.Toolkit/Nerva.Toolkit.$2.csproj
 
     postclean
-}
-
-function dev()
-{
-    rm -rf ${NERVA_DIR}/Bin/Dev/$1
-
-    msbuild /t:restore /t:build \
-    /p:GenerateFullPaths=true /p:Configuration=Debug /p:TrimUnusedDependencies=true \
-    /p:OutputPath=${NERVA_DIR}/Bin/Dev/$1 ${NERVA_DIR}/Src/Nerva.Toolkit/Nerva.Toolkit.$1.csproj
 }
 
 function release-linux()
@@ -64,21 +55,6 @@ function debug-mac()
 function debug-windows()
 {
     build Debug Windows
-}
-
-function dev-linux()
-{
-    dev Linux
-}
-
-function dev-mac()
-{
-    dev Mac
-}
-
-function dev-windows()
-{
-    dev Windows
 }
 
 function release-all()

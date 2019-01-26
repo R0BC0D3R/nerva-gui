@@ -25,7 +25,7 @@ namespace Nerva.Toolkit.Helpers
                 Log.Instance.Write("Checking for new versions");
 
                 string versionString = null;
-                UpdateManager.MakeHttpRequest("http://getnerva.org/getbinaries.php", out versionString);
+                UpdateManager.MakeHttpRequest("https://getnerva.org/getbinaries.php", out versionString);
 
                 if (versionString == null)
                 {
