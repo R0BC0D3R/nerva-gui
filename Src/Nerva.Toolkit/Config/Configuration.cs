@@ -33,6 +33,12 @@ namespace Nerva.Toolkit.Config
         [SerializerExclude]
         public bool NewDaemonOnStartup { get; set; } = true;
 
+        [SerializerExclude]
+        public bool LogCliWallet { get; set; } = false;
+
+        [SerializerExclude]
+        public bool LogCliDaemon{ get; set; } = false;
+
         #endregion
 
         public static Configuration New()

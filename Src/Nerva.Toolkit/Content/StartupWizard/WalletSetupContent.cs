@@ -58,24 +58,23 @@ namespace Nerva.Toolkit.Content.Wizard
             {
                 Parent.EnableNextButton(false);
                 lblImport.Visible = lblImport2.Visible = false;
-                ImportWalletDialog d2 = new ImportWalletDialog();
-                DialogResult dr = d2.ShowModal();
-                if (dr == DialogResult.Ok)
+                ImportWalletDialog d = new ImportWalletDialog();
+                if (d.ShowModal() == DialogResult.Ok)
                 {
                     Helpers.TaskFactory.Instance.RunTask("importwallet", "Importing wallet", () =>
                     {
-                        switch (d2.ImportType)
+                        switch (d.ImportType)
                         {
                             case Import_Type.Key:
-                                Cli.Instance.Wallet.Interface.RestoreWalletFromKeys(d2.Name, d2.Address, d2.ViewKey, d2.SpendKey, d2.Password, d2.Language,
+                                Cli.Instance.Wallet.Interface.RestoreWalletFromKeys(d.Name, d.Address, d.ViewKey, d.SpendKey, d.Password, d.Language,
                                 (RestoreWalletFromKeysResponseData result) => {
-                                    CreateSuccess(d2.Name, d2.Password, result.Address);
+                                    CreateSuccess(d.Name, d.Password, result.Address);
                                 }, CreateError);
                             break;
                             case Import_Type.Seed:
-                                Cli.Instance.Wallet.Interface.RestoreWalletFromSeed(d2.Name, d2.Seed, d2.SeedOffset, d2.Password, d2.Language,
+                                Cli.Instance.Wallet.Interface.RestoreWalletFromSeed(d.Name, d.Seed, d.SeedOffset, d.Password, d.Language,
                                 (RestoreWalletFromSeedResponseData result) => {
-                                    CreateSuccess(d2.Name, d2.Password, result.Address);
+                                    CreateSuccess(d.Name, d.Password, result.Address);
                                 }, CreateError);
                             break;
                         } 

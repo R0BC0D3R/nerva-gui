@@ -59,6 +59,7 @@ namespace Nerva.Toolkit.Content.Dialogs
             lang = cbxLang.SelectedValue.ToString();
 
             name = txtName.Text;
+            address = txtAddress.Text;
             viewKey = txtViewKey.Text;
             spendKey = txtSpendKey.Text;
             seed = txtSeed.Text;

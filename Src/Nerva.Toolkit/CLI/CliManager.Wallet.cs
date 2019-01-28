@@ -26,6 +26,21 @@ namespace Nerva.Toolkit.CLI
                 CreateNoWindow = true
             });
 
+            if (Configuration.Instance.LogCliWallet)
+            {
+                proc.OutputDataReceived += (s, e) =>
+                {
+                    Log.Instance.Write(Log_Severity.Info, e.Data);
+                };
+
+                proc.ErrorDataReceived += (s, e) =>
+                {
+                    Log.Instance.Write(Log_Severity.Error, e.Data);
+                };
+
+                proc.BeginOutputReadLine();
+                proc.BeginErrorReadLine();
+            }
             proc.WaitForExit();
         }
 

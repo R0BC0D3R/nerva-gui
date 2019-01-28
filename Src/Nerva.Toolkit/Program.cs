@@ -21,6 +21,7 @@ namespace Nerva.Toolkit
 		/// --config-file: Location to load a config file from
 		/// --new-daemon: Kill any running daemon instances and restart them.
 		/// --rpc-log-level: Log level fo the RPC library
+		/// --log-cli-wallet: Log output from cli wallet to app.log
 		/// </summary>
 		[STAThread]
 		public static void Main(string[] args)
@@ -57,6 +58,12 @@ namespace Nerva.Toolkit
 				Log.Instance.Write(Log_Severity.Warning, "RPC logging != NONE. Sensitive information may be written to the terminal or log file");
 				Nerva.Rpc.Configuration.TraceRpcData = true;
 			}
+
+			if (cmd["log-cli-wallet"] != null)
+				Configuration.Instance.LogCliWallet = true;
+
+			if (cmd["log-cli-daemon"] != null)
+				Configuration.Instance.LogCliDaemon = true;
 
 			try
 			{

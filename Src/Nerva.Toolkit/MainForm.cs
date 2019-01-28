@@ -114,28 +114,31 @@ namespace Nerva.Toolkit
                     {
                         Cli.Instance.Wallet.Interface.GetAccounts((GetAccountsResponseData ra) =>
                         {
-                            Cli.Instance.Wallet.Interface.GetTransfers(lastTxHeight, (GetTransfersResponseData rt) =>
+                            Application.Instance.AsyncInvoke( () =>
                             {
-                                Application.Instance.AsyncInvoke( () =>
-                                {
-                                    uint i = 0, o = 0, l = 0;
-                                    lastTxHeight = 0;
+                                lblWalletStatus.Text = $"Account(s): {ra.Accounts.Count}  | Balance: {Conversions.FromAtomicUnits(ra.TotalBalance)} XNV";
+                                balancesPage.Update(ra);
+                            });
+                        }, WalletUpdateFailed);
 
-                                    if (rt.Incoming != null && rt.Incoming.Count > 0)
-                                        i = rt.Incoming[rt.Incoming.Count - 1].Height;
+                        Cli.Instance.Wallet.Interface.GetTransfers(lastTxHeight, (GetTransfersResponseData rt) =>
+                        {
+                            Application.Instance.AsyncInvoke( () =>
+                            {
+                                uint i = 0, o = 0, l = 0;
+                                lastTxHeight = 0;
+
+                                if (rt.Incoming != null && rt.Incoming.Count > 0)
+                                    i = rt.Incoming[rt.Incoming.Count - 1].Height;
                                         
-                                    if (rt.Outgoing != null && rt.Outgoing.Count > 0)
-                                        o = rt.Outgoing[rt.Outgoing.Count - 1].Height;
+                                if (rt.Outgoing != null && rt.Outgoing.Count > 0)
+                                    o = rt.Outgoing[rt.Outgoing.Count - 1].Height;
 
-                                    l = Math.Max(i, o);
+                                l = Math.Max(i, o);
 
-                                    lastTxHeight = l;
-                                    
-                                    lblWalletStatus.Text = $"Account(s): {ra.Accounts.Count}  | Balance: {Conversions.FromAtomicUnits(ra.TotalBalance)} XNV";
-                                    balancesPage.Update(ra);
-                                    transfersPage.Update(rt);
-                                });
-                            }, WalletUpdateFailed);
+                                lastTxHeight = l;
+                                transfersPage.Update(rt);
+                            });
                         }, WalletUpdateFailed);
                     });
                     
@@ -364,6 +367,9 @@ namespace Nerva.Toolkit
         {
             Application.Instance.AsyncInvoke( () =>
             {
+                balancesPage.Update(null);
+                transfersPage.Update(null);
+
                 if (MessageBox.Show(Application.Instance.MainForm, "Wallet creation complete.\nWould you like to use this as the mining address?", "Create Wallet",
                     MessageBoxButtons.YesNo, MessageBoxType.Question, MessageBoxDefaultButton.Yes) == DialogResult.Yes)
                 {
@@ -371,8 +377,6 @@ namespace Nerva.Toolkit
                     Configuration.Save();
                 }
             });
-
-            Cli.Instance.Wallet.Interface.CloseWallet(null, null);
         }
 
         private void CreateError(RequestError error)
@@ -417,7 +421,6 @@ namespace Nerva.Toolkit
             Helpers.TaskFactory.Instance.RunTask("closewallet", "Closing the wallet", () => 
             {
                 Log.Instance.Write("Closing wallet");
-                updateWalletTask.Stop();
                 lastTxHeight = 0;
 
                 Cli.Instance.Wallet.Interface.CloseWallet(null, null);
@@ -429,7 +432,6 @@ namespace Nerva.Toolkit
                     balancesPage.Update(null);
                     transfersPage.Update(null);
                     lblWalletStatus.Text = "OFFLINE";
-                    StartUpdateWalletUiTask();
                 });
             });
         }

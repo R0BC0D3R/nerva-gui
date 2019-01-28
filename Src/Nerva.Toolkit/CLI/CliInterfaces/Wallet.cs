@@ -79,7 +79,7 @@ namespace Nerva.Toolkit.CLI
             }, successAction, null, r.Port).Run();
         }
 
-        public bool GetTransfers(uint scanFromHeight, Action<GetTransfersResponseData> successAction, Action<RequestError> errorAction)//uint scanFromHeight, out uint lastTxHeight)
+        public bool GetTransfers(uint scanFromHeight, Action<GetTransfersResponseData> successAction, Action<RequestError> errorAction)
         {
             return new GetTransfers(new GetTransfersRequestData {
                 ScanFromHeight = scanFromHeight
