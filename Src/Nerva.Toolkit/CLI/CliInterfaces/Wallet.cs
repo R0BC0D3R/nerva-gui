@@ -47,15 +47,7 @@ namespace Nerva.Toolkit.CLI
                 Seed = seed,
                 SeedOffset = seedOffset,
                 Password = password
-            }, (RestoreWalletFromSeedResponseData r) =>
-            {
-                CloseWallet(null, null);
-                successAction(r);
-            }, (RequestError e) =>
-            {
-                CloseWallet(null, null);
-                errorAction(e);
-            }, r.Port).Run();
+            }, successAction, errorAction, r.Port).Run();
         }
 
         public bool RestoreWalletFromKeys(string walletName, string address, string viewKey, string spendKey, string password, 
@@ -67,15 +59,7 @@ namespace Nerva.Toolkit.CLI
                 ViewKey = viewKey,
                 SpendKey = spendKey,
                 Password = password
-            }, (RestoreWalletFromKeysResponseData r) =>
-            {
-                CloseWallet(null, null);
-                successAction(r);
-            }, (RequestError e) =>
-            {
-                CloseWallet(null, null);
-                errorAction(e);
-            }, r.Port).Run();
+            }, successAction, errorAction, r.Port).Run();
         }
 
         public bool OpenWallet(string walletName, string password, Action successAction, Action<RequestError> errorAction)

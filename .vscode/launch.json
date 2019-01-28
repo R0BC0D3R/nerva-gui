@@ -13,7 +13,8 @@
             "preLaunchTask": "linux-debug",
             "args":[
                 "--log-file", "./app.log",
-                "--config-file", "./app.config"
+                "--config-file", "./app.config",
+                "--rpc-log-level", "3"
             ]
         },
         {
@@ -26,7 +27,7 @@
             "args":[
                 "--log-file", "./app.log",
                 "--config-file", "./app.config",
-                "--rpc-log-level", "4"
+                "--rpc-log-level", "3"
             ]
         },
         {

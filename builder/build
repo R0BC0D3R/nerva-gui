@@ -6,6 +6,7 @@ detectversion
 
 function preclean()
 {
+    find ${NERVA_DIR}/External -iname "bin" -o -iname "obj" | xargs rm -rf
     find ${NERVA_DIR}/Src -iname "bin" -o -iname "obj" | xargs rm -rf
 }
 

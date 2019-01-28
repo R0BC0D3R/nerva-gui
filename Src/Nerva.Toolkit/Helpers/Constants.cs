@@ -16,6 +16,9 @@ namespace Nerva.Toolkit.Helpers
         public const int FIVE_SECONDS = 5000;
         public const int BAN_TIME = 6000;
 
+        public const uint NERVAD_RPC_PORT_MAINNET = 17566;
+        public const uint NERVAD_RPC_PORT_TESTNET = 18566;
+
         public static readonly string[] Languages = new string[]
         {
             "Deutsch",

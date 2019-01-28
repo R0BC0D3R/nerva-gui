@@ -317,7 +317,6 @@ namespace Nerva.Toolkit
                             Cli.Instance.Wallet.Interface.RestoreWalletFromKeys(d.Name, d.Address, d.ViewKey, d.SpendKey, d.Password, d.Language,
                                 (RestoreWalletFromKeysResponseData result) =>
                             {
-                                OpenNewWallet(d.Name, d.Password);
                                 CreateSuccess(result.Address);
                             }, CreateError);
                         break;
@@ -325,7 +324,6 @@ namespace Nerva.Toolkit
                             Cli.Instance.Wallet.Interface.RestoreWalletFromSeed(d.Name, d.Seed, d.SeedOffset, d.Password, d.Language,
                             (RestoreWalletFromSeedResponseData result) =>
                             {
-                                OpenNewWallet(d.Name, d.Password);
                                 CreateSuccess(result.Address);
                             }, CreateError);
                         break;
@@ -373,6 +371,8 @@ namespace Nerva.Toolkit
                     Configuration.Save();
                 }
             });
+
+            Cli.Instance.Wallet.Interface.CloseWallet(null, null);
         }
 
         private void CreateError(RequestError error)

@@ -123,6 +123,7 @@ namespace Nerva.Toolkit.Content.Wizard
 
         private void CreateSuccess(string name, string password, string address)
         {
+            
             Application.Instance.Invoke( () =>
             {
                 lblImport.Text = "Wallet creation complete";
@@ -130,12 +131,15 @@ namespace Nerva.Toolkit.Content.Wizard
                 lblImport.Visible = lblImport2.Visible = true;
                 Parent.EnableNextButton(true);  
                 Configuration.Instance.Wallet.LastOpenedWallet = name;
-                Configuration.Instance.Daemon.MiningAddress = address;                                          
+                Configuration.Instance.Daemon.MiningAddress = address;                                    
             });
+            
+            Cli.Instance.Wallet.Interface.CloseWallet(null, null);
         }
 
         private void CreateError(RequestError error)
         {
+            Cli.Instance.Wallet.Interface.CloseWallet(null, null);
             Application.Instance.Invoke( () =>
             {
                 lblImport.Text = "Wallet creation failed";
