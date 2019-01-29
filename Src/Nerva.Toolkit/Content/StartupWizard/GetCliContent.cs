@@ -86,7 +86,7 @@ namespace Nerva.Toolkit.Content.Wizard
                     {
                         new Label { Text = $"It appears you already have the" },
                         new Label { Text = $"{OS.Type} CLI tools installed." },
-                        new Label { Text = $"Press >> to continue." },
+                        new Label { Text = $"Press 'Next' to continue." },
                         new Label { Text = "   " },
                         new StackLayoutItem(null, true),
                     }

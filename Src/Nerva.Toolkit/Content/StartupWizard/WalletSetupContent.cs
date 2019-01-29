@@ -1,5 +1,4 @@
 using System.Text.RegularExpressions;
-using AngryWasp.Helpers;
 using AngryWasp.Logger;
 using Eto.Drawing;
 using Eto.Forms;
@@ -19,8 +18,8 @@ namespace Nerva.Toolkit.Content.Wizard
 
         Button btnCreateAccount = new Button { Text = "Create" };
         Button btnImportAccount = new Button { Text = "Import" };
-        Label lblImport = new Label { TextAlignment = TextAlignment.Right, Visible = false };
-        Label lblImport2 = new Label { TextAlignment = TextAlignment.Right, Visible = false };
+        Label lblImport = new Label { Text = "Importing an old wallet can take time" };
+        Label lblImport2 = new Label { Text = "Now might be a good time for coffee" };
         public override Control Content
         {
             get
@@ -82,7 +81,6 @@ namespace Nerva.Toolkit.Content.Wizard
                 }
                 else
                     Parent.EnableNextButton(true); 
-                
             };
 
             return new StackLayout
@@ -99,13 +97,15 @@ namespace Nerva.Toolkit.Content.Wizard
                     new Label { Text = "You can create a new account, or" },
                     new Label { Text = "import an existing one" },
                     new Label { Text = "   " },
+                    lblImport,
+                    lblImport2,
                     new StackLayoutItem(null, true),
                     new StackLayoutItem(new StackLayout
                     {
                         Orientation = Orientation.Horizontal,
                         HorizontalContentAlignment = HorizontalAlignment.Stretch,
                         VerticalContentAlignment = VerticalAlignment.Stretch,
-                        Padding = new Padding(0, 0, 0, 10),
+                        Padding = new Padding(10, 10, 0, 0),
                         Spacing = 10,
                         Items =
                         {
@@ -113,9 +113,7 @@ namespace Nerva.Toolkit.Content.Wizard
                             new StackLayoutItem(btnCreateAccount, false),
                             new StackLayoutItem(btnImportAccount, false)
                         }   
-                    }, false),
-                    lblImport,
-                    lblImport2
+                    }, false), 
                 }
             };
         }
@@ -126,7 +124,7 @@ namespace Nerva.Toolkit.Content.Wizard
             Application.Instance.Invoke( () =>
             {
                 lblImport.Text = "Wallet creation complete";
-                lblImport2.Text = "Press >> to continue";
+                lblImport2.Text = "Press 'Next' to continue";
                 lblImport.Visible = lblImport2.Visible = true;
                 Parent.EnableNextButton(true);  
                 Configuration.Instance.Wallet.LastOpenedWallet = name;

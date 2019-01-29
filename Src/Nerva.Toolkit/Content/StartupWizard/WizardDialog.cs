@@ -12,8 +12,8 @@ namespace Nerva.Toolkit.Content.Wizard
     public class WizardDialog : Dialog
     {
         protected Button btnCancel = new Button { Text = "Cancel" };
-        protected Button btnNext = new Button { Text = ">>" };
-        protected Button btnBack = new Button { Text = "<<" };
+        protected Button btnNext = new Button { Text = "Next" };
+        protected Button btnBack = new Button { Text = "Back" };
 
         public bool WizardEnd { get; set; } = false;
 
@@ -95,6 +95,18 @@ namespace Nerva.Toolkit.Content.Wizard
         protected virtual void OnAssignContent()
         {
             pages[currentPage].OnAssignContent();
+            this.ClientSize = Content.Size;
+            
+        }
+
+        protected override void OnShown(EventArgs e)
+        {
+            
+        }
+
+        protected override void OnPreLoad(EventArgs e)
+        {
+            
         }
 
         protected override void OnClosing(CancelEventArgs e)
@@ -147,7 +159,7 @@ namespace Nerva.Toolkit.Content.Wizard
                 if (currentPage >= pages.Length - 1)
                     btnNext.Text = "Finish";
                 else
-                    btnNext.Text = ">>";
+                    btnNext.Text = "Next";
 			});
         }
 

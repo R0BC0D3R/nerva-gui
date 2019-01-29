@@ -33,7 +33,7 @@ namespace Nerva.Toolkit.Content.Wizard
                     new Label { Text = "   " },
                     new Label { Text = "This wizard will guide you through all" },
                     new Label { Text = "the steps required to get up and running" },
-                    new Label { Text = "Click >> to continue" },
+                    new Label { Text = "Click 'Next' to continue" },
                 }
             };
         }
