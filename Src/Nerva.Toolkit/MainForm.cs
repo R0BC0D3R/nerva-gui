@@ -293,7 +293,6 @@ namespace Nerva.Toolkit
                     Cli.Instance.Wallet.Interface.CreateWallet(d.Name, d.Password,
                         (CreateWalletResponseData result) =>
                     {
-                        OpenNewWallet(d.Name, d.Password);
                         CreateSuccess(result.Address);
                     }, CreateError);
                 });
