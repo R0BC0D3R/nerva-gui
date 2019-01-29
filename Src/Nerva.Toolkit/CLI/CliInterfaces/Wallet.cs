@@ -19,9 +19,9 @@ namespace Nerva.Toolkit.CLI
 
         public bool CloseWallet(Action successAction, Action<RequestError> errorAction)
         {
-            return new CloseWallet((string e) =>
-            {
-                successAction();
+            return new CloseWallet((string s) => {
+                if (successAction != null)
+                    successAction();
             }, errorAction, r.Port).Run(); 
         }
 
@@ -67,8 +67,9 @@ namespace Nerva.Toolkit.CLI
             return new OpenWallet(new OpenWalletRequestData {
                 FileName = walletName,
                 Password = password
-            }, (string result) => {
-                successAction();
+            }, (string s) => {
+                if (successAction != null)
+                    successAction();
             }, errorAction, r.Port).Run();
         }
 
