@@ -28,48 +28,19 @@ function build()
     postclean
 }
 
-function release-linux()
+function linux()
 {
     build Release Linux
 }
 
-function release-mac()
+function mac()
 {
     build Release Mac
 }
 
-function release-windows()
+function windows()
 {
     build Release Windows
-}
-
-function debug-linux()
-{
-    build Debug Linux
-}
-
-function debug-mac()
-{
-    build Debug Mac
-}
-
-function debug-windows()
-{
-    build Debug Windows
-}
-
-function release-all()
-{
-    release-mac
-    release-windows
-    release-linux
-}
-
-function debug-all()
-{
-    debug-mac
-    debug-windows
-    debug-linux
 }
 
 $1
