@@ -483,14 +483,21 @@ namespace Nerva.Toolkit
             {
                 Helpers.TaskFactory.Instance.RunTask("createwallet", "Creating new wallet", () =>
             	{
-                	if (Cli.Instance.Wallet.Interface.CreateAccount(d.Text) == null)
-                	{
-                    	Application.Instance.AsyncInvoke(() =>
+                	Cli.Instance.Wallet.Interface.CreateAccount(d.Text, (CreateAccountResponseData r) =>
+                    {
+                        Application.Instance.AsyncInvoke(() =>
+                    	{
+                        	MessageBox.Show(this, $"New account {d.Text} created", "Create Account",
+                        		MessageBoxButtons.OK, MessageBoxType.Error, MessageBoxDefaultButton.OK);
+                    	});
+                    }, (RequestError err) =>
+                    {
+                        Application.Instance.AsyncInvoke(() =>
                     	{
                         	MessageBox.Show(this, "Failed to create new account", "Create Account",
                         		MessageBoxButtons.OK, MessageBoxType.Error, MessageBoxDefaultButton.OK);
                     	});
-                	}
+                    });
             	});
             }
         }

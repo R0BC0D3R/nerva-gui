@@ -29,6 +29,7 @@ namespace Nerva.Toolkit.Content.Wizard
 
             this.AbortButton = btnCancel;
             this.DefaultButton = btnNext;
+            this.ClientSize = new Size(450, 300);
 
             btnBack.Click += (s, e) => OnBack();
             btnNext.Click += (s, e) => OnNext();
@@ -95,18 +96,6 @@ namespace Nerva.Toolkit.Content.Wizard
         protected virtual void OnAssignContent()
         {
             pages[currentPage].OnAssignContent();
-            this.ClientSize = Content.Size;
-            
-        }
-
-        protected override void OnShown(EventArgs e)
-        {
-            
-        }
-
-        protected override void OnPreLoad(EventArgs e)
-        {
-            
         }
 
         protected override void OnClosing(CancelEventArgs e)

@@ -7,6 +7,7 @@ using Nerva.Toolkit.CLI;
 using Nerva.Toolkit.Content.Dialogs;
 using Nerva.Rpc.Wallet;
 using Configuration = Nerva.Toolkit.Config.Configuration;
+using Nerva.Rpc;
 
 namespace Nerva.Toolkit.Content
 {
@@ -30,6 +31,7 @@ namespace Nerva.Toolkit.Content
 			var ctx_Transfer = new Command { MenuText = "Transfer" };
 			var ctx_Rename = new Command { MenuText = "Rename" };
 			var ctx_Info = new Command { MenuText = "Address" };
+			var ctx_IntAddr = new Command { MenuText = "Integrated Address" };
 
 			ctx_Mine.Executed += (s, e) =>
 			{
@@ -60,6 +62,33 @@ namespace Nerva.Toolkit.Content
 				d.ShowModal();
 			};
 
+			ctx_IntAddr.Executed += (s, e) =>
+			{
+				if (grid.SelectedRow == -1)
+					return;
+
+				SubAddressAccount a = accounts[grid.SelectedRow];
+
+				Helpers.TaskFactory.Instance.RunTask("makeintaddr", $"Creating integrated address", () =>
+				{
+					Cli.Instance.Wallet.Interface.MakeIntegratedAddress(a.BaseAddress, (MakeIntegratedAddressResponseData r) =>
+					{
+						Application.Instance.AsyncInvoke(() =>
+						{
+							MessageBox.Show(Application.Instance.MainForm, 
+							$"Address: {r.IntegratedAddress}\r\nPayment ID: {r.PaymentId}", 
+							"Integrated Address", MessageBoxType.Information);
+						});
+					}, (RequestError err) =>
+					{
+						Application.Instance.AsyncInvoke(() =>
+						{
+							MessageBox.Show(Application.Instance.MainForm, "Could not create integrated address", MessageBoxType.Error);
+						});
+					});
+				});
+			};
+
 			ctx_Transfer.Executed += (s, e) =>
 			{
 				if (grid.SelectedRow == -1)
@@ -70,28 +99,24 @@ namespace Nerva.Toolkit.Content
 				TransferDialog d = new TransferDialog(a);
 				if (d.ShowModal() == DialogResult.Ok)
 				{
-                    //todo: we need some message in the status bar to tell the user
-                    //the payment is being processed
                     Helpers.TaskFactory.Instance.RunTask("transfer", $"Transferring {d.Amount} XNV to {d.Address}", () =>
 					{
-						TransferResponseData txData = Cli.Instance.Wallet.Interface.TransferFunds(a, d.Address, d.PaymentId, d.Amount, d.Priority);
-
-						if (txData != null)
+						Cli.Instance.Wallet.Interface.TransferFunds(a, d.Address, d.PaymentId, d.Amount, d.Priority,
+						(TransferResponseData r) =>
+						{
+							Application.Instance.AsyncInvoke(() =>
 							{
-								Application.Instance.AsyncInvoke(() =>
-								{
-									MessageBox.Show(Application.Instance.MainForm, 
-										$"Sent: {Conversions.FromAtomicUnits(txData.Amount)}\r\nFees: {Conversions.FromAtomicUnits(txData.Fee)}\r\nHash: {txData.TxHash}", 
-										"TX Results", MessageBoxType.Information);
-								});
-							}
-						else
+								MessageBox.Show(Application.Instance.MainForm, 
+								$"Sent: {Conversions.FromAtomicUnits(r.Amount)}\r\nFees: {Conversions.FromAtomicUnits(r.Fee)}\r\nHash: {r.TxHash}\r\nKey: {r.TxKey}", 
+								"TX Results", MessageBoxType.Information);
+							});
+						}, (RequestError err) =>
 						{
 							Application.Instance.AsyncInvoke(() =>
 							{
 								MessageBox.Show(Application.Instance.MainForm, "The transfer request failed", MessageBoxType.Error);
 							});
-						}
+						});
 					});
 				}
 			};
@@ -114,6 +139,7 @@ namespace Nerva.Toolkit.Content
 				Items = 
 				{
 					ctx_Info,
+					ctx_IntAddr,
 					ctx_Mine,
 					ctx_Transfer,
 					ctx_Rename

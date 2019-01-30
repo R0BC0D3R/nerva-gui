@@ -102,17 +102,11 @@ namespace Nerva.Toolkit.CLI
             return new Store(null, null, r.Port).Run();
         }
 
-        public CreateAccountResponseData CreateAccount(string label)
+        public bool CreateAccount(string label, Action<CreateAccountResponseData> successAction, Action<RequestError> errorAction)
         {
-            CreateAccountResponseData data = null;
-
-            new CreateAccount(new CreateAccountRequestData {
+            return new CreateAccount(new CreateAccountRequestData {
                 Label = label
-            }, (CreateAccountResponseData result) => {
-                data = result;
-            }, null, r.Port).Run();
-
-            return data;
+            }, successAction, errorAction, r.Port).Run();
         }
 
         public bool LabelAccount(uint index, string label)
@@ -123,24 +117,17 @@ namespace Nerva.Toolkit.CLI
             }, null, null, r.Port).Run();
         }
 
-        public GetTransferByTxIDResponseData GetTransferByTxID(string txid)
+        public bool GetTransferByTxID(string txid, Action<GetTransferByTxIDResponseData> successAction, Action<RequestError> errorAction)
         {
-            GetTransferByTxIDResponseData data = null;
-
-            new GetTransferByTxID(new GetTransferByTxIDRequestData {
+            return new GetTransferByTxID(new GetTransferByTxIDRequestData {
                 TxID = txid
-            }, (GetTransferByTxIDResponseData result) => {
-                data = result;
-            }, null, r.Port).Run();
-
-            return data;
+            }, successAction, errorAction, r.Port).Run();
         }
 
-        public TransferResponseData TransferFunds(SubAddressAccount acc, string address, string paymentId, double amount, Send_Priority priority)
+        public bool TransferFunds(SubAddressAccount acc, string address, 
+            string paymentId, double amount, Send_Priority priority, Action<TransferResponseData> successAction, Action<RequestError> errorAction)
         {
-            TransferResponseData data = null;
-
-            new Transfer(new TransferRequestData {
+            return new Transfer(new TransferRequestData {
                 AccountIndex = acc.Index,
                 Priority = (uint)priority,
                 PaymentId = paymentId,
@@ -150,11 +137,14 @@ namespace Nerva.Toolkit.CLI
                         Amount = Conversions.ToAtomicUnits(amount)
                     }
                 }
-            }, (TransferResponseData result) => {
-                data = result;
-            }, null, r.Port).Run();
+            }, successAction, errorAction, r.Port).Run();
+        }
 
-            return data;
+        public bool MakeIntegratedAddress(string address, Action<MakeIntegratedAddressResponseData> successAction, Action<RequestError> errorAction)
+        {
+            return new MakeIntegratedAddress(new MakeIntegratedAddressRequestData {
+                StandardAddress = address
+            }, successAction, errorAction, r.Port).Run();
         }
     }
 }

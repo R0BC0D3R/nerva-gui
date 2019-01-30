@@ -9,6 +9,8 @@ using Nerva.Toolkit.Content.Dialogs;
 using Nerva.Toolkit.CLI;
 using Nerva.Toolkit.Config;
 using Nerva.Rpc.Wallet;
+using Nerva.Rpc;
+using Configuration = Nerva.Toolkit.Config.Configuration;
 
 namespace Nerva.Toolkit.Content
 {
@@ -37,23 +39,22 @@ namespace Nerva.Toolkit.Content
 
                 Helpers.TaskFactory.Instance.RunTask("gettx", $"Fetching transaction information", () =>
                 {
-                    var txid = Cli.Instance.Wallet.Interface.GetTransferByTxID(t.TxId);
-                    if (txid != null)
+                    var txid = Cli.Instance.Wallet.Interface.GetTransferByTxID(t.TxId,
+                    (GetTransferByTxIDResponseData r) =>
                     {
                         Application.Instance.AsyncInvoke( () =>
                         {
-                            ShowTxDialog d = new ShowTxDialog(txid);
+                            ShowTxDialog d = new ShowTxDialog(r);
                             d.ShowModal();
                         });
-                    }
-                    else
+                    }, (RequestError err) =>
                     {
                         Application.Instance.AsyncInvoke( () =>
                         {
                             MessageBox.Show(Application.Instance.MainForm, "Transfer information could not be retrieved at this time", "Transaction Details", 
                                 MessageBoxButtons.OK, MessageBoxType.Information, MessageBoxDefaultButton.OK);
                         });
-                    }
+                    });
                 });
             };
 
