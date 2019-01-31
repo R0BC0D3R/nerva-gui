@@ -14,7 +14,6 @@
             "args":[
                 "--log-file", "./app.log",
                 "--config-file", "./app.config",
-                "--rpc-log-level", "0",
                 "--log-cli-wallet"
             ]
         },
@@ -28,8 +27,6 @@
             "args":[
                 "--log-file", "./app.log",
                 "--config-file", "./app.config",
-                "--rpc-log-level", "0",
-                "--log-cli-wallet"
             ]
         },
         {

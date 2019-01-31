@@ -8,6 +8,7 @@ using Nerva.Toolkit.Content.Dialogs;
 using Nerva.Rpc.Wallet;
 using Configuration = Nerva.Toolkit.Config.Configuration;
 using Nerva.Rpc;
+using Log = AngryWasp.Logger.Log;
 
 namespace Nerva.Toolkit.Content
 {

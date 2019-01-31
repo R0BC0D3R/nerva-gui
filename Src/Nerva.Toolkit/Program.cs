@@ -30,6 +30,10 @@ namespace Nerva.Toolkit
             Directory.SetCurrentDirectory(AppDomain.CurrentDomain.BaseDirectory);
             CommandLineParser cmd = CommandLineParser.Parse(args);
 
+#if DEBUG
+			cmd.Push(new CommandLineParserOption("log-cli-wallet", null));
+#endif
+
 			string logFile, configFile;
 
 			ParseFileArguments(cmd, out logFile, out configFile);
@@ -43,21 +47,10 @@ namespace Nerva.Toolkit
 			bool newFile;
 
 			Configuration.Load(configFile, out newFile);
-			Nerva.Rpc.Configuration.ErrorLogVerbosity = Configuration.Instance.LogRpcErrors ? 
-				Nerva.Rpc.Error_Log_Verbosity.Normal : Nerva.Rpc.Error_Log_Verbosity.None;
 			
 			Cli.Instance.KillCliProcesses(FileNames.RPC_WALLET);
 
 			Configuration.Instance.NewDaemonOnStartup = cmd["new-daemon"] != null;
-
-			if (cmd["rpc-log-level"] != null)
-				Nerva.Rpc.Configuration.ErrorLogVerbosity = (Rpc.Error_Log_Verbosity)new UintSerializer().Deserialize(cmd["rpc-log-level"].Value);
-
-			if (Nerva.Rpc.Configuration.ErrorLogVerbosity != Rpc.Error_Log_Verbosity.None)
-			{
-				Log.Instance.Write(Log_Severity.Warning, "RPC logging != NONE. Sensitive information may be written to the terminal or log file");
-				Nerva.Rpc.Configuration.TraceRpcData = true;
-			}
 
 			if (cmd["log-cli-wallet"] != null)
 				Configuration.Instance.LogCliWallet = true;

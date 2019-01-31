@@ -6,6 +6,7 @@ using Nerva.Rpc;
 using Nerva.Rpc.Daemon;
 using Nerva.Toolkit.CLI;
 using Newtonsoft.Json;
+using Log = AngryWasp.Logger.Log;
 
 namespace Nerva.Toolkit.Helpers
 {
@@ -57,24 +58,23 @@ namespace Nerva.Toolkit.Helpers
             updateStatus = Update_Status_Code.Undefined;
 
             Log.Instance.Write("Checking for updates...");
-            GetInfoResponseData daemonInfo = Cli.Instance.Daemon.Interface.GetInfo();
+            Cli.Instance.Daemon.Interface.GetInfo((GetInfoResponseData r) =>
+            {
+                var version = r.Version;
+            
+                currentLocalVersion = Conversions.OctetSetToInt(version);
+                currentRemoteVersion = CheckAvailableVersion();
 
-            if (daemonInfo == null)
+                if (currentRemoteVersion == 0)
+                    return;
+
+                Log.Instance.Write($"Installed CLI version {version}");
+                updateStatus = (currentRemoteVersion == currentLocalVersion) ? Update_Status_Code.UpToDate : Update_Status_Code.NewVersionAvailable;
+            }, (RequestError e) =>
             {
                 Log.Instance.Write(Log_Severity.Error, "Failed to poll version information from daemon");
                 return;
-            }
-            
-            var version = daemonInfo.Version;
-            
-            currentLocalVersion = Conversions.OctetSetToInt(version);
-            currentRemoteVersion = CheckAvailableVersion();
-
-            if (currentRemoteVersion == 0)
-                return;
-
-            Log.Instance.Write($"Installed CLI version {version}");
-            updateStatus = (currentRemoteVersion == currentLocalVersion) ? Update_Status_Code.UpToDate : Update_Status_Code.NewVersionAvailable;
+            });
         }
         
         private static ulong CheckAvailableVersion()

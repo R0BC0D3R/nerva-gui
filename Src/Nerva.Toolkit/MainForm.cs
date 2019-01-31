@@ -10,12 +10,12 @@ using Nerva.Rpc;
 using Nerva.Rpc.Daemon;
 using Nerva.Rpc.Wallet;
 using Nerva.Toolkit.CLI;
-using Nerva.Toolkit.Config;
 using Nerva.Toolkit.Content.Dialogs;
 using Nerva.Toolkit.Content.Wizard;
 using Nerva.Toolkit.Helpers;
-
 using Configuration = Nerva.Toolkit.Config.Configuration;
+using Log = AngryWasp.Logger.Log;
+
 namespace Nerva.Toolkit
 {
     public partial class MainForm : Form
@@ -23,8 +23,8 @@ namespace Nerva.Toolkit
         AsyncTaskContainer updateWalletTask;
         AsyncTaskContainer updateDaemonTask;
 
-        uint lastTxHeight = 0;
-        uint lastHeight = 0;
+        ulong lastTxHeight = 0;
+        ulong lastHeight = 0;
         uint averageHashrateAmount;
         uint averageHashRateCount;
 
@@ -188,67 +188,80 @@ namespace Nerva.Toolkit
                     if (token.IsCancellationRequested)
                         token.ThrowIfCancellationRequested();
 
-                    GetInfoResponseData info = null;
-                    List<GetConnectionsResponseData> connections = null;
-                    uint height = 0;
-                    MiningStatusResponseData mStatus = null;
-
                     await Task.Run( () =>
                     {
                         try
                         {
-                            height = Cli.Instance.Daemon.Interface.GetBlockCount();
-                            info = Cli.Instance.Daemon.Interface.GetInfo();
-                            connections = Cli.Instance.Daemon.Interface.GetConnections();
-                            mStatus = Cli.Instance.Daemon.Interface.MiningStatus();
+                            Cli.Instance.Daemon.Interface.GetInfo((GetInfoResponseData r) =>
+                            {
+                                Application.Instance.Invoke(() =>
+                                {
+                                    daemonPage.UpdateInfo(r);
+
+                                    lblDaemonStatus.Text = $"Height: {r.Height} | Connections: {r.OutgoingConnectionsCount}(out)+{r.IncomingConnectionsCount}(in)";
+
+                                    if (r.TargetHeight != 0 && r.Height < r.TargetHeight)
+                                        lblDaemonStatus.Text += " | Syncing";
+                                    else
+                                        lblDaemonStatus.Text += " | Sync OK";
+
+                                    lblVersion.Text = $"Version: {r.Version}";
+                                    ad.Version = $"GUI: {Constants.VERSION}\r\nCLI: {r.Version}";
+                                });
+
+                                if (lastHeight != r.Height)
+                                {
+                                    lastHeight = r.Height;
+                                    if (averageHashRateCount > 0)
+                                    {
+                                        uint avg = averageHashrateAmount / averageHashRateCount;
+                                        chartsPage.HrPlot.AddDataPoint(1, avg);
+                                        averageHashrateAmount = 0;
+                                        averageHashRateCount = 0;
+                                    }
+                                }
+                            }, (RequestError e) =>
+                            {
+                                Application.Instance.Invoke(() =>
+                                {
+                                    lblDaemonStatus.Text = "OFFLINE";
+                                    daemonPage.UpdateInfo(null);
+                                });
+                            });
+
+                            Cli.Instance.Daemon.Interface.GetConnections((List<GetConnectionsResponseData> r) =>
+                            {
+                                Application.Instance.Invoke(() =>
+                                {
+                                    daemonPage.UpdateConnections(r);
+                                });
+                            }, (RequestError e) =>
+                            {
+                                Application.Instance.Invoke(() =>
+                                {
+                                    daemonPage.UpdateConnections(null);
+                                });
+                            });
+
+                            Cli.Instance.Daemon.Interface.MiningStatus((MiningStatusResponseData r) =>
+                            {
+                                Application.Instance.Invoke(() =>
+                                {
+                                    daemonPage.UpdateMinerStatus(r);
+                                    chartsPage.HrPlot.AddDataPoint(0, r.Speed);
+                                    averageHashrateAmount += (uint)r.Speed;
+                                    ++averageHashRateCount;
+                                });
+                            }, (RequestError e) =>
+                            {
+                                Application.Instance.Invoke(() =>
+                                {
+                                    daemonPage.UpdateMinerStatus(null);
+                                });
+                            });
                         }
                         catch (Exception) { }
                     });
-
-                    if (token.IsCancellationRequested)
-                        token.ThrowIfCancellationRequested();
-
-                    if (info != null)
-                    {
-                        Application.Instance.Invoke(() =>
-                        {
-                            lblDaemonStatus.Text = $"Height: {height} | Connections: {info.OutgoingConnectionsCount}(out)+{info.IncomingConnectionsCount}(in)";
-
-                            if (info.TargetHeight != 0 && info.Height < info.TargetHeight)
-                                lblDaemonStatus.Text += " | Syncing";
-                            else
-                                lblDaemonStatus.Text += " | Sync OK";
-
-                            lblVersion.Text = $"Version: {info.Version}";
-                            ad.Version = $"GUI: {Constants.VERSION}\r\nCLI: {info.Version}";
-
-                            daemonPage.Update(info, connections, mStatus);
-                            chartsPage.HrPlot.AddDataPoint(0, mStatus.Speed);
-
-                            if (lastHeight != height)
-                            {
-                                lastHeight = height;
-                                if (averageHashRateCount > 0)
-                                {
-                                    uint avg = averageHashrateAmount / averageHashRateCount;
-                                    chartsPage.HrPlot.AddDataPoint(1, avg);
-                                    averageHashrateAmount = 0;
-                                    averageHashRateCount = 0;
-                                }
-                            }
-
-                            averageHashrateAmount += (uint)mStatus.Speed;
-                            ++averageHashRateCount;
-                        });
-                    }
-                    else
-                    {
-                        Application.Instance.Invoke(() =>
-                        {
-                            lblDaemonStatus.Text = "OFFLINE";
-                            daemonPage.Update(null, null, null);
-                        });
-                    }
 
                     if (token.IsCancellationRequested)
                         token.ThrowIfCancellationRequested();
@@ -263,16 +276,17 @@ namespace Nerva.Toolkit
 
         protected void daemon_ToggleMining_Clicked(object sender, EventArgs e)
         {
-            MiningStatusResponseData ms = Cli.Instance.Daemon.Interface.MiningStatus();
-
-            if (ms.Active)
+            Cli.Instance.Daemon.Interface.MiningStatus(( MiningStatusResponseData r) =>
             {
-                Cli.Instance.Daemon.Interface.StopMining();
-                Log.Instance.Write("Mining stopped");
-            }
-            else
-                if (Cli.Instance.Daemon.Interface.StartMining())
-                Log.Instance.Write($"Mining started for @ {Conversions.WalletAddressShortForm(Configuration.Instance.Daemon.MiningAddress)} on {Configuration.Instance.Daemon.MiningThreads} threads");
+                if (r.Active)
+                {
+                    Cli.Instance.Daemon.Interface.StopMining();
+                    Log.Instance.Write("Mining stopped");
+                }
+                else
+                    if (Cli.Instance.Daemon.Interface.StartMining())
+                    Log.Instance.Write($"Mining started for @ {Conversions.WalletAddressShortForm(Configuration.Instance.Daemon.MiningAddress)} on {Configuration.Instance.Daemon.MiningThreads} threads");
+            }, null);
         }
 
         protected void daemon_Restart_Clicked(object sender, EventArgs e)
@@ -549,7 +563,9 @@ namespace Nerva.Toolkit
 
                         Application.Instance.AsyncInvoke( () =>
                         {
-                            daemonPage.Update(null, null, null);
+                            daemonPage.UpdateInfo(null);
+                            daemonPage.UpdateConnections(null);
+                            daemonPage.UpdateMinerStatus(null);
                             balancesPage.Update(null);
                             transfersPage.Update(null);
                         });

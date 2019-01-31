@@ -15,6 +15,8 @@ namespace Nerva.Toolkit.Content
 	{
         List<string> la = new List<string>();
 
+		private ulong lastReportedDiff = 0;
+
         #region Form Controls
 
         private StackLayout mainControl;
@@ -121,8 +123,8 @@ namespace Nerva.Toolkit.Content
 			};
         }
 
-        public void Update(GetInfoResponseData info, List<GetConnectionsResponseData> connections, MiningStatusResponseData mStatus)
-        {
+		public void UpdateInfo(GetInfoResponseData info)
+		{
 			try
 			{
 				if (info != null)
@@ -132,6 +134,8 @@ namespace Nerva.Toolkit.Content
 					lblHeight.Text = info.Height.ToString();
 					lblNetHash.Text = nethash.ToString() + " kH/s";
 					lblRunTime.Text = (DateTime.Now - StringHelper.UnixTimeStampToDateTime((ulong)info.StartTime)).ToString(@"hh\:mm");
+
+					lastReportedDiff = info.Difficulty;
 
 					if (info.Mainnet)
 						lblNetwork.Text = "MainNet";
@@ -146,35 +150,19 @@ namespace Nerva.Toolkit.Content
 					lblHeight.Text = "-";
 					lblNetHash.Text = "-";
 					lblRunTime.Text = "-";
+					lastReportedDiff = 0;
 				}
+			}
+			catch (Exception ex)
+			{
+				Log.Instance.WriteNonFatalException(ex);
+			}
+		}
 
-				if (mStatus != null && mStatus.Active)
-				{
-					lblMinerStatus.Text = "Miner (Active)";
-					lblMiningAddress.Text = Conversions.WalletAddressShortForm(mStatus.Address);
-					lblMiningThreads.Text = mStatus.ThreadCount.ToString();
-
-					string speed;
-					if (mStatus.Speed > 1000)
-						speed = $"{mStatus.Speed / 1000.0d} kH/s";
-					else
-						speed = $"{(double)mStatus.Speed} h/s";
-					
-					lblMiningHashrate.Text = speed;
-
-					double t = ((info.Difficulty / 60.0d) / mStatus.Speed) / 1440.0d;
-
-					lblTimeToBlock.Text = String.Format("{0:F2}", Math.Round(t, 2)) + " days";
-				}
-				else
-				{
-					lblMinerStatus.Text = "Miner (Inactive)";
-					lblMiningAddress.Text = "-";
-					lblMiningThreads.Text = "-";
-					lblMiningHashrate.Text = "-";
-					lblTimeToBlock.Text = "-";
-				}
-
+		public void UpdateConnections(List<GetConnectionsResponseData> connections)
+		{
+			try
+			{
 				if (connections == null)
 					connections = new List<GetConnectionsResponseData>();
 
@@ -191,6 +179,47 @@ namespace Nerva.Toolkit.Content
 			{
 				Log.Instance.WriteNonFatalException(ex);
 			}
-        }
+		}
+
+		public void UpdateMinerStatus(MiningStatusResponseData mStatus)
+		{
+			try
+			{
+				if (mStatus != null && mStatus.Active)
+				{
+					lblMinerStatus.Text = "Miner (Active)";
+					lblMiningAddress.Text = Conversions.WalletAddressShortForm(mStatus.Address);
+					lblMiningThreads.Text = mStatus.ThreadCount.ToString();
+
+					string speed;
+					if (mStatus.Speed > 1000)
+						speed = $"{mStatus.Speed / 1000.0d} kH/s";
+					else
+						speed = $"{(double)mStatus.Speed} h/s";
+					
+					lblMiningHashrate.Text = speed;
+
+					if (lastReportedDiff != 0)
+					{
+						double t = ((lastReportedDiff / 60.0d) / mStatus.Speed) / 1440.0d;
+						lblTimeToBlock.Text = String.Format("{0:F2}", Math.Round(t, 2)) + " days";
+					}
+					else
+						lblTimeToBlock.Text = "-";
+				}
+				else
+				{
+					lblMinerStatus.Text = "Miner (Inactive)";
+					lblMiningAddress.Text = "-";
+					lblMiningThreads.Text = "-";
+					lblMiningHashrate.Text = "-";
+					lblTimeToBlock.Text = "-";
+				}
+			}
+			catch (Exception ex)
+			{
+				Log.Instance.WriteNonFatalException(ex);
+			}
+		}
     }
 }
