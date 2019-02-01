@@ -234,7 +234,7 @@ namespace Nerva.Toolkit.Content
 			}
 			catch (Exception ex)
 			{
-				Log.Instance.WriteNonFatalException(ex);
+				AngryWasp.Logger.Log.Instance.Write(Log_Severity.Error, $".NET Exception, {ex.Message}");
 			}
 		}
     }

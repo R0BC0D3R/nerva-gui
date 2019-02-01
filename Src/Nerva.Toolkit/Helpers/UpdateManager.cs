@@ -47,7 +47,7 @@ namespace Nerva.Toolkit.Helpers
             catch (Exception ex)
             {
                 Log.Instance.Write(Log_Severity.Warning, $"Error attempting HTTP request {url}");
-                Log.Instance.WriteNonFatalException(ex);
+                AngryWasp.Logger.Log.Instance.Write(Log_Severity.Error, $".NET Exception, {ex.Message}");
                 returnString = null;
                 return false;
             }

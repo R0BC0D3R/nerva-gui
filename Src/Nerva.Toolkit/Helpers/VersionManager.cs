@@ -118,7 +118,7 @@ namespace Nerva.Toolkit.Helpers
                                 ExtractFile(destDir, destFile, onComplete);
                             else
                             {
-                                Log.Instance.WriteNonFatalException(e.Error);
+                                AngryWasp.Logger.Log.Instance.Write(Log_Severity.Error, $".NET Exception, {e.Error.Message}");
                                 onComplete(false, destFile);
                             }
                         };
@@ -173,7 +173,7 @@ namespace Nerva.Toolkit.Helpers
                         }
                         catch (Exception ex)
                         {
-                            Log.Instance.WriteNonFatalException(ex);
+                            AngryWasp.Logger.Log.Instance.Write(Log_Severity.Error, $".NET Exception, {ex.Message}");
                         }
                     }
 
@@ -183,7 +183,7 @@ namespace Nerva.Toolkit.Helpers
             }
             catch (Exception ex)
             {
-                Log.Instance.WriteNonFatalException(ex);
+                AngryWasp.Logger.Log.Instance.Write(Log_Severity.Error, $".NET Exception, {ex.Message}");
                 onComplete(false, null);
                 return;
             }

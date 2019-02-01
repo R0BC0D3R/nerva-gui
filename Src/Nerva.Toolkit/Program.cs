@@ -46,8 +46,10 @@ namespace Nerva.Toolkit
 			AddressBook.Load();
 
 			bool newFile;
-
 			Configuration.Load(configFile, out newFile);
+
+			var w = Configuration.Instance.Wallet;
+			var d = Configuration.Instance.Daemon;
 			
 			Cli.Instance.KillCliProcesses(FileNames.RPC_WALLET);
 
@@ -81,7 +83,7 @@ namespace Nerva.Toolkit
 			}
 			catch (Exception ex)
 			{
-				Log.Instance.WriteNonFatalException(ex);
+				AngryWasp.Logger.Log.Instance.Write(Log_Severity.Error, $".NET Exception, {ex.Message}");
 
 				Cli.Instance.Daemon.StopCrashCheck();
 				Cli.Instance.Wallet.StopCrashCheck();

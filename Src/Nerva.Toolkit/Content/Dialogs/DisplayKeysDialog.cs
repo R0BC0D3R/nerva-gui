@@ -36,11 +36,14 @@ namespace Nerva.Toolkit.Content.Dialogs
                     });  
                 }, (RequestError e) =>
                 {
-                    txtPublicViewKey.Text = "Not available";
-                    txtPrivateViewKey.Text = "Not available";
+                    Application.Instance.AsyncInvoke(() =>
+                    {
+                        txtPublicViewKey.Text = "Not available";
+                        txtPrivateViewKey.Text = "Not available";
 
-                    txtPublicSpendKey.Text = "Not available";
-                    txtPrivateSpendKey.Text = "Not available";
+                        txtPublicSpendKey.Text = "Not available";
+                        txtPrivateSpendKey.Text = "Not available";
+                    });
                 });
 
                 Cli.Instance.Wallet.Interface.QueryKey("mnemonic", (QueryKeyResponseData r) =>
@@ -51,11 +54,12 @@ namespace Nerva.Toolkit.Content.Dialogs
                     });
                 }, (RequestError e) =>
                 {
-                    txtSeed.Text = e.Message;
+                    Application.Instance.AsyncInvoke(() =>
+                    {
+                        txtSeed.Text = e.Message;
+                    });
                 });
             });
-
-            
 
             //reuse ok and cancel buttons but give a more meaningful label
             btnOk.Text = "Save";

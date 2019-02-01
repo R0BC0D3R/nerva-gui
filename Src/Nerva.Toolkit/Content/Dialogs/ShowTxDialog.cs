@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using AngryWasp.Helpers;
 using Eto.Forms;
 using Nerva.Rpc.Wallet;
@@ -7,13 +8,11 @@ namespace Nerva.Toolkit.Content.Dialogs
 {
     public class ShowTxDialog : DialogBase<DialogResult>
 	{
-		private TableLayout tlDestinations = new TableLayout();
-
+		TableLayout tl2 = new TableLayout{ Padding = 10, Spacing = new Eto.Drawing.Size(10, 10) };
 		private TextBox lblAddress = new TextBox { ReadOnly = true };
 		private TextBox lblTxId = new TextBox { ReadOnly = true };
 		private TextBox lblPaymentId = new TextBox { ReadOnly = true };
 		private TextBox lblNote = new TextBox();
-
 		private Label lblType = new Label();
 		private Label lblTime = new Label();
 		private Label lblAmount = new Label();
@@ -39,13 +38,20 @@ namespace Nerva.Toolkit.Content.Dialogs
 			lblIndex.Text = $"{tx.SubAddressIndex.Major}.{tx.SubAddressIndex.Minor}";
 			lblDoubleSpend.Text = tx.DoubleSpendSeen.ToString();
 
-			foreach (var d in tx.Destinations)
-				tlDestinations.Rows.Add(new TableRow (
-					new TableCell(new Label { Text = d.Address }),
-					new TableCell(new Label { Text = Conversions.FromAtomicUnits(d.Amount).ToString() }, true)));
-
 			btnOk.Text = "Save";
 			btnCancel.Text = "Close";
+
+			if (tx.Destinations.Count > 0)
+			{
+				tl2.Rows.Add(new TableRow(
+					new TableCell(new Label { Text = "Destination" }, true),
+					new TableCell(new Label { Text = "Amount" }, true)));
+
+				foreach (var d in tx.Destinations)
+					tl2.Rows.Add(new TableRow(
+						new TableCell(new Label { Text = Conversions.WalletAddressShortForm(d.Address) }),
+						new TableCell(new Label { Text = Conversions.FromAtomicUnits(d.Amount).ToString() })));
+			}
 
 			DefaultButton = btnCancel;
         }
@@ -120,10 +126,12 @@ namespace Nerva.Toolkit.Content.Dialogs
 								new TableCell(lblDoubleSpend)),
 							new TableRow(
 								new TableCell(null),
+								new TableCell(null),
+								new TableCell(null),
 								new TableCell(null))
 						}
 					}, false),
-					new StackLayoutItem(tlDestinations, true)
+					new StackLayoutItem(tl2, true),
 				}
 			};
         }
