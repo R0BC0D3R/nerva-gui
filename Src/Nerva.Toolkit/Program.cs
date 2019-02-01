@@ -19,6 +19,7 @@ namespace Nerva.Toolkit
 		/// Available command line arguments
 		/// --log-file: Location to write a log file to
 		/// --config-file: Location to load a config file from
+		/// --cli-path: Set a path to look for the CLI
 		/// --new-daemon: Kill any running daemon instances and restart them.
 		/// --rpc-log-level: Log level fo the RPC library
 		/// --log-cli-wallet: Log output from cli wallet to app.log
@@ -57,6 +58,20 @@ namespace Nerva.Toolkit
 
 			if (cmd["log-cli-daemon"] != null)
 				Configuration.Instance.LogCliDaemon = true;
+
+			if (cmd["cli-path"] != null)
+			{
+				string p = cmd["cli-path"].Value;
+				Log.Instance.Write($"CLI path manually set to {p}");
+				Configuration.Instance.ToolsPath = p;
+			}
+
+			if (cmd["wallet-path"] != null)
+			{
+				string p = cmd["wallet-path"].Value;
+				Log.Instance.Write($"Wallet path manually set to {p}");
+				Configuration.Instance.Wallet.WalletDir = p;
+			}
 
 			try
 			{

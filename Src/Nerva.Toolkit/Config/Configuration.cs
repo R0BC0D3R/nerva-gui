@@ -12,8 +12,6 @@ namespace Nerva.Toolkit.Config
 
         public string ToolsPath { get; set; }
 
-        public bool LogRpcErrors { get; set; } = false;
-
         public bool Testnet { get; set; }
         
         public Daemon Daemon { get; set; }
