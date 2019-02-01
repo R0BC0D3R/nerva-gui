@@ -1,8 +1,6 @@
 using System;
 using AngryWasp.Helpers;
-using AngryWasp.Logger;
 using Eto.Forms;
-using Nerva.Toolkit.CLI;
 using Nerva.Toolkit.Config;
 using Nerva.Toolkit.Helpers;
 
@@ -10,7 +8,6 @@ namespace Nerva.Toolkit.Content.Dialogs
 {
     public class PreferencesDialog : DialogBase<DialogResult>
     {
-        private CheckBox chkCheckForCliUpdate = new CheckBox { Text = "Check for update on start", ToolTip = "Check for updated CLI tools when GUI starts" };
         private CheckBox chkTestnet = new CheckBox { Text = "Testnet", ToolTip = "Connect to the NERVA testnet" };
         private CheckBox chkReconnectToDaemon = new CheckBox { Text = "Reconnect to daemon", ToolTip = "Reconnect to running nervad instance when GUI starts" };
         private TextBox txtToolsPath = new TextBox { PlaceholderText = "CLI tools path", ToolTip = "Enter the full path to the NERVA CLI tools" };
@@ -91,7 +88,6 @@ namespace Nerva.Toolkit.Content.Dialogs
         protected override Control ConstructChildContent()
         {
             txtToolsPath.Text = Configuration.Instance.ToolsPath;
-            chkCheckForCliUpdate.Checked = Configuration.Instance.Testnet;
             chkReconnectToDaemon.Checked = Configuration.Instance.ReconnectToDaemonProcess;
             chkTestnet.Checked = Configuration.Instance.Testnet;
 
@@ -134,7 +130,6 @@ namespace Nerva.Toolkit.Content.Dialogs
                                         btnToolsBrowse
                                     }
                                 },
-                                chkCheckForCliUpdate,
                                 chkReconnectToDaemon,
                                 chkTestnet,
                             }
@@ -266,7 +261,6 @@ namespace Nerva.Toolkit.Content.Dialogs
                 restartMinerRequired = true;
                 
             Configuration.Instance.ToolsPath = txtToolsPath.Text;
-            Configuration.Instance.CheckForUpdateOnStartup = chkCheckForCliUpdate.Checked.Value;
             Configuration.Instance.Testnet = chkTestnet.Checked.Value;
             Configuration.Instance.ReconnectToDaemonProcess = chkReconnectToDaemon.Checked.Value;
 

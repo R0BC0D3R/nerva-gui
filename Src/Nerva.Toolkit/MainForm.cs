@@ -304,11 +304,23 @@ namespace Nerva.Toolkit
             {
                 Helpers.TaskFactory.Instance.RunTask("createwallet", $"Creating wallet", () =>
                 {
-                    Cli.Instance.Wallet.Interface.CreateWallet(d.Name, d.Password,
-                        (CreateWalletResponseData result) =>
+                    if (d.HwWallet)
                     {
-                        CreateSuccess(result.Address);
-                    }, CreateError);
+                        Cli.Instance.Wallet.Interface.CreateHwWallet(d.Name, d.Password,
+                            (CreateHwWalletResponseData result) =>
+                        {
+                            CreateSuccess(result.Address);
+                        }, CreateError);
+                    }
+                    else
+                    {
+                        Cli.Instance.Wallet.Interface.CreateWallet(d.Name, d.Password,
+                            (CreateWalletResponseData result) =>
+                        {
+                            CreateSuccess(result.Address);
+                        }, CreateError);
+                    }
+                    
                 });
             }
         }

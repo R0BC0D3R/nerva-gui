@@ -1,12 +1,17 @@
 using AngryWasp.Logger;
 using Eto.Forms;
+using Nerva.Rpc;
 using Nerva.Rpc.Wallet;
 using Nerva.Toolkit.CLI;
+using Log = AngryWasp.Logger.Log;
 
 namespace Nerva.Toolkit.Content.Dialogs
 {
     public class DisplayKeysDialog : DialogBase<DialogResult>
 	{
+        private const string INVALID_KEY_1 = "0000000000000000000000000000000000000000000000000000000000000000";
+        private const string INVALID_KEY_2 = "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
+
         TextBox txtPublicViewKey = new TextBox { ReadOnly = true };
         TextBox txtPrivateViewKey = new TextBox { ReadOnly = true };
 
@@ -19,24 +24,34 @@ namespace Nerva.Toolkit.Content.Dialogs
         {
             Helpers.TaskFactory.Instance.RunTask("getkeys", $"Retrieving wallet keys", () =>
             {
-                Cli.Instance.Wallet.Interface.QueryKey("all_keys", (QueryKeyResponseData e) =>
+                Cli.Instance.Wallet.Interface.QueryKey("all_keys", (QueryKeyResponseData r) =>
                 {
                     Application.Instance.AsyncInvoke(() =>
                     {
-                        txtPublicViewKey.Text = e.PublicViewKey;
-                        txtPrivateViewKey.Text = e.PrivateViewKey;
+                        txtPublicViewKey.Text = r.PublicViewKey;
+                        txtPrivateViewKey.Text = IsKeyValid(r.PrivateViewKey) ? r.PrivateViewKey : "Not available";
 
-                        txtPublicSpendKey.Text = e.PublicSpendKey;
-                        txtPrivateSpendKey.Text = e.PrivateSpendKey;
+                        txtPublicSpendKey.Text = r.PublicSpendKey;
+                        txtPrivateSpendKey.Text = IsKeyValid(r.PrivateSpendKey) ? r.PrivateSpendKey : "Not available";
                     });  
+                }, (RequestError e) =>
+                {
+                    txtPublicViewKey.Text = "Not available";
+                    txtPrivateViewKey.Text = "Not available";
+
+                    txtPublicSpendKey.Text = "Not available";
+                    txtPrivateSpendKey.Text = "Not available";
                 });
 
-                Cli.Instance.Wallet.Interface.QueryKey("mnemonic", (QueryKeyResponseData e) =>
+                Cli.Instance.Wallet.Interface.QueryKey("mnemonic", (QueryKeyResponseData r) =>
                 {
                     Application.Instance.AsyncInvoke(() =>
                     {
-                        txtSeed.Text = e.MnemonicSeed;
+                        txtSeed.Text = r.MnemonicSeed;
                     });
+                }, (RequestError e) =>
+                {
+                    txtSeed.Text = e.Message;
                 });
             });
 
@@ -97,6 +112,14 @@ namespace Nerva.Toolkit.Content.Dialogs
         protected override void OnCancel()
         {
             this.Close(DialogResult.Cancel);
+        }
+
+        private bool IsKeyValid(string key)
+        {
+            if (key == INVALID_KEY_1 || key == INVALID_KEY_2)
+                return false;
+
+            return true;
         }
     }
 }

@@ -14,7 +14,6 @@
             "args":[
                 "--log-file", "./app.log",
                 "--config-file", "./app.config",
-                "--log-cli-wallet"
             ]
         },
         {

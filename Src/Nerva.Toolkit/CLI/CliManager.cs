@@ -216,19 +216,11 @@ namespace Nerva.Toolkit.CLI
 
         private void DoCliStartup(string exe)
         {
-            switch (FileNames.GetCliExeBaseName(exe))
-            {
-                case FileNames.NERVAD:
-                    UpdateCheck();
-                    break;
-            }
+            //do nothing
         }
 
         private void UpdateCheck()
         {
-            if (!Configuration.Instance.CheckForUpdateOnStartup)
-                return;
-
             Helpers.TaskFactory.Instance.RunTask("updatecheck", "Checking for updates", () =>
             {
                 while (!IsReady(daemon.BaseExeName))

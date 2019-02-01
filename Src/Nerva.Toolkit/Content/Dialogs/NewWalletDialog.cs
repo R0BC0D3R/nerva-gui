@@ -6,9 +6,13 @@ namespace Nerva.Toolkit.Content.Dialogs
     public class NewWalletDialog : PasswordDialog
 	{
         protected string name;
+        protected bool hwWallet;
+
         public string Name => name;
+        public bool HwWallet => hwWallet;
 
         protected TextBox txtName = new TextBox();
+        protected CheckBox chkHwWallet = new CheckBox{ Text = "Hardware Wallet" };
 
         public NewWalletDialog(string title = "Create New Wallet") : base(title)
         {
@@ -20,6 +24,7 @@ namespace Nerva.Toolkit.Content.Dialogs
         {
             base.OnOk();
             name = txtName.Text;
+            hwWallet = chkHwWallet.Checked.Value;
             this.Close(DialogResult.Ok);
         }
 
@@ -27,14 +32,17 @@ namespace Nerva.Toolkit.Content.Dialogs
         {
             base.OnCancel();
             name = null;
+            hwWallet = false;
             this.Close(DialogResult.Cancel);
         }
 
         protected override void OnShow()
         {
             string oldName = txtName.Text;
+            bool oldHw = chkHwWallet.Checked.Value;
             base.OnShow();
             txtName.Text = oldName;
+            chkHwWallet.Checked = oldHw;
         }
 
         protected override Control ConstructChildContent()
@@ -51,7 +59,8 @@ namespace Nerva.Toolkit.Content.Dialogs
                     new StackLayoutItem(new Label { Text = "Wallet Name" }),
                     new StackLayoutItem(txtName),
                     new StackLayoutItem(new Label { Text = "Password" }),
-                    ConstructPasswordControls()
+                    ConstructPasswordControls(),
+                    new StackLayoutItem(chkHwWallet),
                 }
             };
         }

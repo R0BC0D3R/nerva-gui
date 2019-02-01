@@ -37,17 +37,28 @@ namespace Nerva.Toolkit.Content.Wizard
             {
                 Parent.EnableNextButton(false);
                 lblImport.Visible = lblImport2.Visible = false;
-                NewWalletDialog d2 = new NewWalletDialog();
-                if (d2.ShowModal() == DialogResult.Ok)
+                NewWalletDialog d = new NewWalletDialog();
+                if (d.ShowModal() == DialogResult.Ok)
                 {
                     Helpers.TaskFactory.Instance.RunTask("createwallet", "Creating wallet", () =>
                     {
-                        Cli.Instance.Wallet.Interface.CreateWallet(d2.Name, d2.Password,
-                        (CreateWalletResponseData result) => {
-                            CreateSuccess(d2.Name, d2.Password, result.Address);
-                        }, CreateError);
+                        if (d.HwWallet)
+                        {
+                            Cli.Instance.Wallet.Interface.CreateHwWallet(d.Name, d.Password,
+                                (CreateHwWalletResponseData result) =>
+                            {
+                                CreateSuccess(d.Name, d.Password, result.Address);
+                            }, CreateError);
+                        }
+                        else
+                        {
+                            Cli.Instance.Wallet.Interface.CreateWallet(d.Name, d.Password, 
+                                (CreateWalletResponseData result) =>
+                            {
+                                CreateSuccess(d.Name, d.Password, result.Address);
+                            }, CreateError);
+                        }
                     });
-                    
                 }
                 else
                     Parent.EnableNextButton(true); 

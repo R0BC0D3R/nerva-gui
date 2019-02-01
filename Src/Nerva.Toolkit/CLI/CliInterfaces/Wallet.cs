@@ -38,6 +38,13 @@ namespace Nerva.Toolkit.CLI
                 Password = password
             }, successAction, errorAction, r.Port).Run();
 
+        public bool CreateHwWallet(string walletName, string password,
+            Action<CreateHwWalletResponseData> successAction, Action<RequestError> errorAction) =>
+            new CreateHwWallet(new CreateHwWalletRequestData {
+                FileName = walletName,
+                Password = password
+            }, successAction, errorAction, r.Port).Run();
+
         public bool RestoreWalletFromSeed(string walletName, string seed, string seedOffset, string password, string language, 
             Action<RestoreWalletFromSeedResponseData> successAction, Action<RequestError> errorAction) =>
             new RestoreWalletFromSeed(new RestoreWalletFromSeedRequestData {
@@ -66,10 +73,10 @@ namespace Nerva.Toolkit.CLI
                     successAction();
             }, errorAction, r.Port).Run();
 
-        public bool QueryKey(string keyType, Action<QueryKeyResponseData> successAction) =>
+        public bool QueryKey(string keyType, Action<QueryKeyResponseData> successAction, Action<RequestError> errorAction) =>
             new QueryKey(new QueryKeyRequestData {
                 KeyType = keyType
-            }, successAction, null, r.Port).Run();
+            }, successAction, errorAction, r.Port).Run();
 
         public bool GetTransfers(ulong scanFromHeight, Action<GetTransfersResponseData> successAction, Action<RequestError> errorAction)
         {
