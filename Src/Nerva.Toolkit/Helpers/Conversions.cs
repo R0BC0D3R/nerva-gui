@@ -25,38 +25,28 @@ namespace Nerva.Toolkit.Helpers
             return $"{a.Substring(0, 6)}...{a.Substring(a.Length - 6, 6)}";
         }
 
-        public static ulong OctetSetToInt(string vs)
+        public static uint VersionStringToInt(string vs)
         {
-            ulong i = 0;
-
             string[] split = vs.Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
+            ushort[] converted = new ushort[split.Length];
 
-            if (split.Length != 4)
+            for (int i = 0; i < split.Length; i++)
+                if (!ushort.TryParse(split[i], out converted[i]))
+                {
+                    Log.Instance.Write(Log_Severity.Error, "Attempt to parse poorly formatted version string");
+                    return 0;
+                }
+            
+            switch (split.Length)
             {
-                Log.Instance.Write(Log_Severity.Error, "Attempt to convert octet set != 4 values");
-                return 0;
+                case 3:
+                    return (uint)((converted[0] << 24) + (converted[1] << 16) + converted[2]);
+                case 4:
+                    return (uint)((converted[0] << 24) + (converted[1] << 16) + (converted[1] << 8) + converted[2]);
+                default:
+                    Log.Instance.Write(Log_Severity.Error, $"Attempt to convert version string with {split.Length} values");
+                    return 0;
             }
-
-            ulong o1, o2, o3, o4;
-
-            if (!ulong.TryParse(split[0], out o1) || !ulong.TryParse(split[1], out o2) || !ulong.TryParse(split[2], out o3) || !ulong.TryParse(split[3], out o4))
-            {
-                Log.Instance.Write(Log_Severity.Error, "Attempt to parse poorly formatted octet set");
-                return 0;
-            }
-
-            if ((o1 < 0 || o1 > 255) || (o2 < 0 || o2 > 255) || (o3 < 0 || o3 > 255) || (o4 < 0 || o4 > 255))
-            {
-                Log.Instance.Write(Log_Severity.Error, "Octet value is out of range");
-                return 0;
-            }
-
-            i += o1 * 16777216;
-            i += o2 * 65536;
-            i += o3 * 256;
-            i += o4;
-
-            return i;
         }
     }
 }

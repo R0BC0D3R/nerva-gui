@@ -1,15 +1,10 @@
 using System;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.Threading;
 using AngryWasp.Logger;
 using Nerva.Toolkit.Config;
 using Nerva.Toolkit.Helpers;
 using AngryWasp.Helpers;
-using Nerva.Toolkit.Content.Dialogs;
-using Eto.Forms;
-using System.Threading.Tasks;
 using Nerva.Toolkit.Content.Wizard;
 
 namespace Nerva.Toolkit.CLI
@@ -217,32 +212,6 @@ namespace Nerva.Toolkit.CLI
         private void DoCliStartup(string exe)
         {
             //do nothing
-        }
-
-        private void UpdateCheck()
-        {
-            Helpers.TaskFactory.Instance.RunTask("updatecheck", "Checking for updates", () =>
-            {
-                while (!IsReady(daemon.BaseExeName))
-                    Thread.Sleep(Constants.FIVE_SECONDS);
-
-                UpdateManager.CheckForCliUpdates();
-
-                switch (UpdateManager.UpdateStatus)
-                {
-                    case Update_Status_Code.UpToDate:
-                        Log.Instance.Write("NERVA CLI tools are up to date");
-                        break;
-                    case Update_Status_Code.NewVersionAvailable:
-                        Log.Instance.Write("A new version of the NERVA CLI tools are available");
-                        break;
-                    default:
-                        Log.Instance.Write(Log_Severity.Error, "An error occurred checking for updates.");
-                        break;
-                }
-
-                Log.Instance.Write("Update check complete");
-            });
         }
 
         #endregion

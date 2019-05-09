@@ -21,7 +21,7 @@ namespace Nerva.Toolkit.CLI
             switch (OS.Type)
             {
                 case OS_Type.Linux:
-                case OS_Type.Mac:
+                case OS_Type.Osx:
                     {
                     //On Linux we have to use the --detach option to keep
                     //the daemon running after the wallet closes

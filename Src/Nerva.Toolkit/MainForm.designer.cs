@@ -183,7 +183,8 @@ namespace Nerva.Toolkit
 						{
 							discordCommand,
 							redditCommand,
-							twitterCommand
+							twitterCommand,
+							file_UpdateCheck
 						}
 					}
 				},

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -601,91 +602,86 @@ namespace Nerva.Toolkit
         {
             Helpers.TaskFactory.Instance.RunTask("updatecheck", "Checking for updates", () =>
             {
-                UpdateManager.CheckForCliUpdates();
+                UpdateManager.CheckUpdate();
 
-                switch (UpdateManager.UpdateStatus)
+                string cliMsg = "CLI: ";
+                string guiMsg = "GUI: ";
+
+                bool updateRequired = false;
+
+                if (UpdateManager.CliUpdateInfo.UpdateStatus == Update_Status_Code.NewVersionAvailable)
                 {
-                    case Update_Status_Code.UpToDate:
-                        Log.Instance.Write("NERVA CLI tools are up to date");
-                        Application.Instance.AsyncInvoke(() =>
+                    cliMsg += $"{UpdateManager.CliUpdateInfo.ToString()}";
+                    updateRequired = true;
+                }
+                else
+                    cliMsg += "Up to date";
+
+                if (UpdateManager.GuiUpdateInfo.UpdateStatus == Update_Status_Code.NewVersionAvailable)
+                {
+                    guiMsg += $"{UpdateManager.GuiUpdateInfo.ToString()}";
+                    updateRequired = true;
+                }
+                else
+                    guiMsg += "Up to date";
+
+                Application.Instance.AsyncInvoke(() =>
+				{
+                    if (updateRequired)
+                    {
+                        if (MessageBox.Show(Application.Instance.MainForm, $"{cliMsg}\r\n\r\n{guiMsg}\r\nWould you like to download the available updates?", "NERVA Updater", 
+                            MessageBoxButtons.YesNo, MessageBoxType.Question, MessageBoxDefaultButton.No) == DialogResult.Yes)
                         {
-                            MessageBox.Show(this, "The NERVA CLI tools are up to date.", "Nerva Updater",
-                                MessageBoxButtons.OK, MessageBoxType.Information, MessageBoxDefaultButton.OK);
-                        });
-                        break;
-                    case Update_Status_Code.NewVersionAvailable:
-                        Log.Instance.Write("A new version of the NERVA CLI tools are available");
-                        Application.Instance.AsyncInvoke(() =>
-                        {
-                            if (MessageBox.Show(this, "An update to the NERVA CLI tools is available.\r\nWould you like to download it?", "Nerva Updater",
-                                MessageBoxButtons.YesNo, MessageBoxType.Question, MessageBoxDefaultButton.Yes) == DialogResult.Yes)
-                            {
-                                VersionManager.GetVersionInfo(UpdateManager.CurrentLocalVersion, () =>
+
+                            if (UpdateManager.CliUpdateInfo != null && UpdateManager.CliUpdateInfo.UpdateStatus == Update_Status_Code.NewVersionAvailable)
+                                Helpers.TaskFactory.Instance.RunTask("dlcliupdate", $"Downloading CLI update", () =>
                                 {
-                                    TaskContainer tc = null;
-                                    tc = Helpers.TaskFactory.Instance.RunTask("downloadingupdate", "Downloading Update", () =>
+                                    UpdateManager.DownloadUpdate(Update_Type.CLI, UpdateManager.CliUpdateInfo.GetDownloadFile(), null, (b, s) =>
                                     {
-                                        Cli.Instance.Daemon.StopCrashCheck();
-                                        Cli.Instance.Wallet.StopCrashCheck();
-
-                                        Cli.Instance.Daemon.ForceClose();
-                                        Cli.Instance.Wallet.ForceClose();
-
-                                        Thread.Sleep(5000);
-
-                                        string link = null;
-
-                                        switch (OS.Type)
-                                        {
-                                            case OS_Type.Windows:
-                                                link = VersionManager.VersionInfo.WindowsLink;
-                                                break;
-                                            case OS_Type.Linux:
-                                                link = VersionManager.VersionInfo.LinuxLink;
-                                                break;
-                                            case OS_Type.Mac:
-                                                link = VersionManager.VersionInfo.MacLink;
-                                                break;
-                                        }
-
-                                        VersionManager.DownloadFile(link, (DownloadProgressChangedEventArgs ea) =>
-                                        {
-                                            Application.Instance.AsyncInvoke(() =>
-                                            {
-                                                float max = (float)ea.TotalBytesToReceive;
-                                                float val = (float)ea.BytesReceived;
-
-                                                double percent = Math.Round(val / max, 1);
-                                                tc.Description = $"Downloading Update {percent}%";
-                                            });
-
-                                        }, (bool success, string dest) =>
-                                        {
-                                            Application.Instance.AsyncInvoke(() =>
-                                            {
-                                                if (!success)
-                                                {
-                                                    MessageBox.Show(Application.Instance.MainForm, "An error occured while downloading/extracting the NERVA CLI tools.\r\n" +
-                                                    "Please refer to the log file and try again later", "Request Failed", MessageBoxButtons.OK, MessageBoxType.Error, MessageBoxDefaultButton.OK);
-                                                }
-                                            });
-
-                                            Cli.Instance.Daemon.ResumeCrashCheck();
-                                            Cli.Instance.Wallet.ResumeCrashCheck();
-                                        });
+                                        DisplayUpdateResult(b, s);
                                     });
                                 });
-                            }
-                        });
-                        break;
-                    default:
-                        Log.Instance.Write(Log_Severity.Error, "An error occurred checking for updates.");
-                        MessageBox.Show(this, "An error occurred checking for updates.", "Nerva Updater",
-                                MessageBoxButtons.OK, MessageBoxType.Error, MessageBoxDefaultButton.OK);
-                        break;
-                }
+
+                            
+                            if (UpdateManager.GuiUpdateInfo != null && UpdateManager.GuiUpdateInfo.UpdateStatus == Update_Status_Code.NewVersionAvailable)
+                                Helpers.TaskFactory.Instance.RunTask("dlguiupdate", $"Downloading GUI update", () =>
+                                {
+                                    UpdateManager.DownloadUpdate(Update_Type.GUI, UpdateManager.GuiUpdateInfo.GetDownloadFile(), null, (b, s) =>
+                                    {
+                                        DisplayUpdateResult(b, s);
+                                    });
+                                });
+                        }
+                    }
+                    else
+                        MessageBox.Show(Application.Instance.MainForm, $"You are up to date", "NERVA Updater", 
+                            MessageBoxButtons.OK, MessageBoxType.Information);
+				});
+                    
             });
-            
+        }
+
+        private void DisplayUpdateResult(bool ok, string file)
+        {
+            if (ok)
+            {
+                Application.Instance.AsyncInvoke(() =>
+                {
+                    MessageBox.Show(Application.Instance.MainForm, $"Update downloaded to {file}", "NERVA Updater", 
+                        MessageBoxButtons.OK, MessageBoxType.Information);
+                });
+            }
+            else
+            {
+                if (File.Exists(file))
+                    File.Delete(file);
+                                                
+                Application.Instance.AsyncInvoke(() =>
+                {
+                    MessageBox.Show(Application.Instance.MainForm, $"An error occurred during the update", "NERVA Updater", 
+                        MessageBoxButtons.OK, MessageBoxType.Error);
+                });
+            }
         }
 
         protected void quit_Clicked(object sender, EventArgs e)

@@ -5,8 +5,8 @@ namespace Nerva.Toolkit.Helpers
 {	
 	public static class Constants
 	{
-        public const string VERSION = "0.0.2.4";
-        public const string CODE_NAME = "Beta-4";
+        public const string VERSION = "2.5.0";
+        public const string CODE_NAME = "Beta-5";
         public static readonly string LONG_VERSION = $"{VERSION}: {CODE_NAME}";
 
         public const string DEFAULT_CONFIG_FILENAME = "app.config";
@@ -18,6 +18,8 @@ namespace Nerva.Toolkit.Helpers
 
         public const uint NERVAD_RPC_PORT_MAINNET = 17566;
         public const uint NERVAD_RPC_PORT_TESTNET = 18566;
+
+        public const string DOWNLOAD_LINK = "https://getnerva.org/content/binaries";
 
         public static readonly string[] Languages = new string[]
         {
@@ -40,7 +42,7 @@ namespace Nerva.Toolkit.Helpers
     {
         NotSet,
         Linux,
-        Mac,
+        Osx,
         Windows,
         Unsupported,
     }
@@ -70,7 +72,7 @@ namespace Nerva.Toolkit.Helpers
                             if (uname == "linux")
                                 type = OS_Type.Linux;
                             else if (uname == "darwin")
-                                type = OS_Type.Mac;
+                                type = OS_Type.Osx;
                             else
                                 type = OS_Type.Unsupported;
                         }
@@ -91,18 +93,8 @@ namespace Nerva.Toolkit.Helpers
 
         public static bool IsLinux() => type == OS_Type.Linux;
 
-        public static bool IsMac() => type == OS_Type.Mac;
+        public static bool IsMac() => type == OS_Type.Osx;
 
-        public static bool IsUnix() => type == OS_Type.Linux || type == OS_Type.Mac;
-    }
-
-    public static class SeedNodes
-    {
-        public const string XNV1 = "206.81.2.15";
-        public const string XNV2 = "206.81.2.16";
-        public const string XNV3 = "206.81.12.28";
-        public const string XNV4 = "204.48.17.173";
-        public const string XNV5 = "206.81.2.10";
-        public const string XNV6 = "206.81.2.12";
+        public static bool IsUnix() => type == OS_Type.Linux || type == OS_Type.Osx;
     }
 }

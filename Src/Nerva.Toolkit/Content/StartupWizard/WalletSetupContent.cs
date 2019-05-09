@@ -1,3 +1,4 @@
+using System;
 using System.Text.RegularExpressions;
 using AngryWasp.Logger;
 using Eto.Drawing;
@@ -182,6 +183,11 @@ namespace Nerva.Toolkit.Content.Wizard
         public void Flush()
         {
             return;
+        }
+
+        public void SetColor(ConsoleColor color)
+        {
+            //todo: implement color change of label text
         }
 
         public void Write(Log_Severity severity, string value)

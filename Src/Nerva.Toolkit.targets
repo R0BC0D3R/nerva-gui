@@ -40,6 +40,8 @@
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="*"/>
     <PackageReference Include="System.IO.Compression" Version="*"/>
-    <PackageReference Include="Eto.Forms" Version="2.5.0-ci-10024" />
+    <PackageReference Include="Eto.Forms" Version="2.5.0-ci-10129" />
+    <PackageReference Include="DnsClient" Version="*"/>
+    <PackageReference Include="BouncyCastle" Version="*"/>
   </ItemGroup>
 </Project>

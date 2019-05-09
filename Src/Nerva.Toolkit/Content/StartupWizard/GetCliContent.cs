@@ -43,21 +43,18 @@ namespace Nerva.Toolkit.Content.Wizard
                     return CreateNotSupportedContent();
                 default:
                     {
-                        string link = null;
+                        string link = $"{Constants.DOWNLOAD_LINK}/" + UpdateManager.CliUpdateInfo.GetDownloadFile();
                         string defPath = FileNames.GetCliExePath(FileNames.NERVAD);
                         bool defPathExists = File.Exists(defPath);
                         switch (OS.Type)
                         {
                             case OS_Type.Windows:
-                                link = VersionManager.VersionInfo.WindowsLink;
                                 existingCli = defPathExists;
                                 break;
                             case OS_Type.Linux:
-                                link = VersionManager.VersionInfo.LinuxLink;
                                 existingCli = defPathExists || File.Exists(Path.Combine(Environment.GetEnvironmentVariable("HOME"), ".local/bin/nervad"));
                                 break;
-                            case OS_Type.Mac:
-                                link = VersionManager.VersionInfo.MacLink;
+                            case OS_Type.Osx:
                                 existingCli = defPathExists || File.Exists("/usr/local/bin/nervad");
                                 break;
                         }
@@ -177,7 +174,7 @@ namespace Nerva.Toolkit.Content.Wizard
         {
             btnDownload.Enabled = false;
 
-            VersionManager.DownloadFile(link, (DownloadProgressChangedEventArgs ea) =>
+            UpdateManager.DownloadCLI(link, (DownloadProgressChangedEventArgs ea) =>
             {
                 Application.Instance.AsyncInvoke(() =>
                 {
