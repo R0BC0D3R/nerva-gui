@@ -12,8 +12,6 @@ using System.IO.Compression;
 using Nerva.Toolkit.Helpers.Native;
 using Nerva.Toolkit.Config;
 using System.Linq;
-using System.Security.Cryptography;
-using AngryWasp.Helpers;
 
 namespace Nerva.Toolkit.Helpers
 {
@@ -35,13 +33,11 @@ namespace Nerva.Toolkit.Helpers
     {
         private string version = null;
         private string codeName = null;
-        private string hash = null;
         private string notice = null;
 
         public Update_Status_Code UpdateStatus { get; set; } = Update_Status_Code.Undefined;
         public string Version => version;
         public string CodeName => codeName;
-        public string Hash => hash;
         public string Notice => notice;
 
         public string GetDownloadFile()
@@ -68,8 +64,7 @@ namespace Nerva.Toolkit.Helpers
             {
                 version = recordParts[1],
                 codeName = recordParts[2],
-                hash = recordParts[3],
-                notice = recordParts[4]
+                notice = recordParts[3]
             };
 
             return ui;
@@ -77,7 +72,7 @@ namespace Nerva.Toolkit.Helpers
 
         public override string ToString()
         {
-            return $"{version}:{codeName}\r\n{hash}\r\n{Constants.DOWNLOAD_LINK}/{GetDownloadFile()}\r\n{notice}";
+            return $"{version}:{codeName}\r\n{Constants.DOWNLOAD_LINK}/{GetDownloadFile()}\r\n{notice}";
         }
     }
 
@@ -194,6 +189,11 @@ namespace Nerva.Toolkit.Helpers
                 else
                 {
                     Log.Instance.Write("Downloading binary package.");
+                    using (var client = new WebClient())
+                    {
+                        client.DownloadFileAsync(new Uri(url + ".sig"),  destFile);
+                    }
+                    
                     using (var client = new WebClient())
                     {
                         client.DownloadProgressChanged += (s, e) =>
