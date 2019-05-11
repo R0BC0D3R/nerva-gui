@@ -153,12 +153,12 @@ namespace Nerva.Toolkit.Helpers
             {
                 string txt = ((DnsClient.Protocol.TxtRecord)r).Text.ToArray()[0];
                 
-                if (txt.StartsWith("cli:"))
+                if (txt.StartsWith("nerva-cli:"))
                 {
                     Log.Instance.Write($"Found DNS update record: {r}");
                     cliUpdateInfo = UpdateInfo.Create(txt);
                 }       
-                else if (txt.StartsWith("gui:"))
+                else if (txt.StartsWith("nerva-gui:"))
                 {
                     Log.Instance.Write($"Found DNS update record: {r}");
                     guiUpdateInfo = UpdateInfo.Create(txt);
