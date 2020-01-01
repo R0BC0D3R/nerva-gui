@@ -30,7 +30,7 @@ namespace Nerva.Toolkit.Content.Dialogs
 			lblNote.Text = tx.Note;
 
 			lblType.Text = tx.Type;
-			lblTime.Text = StringHelper.UnixTimeStampToDateTime(tx.Timestamp).ToString();
+			lblTime.Text = DateTimeHelper.UnixTimestampToDateTime(tx.Timestamp).ToString();
 			lblAmount.Text = Conversions.FromAtomicUnits(tx.Amount).ToString();
 			lblFee.Text = Conversions.FromAtomicUnits(tx.Fee).ToString();
 			lblHeight.Text = tx.Height.ToString();

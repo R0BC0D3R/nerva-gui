@@ -133,7 +133,7 @@ namespace Nerva.Toolkit.Content
 					//Update the daemon info
 					lblHeight.Text = info.Height.ToString();
 					lblNetHash.Text = nethash.ToString() + " kH/s";
-					lblRunTime.Text = (DateTime.Now - StringHelper.UnixTimeStampToDateTime((ulong)info.StartTime)).ToString(@"hh\:mm");
+					lblRunTime.Text = (DateTime.Now - DateTimeHelper.UnixTimestampToDateTime((ulong)info.StartTime)).ToString(@"hh\:mm");
 
 					lastReportedDiff = info.Difficulty;
 
