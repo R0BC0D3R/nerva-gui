@@ -1,5 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="../Nerva.Toolkit.targets"/>
+  <Import Project="../Nerva.Toolkit.targets" />
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <RootNamespace>Nerva.Toolkit</RootNamespace>
@@ -8,12 +8,13 @@
     <OutputPath>../../Bin/$(Configuration)/Mac</OutputPath>
   </PropertyGroup>
   <ItemGroup>
-    <EmbeddedResource Include="../../Content/NERVA-Logo.png"/>
+    <EmbeddedResource Include="../../Content/NERVA-Logo.png" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Mono.Posix"/>
+    <Reference Include="Mono.Posix" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Eto.Platform.Mac64" Version="2.5.0-ci-10129" />
+    <PackageReference Include="Eto.Platform.Mac64" Version="*" />
+    <PackageReference Include="Mono.Posix.NETStandard" Version="*" />
   </ItemGroup>
 </Project>

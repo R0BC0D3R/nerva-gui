@@ -6,9 +6,9 @@
     "configurations": [
         {
             "name": "Debug-Linux",
-            "type": "mono",
+            "type": "coreclr",
             "request": "launch",
-            "program": "${workspaceRoot}/Bin/Debug/Linux/Nerva.Toolkit.exe",
+            "program": "${workspaceRoot}/Bin/Debug/Linux/Nerva.Toolkit.dll",
             "cwd": "${workspaceRoot}/Bin/Debug/Linux",
             "preLaunchTask": "linux-debug",
             "args":[

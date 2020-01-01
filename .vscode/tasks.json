@@ -6,73 +6,57 @@
         {
             "label": "linux-debug",
             "type": "shell",
-            "command": "msbuild",
+            "command": "dotnet",
             "args": [
-                "/t:restore", "/t:clean", "/t:build", "/p:GenerateFullPaths=true",
+                "build", "/p:GenerateFullPaths=true",
                 "/p:Configuration=Debug", "/p:TrimUnusedDependencies=true",
                 "/p:OutputPath=${workspaceRoot}/Bin/Debug/Linux",
                 "${workspaceRoot}/Src/Nerva.Toolkit/Nerva.Toolkit.Linux.csproj"
             ],
             "group": "build",
-            "presentation": {
-                // Reveal the output only if unrecognized errors occur.
-                "reveal": "silent"
-            },
-            // Use the standard MS compiler pattern to detect errors, warnings and infos
+            "presentation": { "reveal": "silent" },
             "problemMatcher": "$msCompile"
         },
         {
             "label": "windows-debug",
             "type": "shell",
-            "command": "msbuild",
+            "command": "dotnet",
             "args": [
-                "/t:restore", "/t:clean", "/t:build", "/p:GenerateFullPaths=true",
+                "build", "/p:GenerateFullPaths=true",
                 "/p:Configuration=Debug", "/p:TrimUnusedDependencies=true",
                 "/p:OutputPath=${workspaceRoot}/Bin/Debug/Windows",
                 "${workspaceRoot}\\Src\\Nerva.Toolkit\\Nerva.Toolkit.Windows.csproj"
             ],
             "group": "build",
-            "presentation": {
-                // Reveal the output only if unrecognized errors occur.
-                "reveal": "silent"
-            },
-            // Use the standard MS compiler pattern to detect errors, warnings and infos
+            "presentation": { "reveal": "silent" },
             "problemMatcher": "$msCompile"
         },
         {
             "label": "windows-release",
             "type": "shell",
-            "command": "msbuild",
+            "command": "dotnet",
             "args": [
-                "/t:restore", "/t:clean", "/t:build", "/p:GenerateFullPaths=true",
+                "build", "/p:GenerateFullPaths=true",
                 "/p:Configuration=Release", "/p:TrimUnusedDependencies=true",
                 "/p:OutputPath=${workspaceRoot}/Bin/Release/Windows",
                 "${workspaceRoot}\\Src\\Nerva.Toolkit\\Nerva.Toolkit.Windows.csproj"
             ],
             "group": "build",
-            "presentation": {
-                // Reveal the output only if unrecognized errors occur.
-                "reveal": "silent"
-            },
-            // Use the standard MS compiler pattern to detect errors, warnings and infos
+            "presentation": { "reveal": "silent" },
             "problemMatcher": "$msCompile"
         },
         {
             "label": "mac-debug",
             "type": "shell",
-            "command": "msbuild",
+            "command": "dotnet",
             "args": [
-                "/t:restore", "/t:clean", "/t:build", "/p:GenerateFullPaths=true",
+                "build", "/p:GenerateFullPaths=true",
                 "/p:Configuration=Debug", "/p:TrimUnusedDependencies=true",
                 "/p:OutputPath=${workspaceRoot}/Bin/Debug/Mac",
                 "${workspaceRoot}/Src/Nerva.Toolkit/Nerva.Toolkit.Mac.csproj"
             ],
             "group": "build",
-            "presentation": {
-                // Reveal the output only if unrecognized errors occur.
-                "reveal": "silent"
-            },
-            // Use the standard MS compiler pattern to detect errors, warnings and infos
+            "presentation": { "reveal": "silent" },
             "problemMatcher": "$msCompile"
         },
     ]

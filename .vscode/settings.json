@@ -12,9 +12,4 @@
         "**/CVS": true,
         "**/.DS_Store": true
     },
-    //"terminal.integrated.shell.windows": "cmd.exe",
-    //"terminal.integrated.shellArgs.windows": [
-    //    "/k", "C:\\Cmder\\vendor\\init.bat"
-    //],
 }
-

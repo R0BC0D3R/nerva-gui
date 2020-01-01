@@ -1,6 +1,6 @@
 <Project>
   <PropertyGroup>
-    <TargetFramework>net471</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <MacBundleMono>false</MacBundleMono>
@@ -20,17 +20,6 @@
     <Optimize>true</Optimize>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System"/>
-    <Reference Include="System.Data"/>
-    <Reference Include="System.Xml"/>
-    <Reference Include="Microsoft.CSharp"/>
-    <Reference Include="System.Core"/>
-    <Reference Include="System.Xml.Linq"/>
-    <Reference Include="System.Data.DataSetExtensions"/>
-    <Reference Include="System.Net.Http"/>
-    <Reference Include="System.Xaml"/>
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="../../External/Nerva.Rpc.CSharp/Src/Nerva.Rpc/Nerva.Rpc.csproj" />
     <ProjectReference Include="../../External/AngryWasp.Serializer/External/AngryWasp.Logger/Src/AngryWasp.Logger/AngryWasp.Logger.csproj" />
     <ProjectReference Include="../../External/AngryWasp.Serializer/External/AngryWasp.Helpers/Src/AngryWasp.Helpers/AngryWasp.Helpers.csproj" />
@@ -40,8 +29,7 @@
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="*"/>
     <PackageReference Include="System.IO.Compression" Version="*"/>
-    <PackageReference Include="Eto.Forms" Version="2.5.0-ci-10129" />
+    <PackageReference Include="Eto.Forms" Version="*" />
     <PackageReference Include="DnsClient" Version="*"/>
-    <PackageReference Include="BouncyCastle" Version="*"/>
   </ItemGroup>
 </Project>
