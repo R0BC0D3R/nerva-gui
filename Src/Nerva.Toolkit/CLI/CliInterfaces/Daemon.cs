@@ -17,36 +17,36 @@ namespace Nerva.Toolkit.CLI
         public DaemonInterface() : base(Configuration.Instance.Daemon.Rpc) { }
         
         public bool GetBlockCount(Action<uint> successAction, Action<RequestError> errorAction) =>
-            new GetBlockCount(successAction, errorAction, r.Port).Run();
+            new GetBlockCount(successAction, errorAction, r.Host, r.Port).Run();
 
         public bool GetInfo(Action<GetInfoResponseData> successAction, Action<RequestError> errorAction) =>
-            new GetInfo(successAction, errorAction, r.Port).Run();
+            new GetInfo(successAction, errorAction, r.Host, r.Port).Run();
 
         public bool GetConnections(Action<List<GetConnectionsResponseData>> successAction, Action<RequestError> errorAction) =>
-            new GetConnections(successAction, errorAction, r.Port).Run();
+            new GetConnections(successAction, errorAction, r.Host, r.Port).Run();
 
         public bool StopDaemon() => 
-            new StopDaemon(null, null, r.Port).Run();
+            new StopDaemon(null, null, r.Host, r.Port).Run();
 
         public bool StartMining() =>
             new StartMining(new StartMiningRequestData {
                 MinerAddress = Configuration.Instance.Daemon.MiningAddress,
                 MiningThreads = (uint)MathHelper.Clamp(Configuration.Instance.Daemon.MiningThreads, 1, Environment.ProcessorCount)
-            }, null, null, r.Port).Run();
+            }, null, null, r.Host, r.Port).Run();
 
         public bool StopMining() =>
-            new StopMining(null, null, r.Port).Run();
+            new StopMining(null, null, r.Host, r.Port).Run();
 
         public bool MiningStatus(Action<MiningStatusResponseData> successAction, Action<RequestError> errorAction) =>
-            new MiningStatus(successAction, errorAction, r.Port).Run();
+            new MiningStatus(successAction, errorAction, r.Host, r.Port).Run();
 
         public bool BanPeer(string ip) =>
             new SetBans(new SetBansRequestData {
-                Bans = new List<Ban> {
-                    new Ban {
+                Bans = new List<SetBansItem> {
+                    new SetBansItem {
                         Host = ip
                     }
                 }
-            }, null, null, r.Port).Run();
+            }, null, null, r.Host, r.Port).Run();
     }
 }

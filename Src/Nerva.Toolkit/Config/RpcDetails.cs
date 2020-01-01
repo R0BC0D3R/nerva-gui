@@ -6,6 +6,7 @@ namespace Nerva.Toolkit.Config
     {
         public bool IsPublic { get; set; } = false;
 
+        public string Host { get; set; } = "127.0.0.1";
         public uint Port { get; set; } = 0;
 
         public string Login { get; set; } = "";
