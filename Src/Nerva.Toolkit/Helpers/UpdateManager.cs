@@ -215,7 +215,7 @@ namespace Nerva.Toolkit.Helpers
                 if (!Directory.Exists(destDir))
                     Directory.CreateDirectory(destDir);
 
-                string destFile = Path.Combine(destDir, file);
+                string destFile = Path.Combine(destDir, Path.GetFileName(file));
 
                 if (File.Exists(destFile))
                 {
@@ -225,6 +225,7 @@ namespace Nerva.Toolkit.Helpers
                 else
                 {
                     Log.Instance.Write("Downloading CLI tools.");
+                    AngryWasp.Logger.Log.Instance.Write(url);
                     using (var client = new WebClient())
                     {
                         client.DownloadProgressChanged += (s, e) =>
@@ -239,6 +240,7 @@ namespace Nerva.Toolkit.Helpers
                             else
                             {
                                 AngryWasp.Logger.Log.Instance.Write(Log_Severity.Error, $".NET Exception, {e.Error.Message}");
+                                AngryWasp.Logger.Log.Instance.WriteNonFatalException(e.Error);
                                 onComplete(false, destFile);
                             }
                         };
