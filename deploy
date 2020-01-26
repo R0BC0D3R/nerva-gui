@@ -1,47 +1,14 @@
 #!/bin/bash
 
 dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 source ${dir}/builder/helpers
-detectversion
-
-function generateversionfile()
-{
-
-  template=$(curl -s https://getnerva.org/content/version.php.template)
-  json=$(curl -s https://getnerva.org/getbinaries.php)
-
-  cli=($(echo "$json" | jq '.cli_version' | tr -d '"v'))
-  gui=($(echo "$json" | jq '.gui_version' | tr -d '"v'))
-
-  cli_ver=$(echo ${cli[0]} | tr -d ':')
-  cli_name=${cli[1]}
-
-  gui_ver=$(echo ${gui[0]} | tr -d ':')
-  gui_name=${gui[1]}
-
-  rm ${dir}/version.php
-  verfile=$(echo "$template" | \
-    sed -e "s/{CLI_VER}/${cli_ver}/" -e "s/{CLI_NAME}/${cli_name}/" -e "s/{GUI_VER}/${NERVA_VERSION}/" -e "s/{GUI_NAME}/${NERVA_CODENAME}/")
-  echo "$verfile" > "${dir}/version.php"
-
-}
-
-generateversionfile
+source ${dir}/credentials
 
 files=($(find ${dir}/*.zip))
 for item in ${files[*]}
 do
-  f=$(basename $item)
-  md5=($(md5sum $item))
-  echo $md5 > ${dir}/$f.md5.txt
-  scp $item $1:/var/www/html/content/binaries/$f
+	echo ${item}
+	curl -X POST "https://${BB_LOGIN}@api.bitbucket.org/2.0/repositories/nerva-project/nerva.gui/downloads" --form files=@"${item}"
+	curl -X POST "https://${BB_LOGIN}@api.bitbucket.org/2.0/repositories/nerva-project/nerva.gui/downloads" --form files=@"${item}.sig"
 done
-
-files=($(find ${dir}/*.md5.txt))
-for item in ${files[*]}
-do
-  f=$(basename $item)
-  scp $item $1:/var/www/html/content/binaries/$f
-done
-
-scp ${dir}/version.php $1:/var/www/html/content/version.php

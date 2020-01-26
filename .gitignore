@@ -6,3 +6,5 @@ builder/output
 version.php
 *.zip
 *.md5.txt
+credentials
+*.zip.sig
