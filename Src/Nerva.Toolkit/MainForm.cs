@@ -605,7 +605,6 @@ namespace Nerva.Toolkit
                 UpdateManager.CheckUpdate();
 
                 string cliMsg = "CLI: ";
-                string guiMsg = "GUI: ";
 
                 bool updateRequired = false;
 
@@ -617,36 +616,18 @@ namespace Nerva.Toolkit
                 else
                     cliMsg += "Up to date";
 
-                if (UpdateManager.GuiUpdateInfo.UpdateStatus == Update_Status_Code.NewVersionAvailable)
-                {
-                    guiMsg += $"{UpdateManager.GuiUpdateInfo.ToString()}";
-                    updateRequired = true;
-                }
-                else
-                    guiMsg += "Up to date";
-
                 Application.Instance.AsyncInvoke(() =>
 				{
                     if (updateRequired)
                     {
-                        if (MessageBox.Show(Application.Instance.MainForm, $"{cliMsg}\r\n\r\n{guiMsg}\r\nWould you like to download the available updates?", "NERVA Updater", 
+                        if (MessageBox.Show(Application.Instance.MainForm, $"{cliMsg}\r\nWould you like to download the available updates?", "NERVA Updater", 
                             MessageBoxButtons.YesNo, MessageBoxType.Question, MessageBoxDefaultButton.No) == DialogResult.Yes)
                         {
 
                             if (UpdateManager.CliUpdateInfo != null && UpdateManager.CliUpdateInfo.UpdateStatus == Update_Status_Code.NewVersionAvailable)
                                 Helpers.TaskFactory.Instance.RunTask("dlcliupdate", $"Downloading CLI update", () =>
                                 {
-                                    UpdateManager.DownloadUpdate(Update_Type.CLI, UpdateManager.CliUpdateInfo.GetDownloadFile(), null, (b, s) =>
-                                    {
-                                        DisplayUpdateResult(b, s);
-                                    });
-                                });
-
-                            
-                            if (UpdateManager.GuiUpdateInfo != null && UpdateManager.GuiUpdateInfo.UpdateStatus == Update_Status_Code.NewVersionAvailable)
-                                Helpers.TaskFactory.Instance.RunTask("dlguiupdate", $"Downloading GUI update", () =>
-                                {
-                                    UpdateManager.DownloadUpdate(Update_Type.GUI, UpdateManager.GuiUpdateInfo.GetDownloadFile(), null, (b, s) =>
+                                    UpdateManager.DownloadUpdate(Update_Type.CLI, UpdateManager.CliUpdateInfo.DownloadLink, null, (b, s) =>
                                     {
                                         DisplayUpdateResult(b, s);
                                     });

@@ -43,7 +43,7 @@ namespace Nerva.Toolkit.Content.Wizard
                     return CreateNotSupportedContent();
                 default:
                     {
-                        string link = $"{Constants.DOWNLOAD_LINK}/" + UpdateManager.CliUpdateInfo.GetDownloadFile();
+                        string link = UpdateManager.CliUpdateInfo.DownloadLink;
                         string defPath = FileNames.GetCliExePath(FileNames.NERVAD);
                         bool defPathExists = File.Exists(defPath);
                         switch (OS.Type)

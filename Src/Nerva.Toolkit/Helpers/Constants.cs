@@ -5,8 +5,8 @@ namespace Nerva.Toolkit.Helpers
 {	
 	public static class Constants
 	{
-        public const string VERSION = "2.5.0";
-        public const string CODE_NAME = "Beta-5";
+        public const string VERSION = "2.6.0";
+        public const string CODE_NAME = "Beta-6";
         public static readonly string LONG_VERSION = $"{VERSION}: {CODE_NAME}";
 
         public const string DEFAULT_CONFIG_FILENAME = "app.config";
@@ -18,8 +18,6 @@ namespace Nerva.Toolkit.Helpers
 
         public const uint NERVAD_RPC_PORT_MAINNET = 17566;
         public const uint NERVAD_RPC_PORT_TESTNET = 18566;
-
-        public const string DOWNLOAD_LINK = "https://getnerva.org/content/binaries";
 
         public static readonly string[] Languages = new string[]
         {

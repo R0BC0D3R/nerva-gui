@@ -35,36 +35,23 @@ namespace Nerva.Toolkit.Helpers
         private string codeName = null;
         private string notice = null;
 
+        private string downloadLink = null;
+
         public Update_Status_Code UpdateStatus { get; set; } = Update_Status_Code.Undefined;
         public string Version => version;
         public string CodeName => codeName;
         public string Notice => notice;
+        public string DownloadLink => downloadLink;
 
-        public string GetDownloadFile()
-        {   
-            if (OS.Type == OS_Type.NotSet || OS.Type == OS_Type.Unsupported)
-            {
-                Log.Instance.Write(Log_Severity.Error, $"Could not generate CLI download link for OS type {OS.Type}");
-                return null;
-            }
-
-            if (string.IsNullOrEmpty(version))
-            {
-                Log.Instance.Write(Log_Severity.Error, $"Could not check remote software version");
-                return null;
-            }
-
-            return $"nerva-v{version}_{OS.Type.ToString().ToLower()}.zip";
-        }
-
-        public static UpdateInfo Create(string dnsRecord)
+        public static UpdateInfo Create(string dnsRecord, string dlLink)
         {
             string[] recordParts = dnsRecord.Split(':');
             UpdateInfo ui = new UpdateInfo
             {
                 version = recordParts[1],
                 codeName = recordParts[2],
-                notice = recordParts[3]
+                notice = recordParts[3],
+                downloadLink = dlLink
             };
 
             return ui;
@@ -72,17 +59,14 @@ namespace Nerva.Toolkit.Helpers
 
         public override string ToString()
         {
-            return $"{version}:{codeName}\r\n{Constants.DOWNLOAD_LINK}/{GetDownloadFile()}\r\n{notice}";
+            return $"{version}:{codeName}\r\n{downloadLink}\r\n{notice}";
         }
     }
 
 	public class UpdateManager
 	{
         private static string localCliVersion = null;
-        private static string localGuiVersion = null;
-
         private static UpdateInfo cliUpdateInfo;
-        private static UpdateInfo guiUpdateInfo;
 
         public static UpdateInfo CliUpdateInfo
         {
@@ -92,17 +76,6 @@ namespace Nerva.Toolkit.Helpers
                     GetRemoteVersion();
                 
                 return cliUpdateInfo;
-            }
-        }
-
-        public static UpdateInfo GuiUpdateInfo
-        {
-            get
-            {
-                if (guiUpdateInfo == null)
-                    GetRemoteVersion();
-                
-                return guiUpdateInfo;
             }
         }
 
@@ -120,14 +93,6 @@ namespace Nerva.Toolkit.Helpers
                 cliUpdateInfo.UpdateStatus = Update_Status_Code.NewVersionAvailable;
             else
                 cliUpdateInfo.UpdateStatus = Update_Status_Code.UpToDate;
-
-            uint localGuiInt = Conversions.VersionStringToInt(guiUpdateInfo.Version);
-            uint remoteGuiInt = Conversions.VersionStringToInt(guiUpdateInfo.Version);
-
-            if (remoteGuiInt > localGuiInt)
-                guiUpdateInfo.UpdateStatus = Update_Status_Code.NewVersionAvailable;
-            else
-                guiUpdateInfo.UpdateStatus = Update_Status_Code.UpToDate;
         }
 
         private static void GetLocalVersion()
@@ -140,8 +105,6 @@ namespace Nerva.Toolkit.Helpers
 
             if (string.IsNullOrEmpty(localCliVersion))
                 Log.Instance.Write(Log_Severity.Error, "Could not determine if a CLI update is required");
-
-            localGuiVersion = Constants.VERSION;
         }
 
         private static void GetRemoteVersion()
@@ -156,13 +119,8 @@ namespace Nerva.Toolkit.Helpers
                 if (txt.StartsWith("nerva-cli:"))
                 {
                     Log.Instance.Write($"Found DNS update record: {r}");
-                    cliUpdateInfo = UpdateInfo.Create(txt);
-                }       
-                else if (txt.StartsWith("nerva-gui:"))
-                {
-                    Log.Instance.Write($"Found DNS update record: {r}");
-                    guiUpdateInfo = UpdateInfo.Create(txt);
-                } 
+                    cliUpdateInfo = UpdateInfo.Create(txt, GetDownloadLink());
+                }
             }
         }
         
@@ -170,7 +128,7 @@ namespace Nerva.Toolkit.Helpers
         {
             TaskFactory.Instance.RunTask("downloadupdate", "Downloading update", () =>
             {
-                string url = $"{Constants.DOWNLOAD_LINK}/{file}";
+                string url = cliUpdateInfo.DownloadLink;
                 string destDir = Configuration.Instance.ToolsPath;
                 
                 if (string.IsNullOrEmpty(destDir))
@@ -218,11 +176,32 @@ namespace Nerva.Toolkit.Helpers
             });   
         }
 
+        public static string GetDownloadLink()
+        {
+            var client = new LookupClient();
+            var records = client.Query("download.getnerva.org", QueryType.TXT).Answers;
+
+            string os = OS.Type.ToString().ToLower();
+            string prefix = $"{os}:";
+
+            foreach (var r in records)
+            {
+                string txt = ((DnsClient.Protocol.TxtRecord)r).Text.ToArray()[0];
+                if (txt.StartsWith(prefix))
+                {
+                    Log.Instance.Write($"Found DNS download record: {r}");
+                    return txt.Substring(prefix.Length);
+                }       
+            }
+
+            return null;
+        }
+
         public static void DownloadCLI(string file, Action<DownloadProgressChangedEventArgs> onProgress, Action<bool, string> onComplete)
         {
             TaskFactory.Instance.RunTask("downloadcli", "Downloading the CLI tools", () =>
             {
-                string url = $"{Constants.DOWNLOAD_LINK}/{file}";
+                string url = cliUpdateInfo.DownloadLink;
                 string destDir = Configuration.Instance.ToolsPath;
                 
                 if (string.IsNullOrEmpty(destDir))
