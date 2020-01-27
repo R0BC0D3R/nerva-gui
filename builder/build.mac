@@ -1,0 +1,14 @@
+#!/bin/bash
+
+BUILDER_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source ${BUILDER_DIR}/helpers
+detectversion
+
+find ${NERVA_DIR}/External -iname "bin" -o -iname "obj" | xargs rm -rf
+find ${NERVA_DIR}/Src -iname "bin" -o -iname "obj" | xargs rm -rf
+
+msbuild /t:restore /t:build \
+/p:GenerateFullPaths=true /p:Configuration=Release /p:TrimUnusedDependencies=true \
+${NERVA_DIR}/Src/Nerva.Toolkit/Nerva.Toolkit.Mac.csproj
+
+find ${NERVA_DIR}/Bin -iname "*.pdb" | xargs rm -rf

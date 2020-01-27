@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="../Nerva.Toolkit.targets" />
+  <Import Project="../Nerva.Toolkit.targets"/>
   <PropertyGroup>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Exe</OutputType>
     <RootNamespace>Nerva.Toolkit</RootNamespace>
     <DefineConstants>$(DefineConstants);UNIX;</DefineConstants>
     <AssemblyName>Nerva.Toolkit</AssemblyName>
