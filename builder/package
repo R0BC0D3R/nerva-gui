@@ -21,6 +21,32 @@ function mac()
 	zip -r ${NERVA_DIR}/Bin/output/nerva-gui-v${NERVA_VERSION}_osx.zip ./*
 }
 
+function mac2()
+{
+	macdir=${NERVA_DIR}/Bin/Release/Mac
+
+	mkdir -p ${macdir}/Contents
+	mkdir -p ${macdir}/Contents/MacOS
+	mkdir -p ${macdir}/Contents/MonoBundle
+	mkdir -p ${macdir}/Contents/Resources
+
+	find ${macdir}/ -maxdepth 1 -type f -name '*' -exec mv -n {} ${macdir}/Contents/MonoBundle \;
+
+	plist=$(sed -e "s/{NERVA_VERSION}/${NERVA_VERSION}/" -e "s/{DISPLAY_NAME}/${NERVA_CODENAME}/" ${BUILDER_DIR}/Info.plist.template)
+	echo $plist > ${macdir}/Contents/info.plist
+
+	cp ${BUILDER_DIR}/logos/nerva-logo-color.icns ${macdir}/Contents/Resources/nerva-logo-color.icns
+	cp ${BUILDER_DIR}/logos/nerva-logo-color-2.icns ${macdir}/Contents/Resources/nerva-logo-color-2.icns
+
+	cp ${BUILDER_DIR}/Launcher64 ${macdir}/Contents/MacOS/Nerva.Toolkit
+
+	mv ${macdir} ${NERVA_DIR}/Bin/Release/Nerva.Toolkit.app
+
+
+	cd ${NERVA_DIR}/Bin/Release
+	zip -r ${NERVA_DIR}/nerva-gui-v${NERVA_VERSION}_mac.zip Nerva.Toolkit.app/
+}
+
 function windows()
 {
 	cd ${NERVA_DIR}/Bin/Release/Windows
