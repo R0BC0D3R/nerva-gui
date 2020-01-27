@@ -6,13 +6,8 @@
         {
             "label": "linux-debug",
             "type": "shell",
-            "command": "msbuild",
-            "args": [
-                "/t:restore", "/t:build", "/p:GenerateFullPaths=true",
-                "/p:Configuration=Debug", "/p:TrimUnusedDependencies=true",
-                "/p:OutputPath=${workspaceRoot}/Bin/Debug/Linux",
-                "${workspaceRoot}/Src/Nerva.Toolkit/Nerva.Toolkit.Linux.csproj"
-            ],
+            "command": "${workspaceRoot}/builder/build",
+            "args": [ "linux-debug" ],
             "group": "build",
             "presentation": { "reveal": "silent" },
             "problemMatcher": "$msCompile"
@@ -20,13 +15,8 @@
         {
             "label": "windows-debug",
             "type": "shell",
-            "command": "msbuild",
-            "args": [
-                "/t:restore", "/t:build", "/p:GenerateFullPaths=true",
-                "/p:Configuration=Debug", "/p:TrimUnusedDependencies=true",
-                "/p:OutputPath=${workspaceRoot}/Bin/Debug/Windows",
-                "${workspaceRoot}\\Src\\Nerva.Toolkit\\Nerva.Toolkit.Windows.csproj"
-            ],
+            "command": "${workspaceRoot}/builder/build",
+            "args": [ "windows-debug" ],
             "group": "build",
             "presentation": { "reveal": "silent" },
             "problemMatcher": "$msCompile"
@@ -34,13 +24,8 @@
         {
             "label": "mac-debug",
             "type": "shell",
-            "command": "msbuild",
-            "args": [
-                "/t:restore", "/t:build", "/p:GenerateFullPaths=true",
-                "/p:Configuration=Debug", "/p:TrimUnusedDependencies=true",
-                "/p:OutputPath=${workspaceRoot}/Bin/Debug/Mac",
-                "${workspaceRoot}/Src/Nerva.Toolkit/Nerva.Toolkit.Mac.csproj"
-            ],
+            "command": "${workspaceRoot}/builder/build",
+            "args": [ "mac-debug" ],
             "group": "build",
             "presentation": { "reveal": "silent" },
             "problemMatcher": "$msCompile"

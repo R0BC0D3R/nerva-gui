@@ -299,9 +299,12 @@ namespace Nerva.Toolkit.Helpers
                         }
                     }
 
+                    UnixNative.Symlink(Path.Combine(installDir, "nervad-aes"), Path.Combine(installDir, "nervad"));
+
                     destDir = installDir;
                 }
-                
+                else
+                    File.Move(Path.Combine(destDir, "nervad-aes.exe"), Path.Combine(destDir, "nervad.exe")); 
             }
             catch (Exception ex)
             {

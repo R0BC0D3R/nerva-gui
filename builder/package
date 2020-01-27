@@ -17,75 +17,22 @@ function mac()
 	cp ${BUILDER_DIR}/logos/nerva-logo-color-2.icns ${macdir}/Contents/Resources/nerva-logo-color-2.icns
 
 	cd ${NERVA_DIR}/Bin/Release/Mac/Nerva.Toolkit.Mac.app
-	zip -r ${NERVA_DIR}/nerva-gui-v${NERVA_VERSION}_osx.zip ./*
+	mkdir -p ${NERVA_DIR}/Bin/output
+	zip -r ${NERVA_DIR}/Bin/output/nerva-gui-v${NERVA_VERSION}_osx.zip ./*
 }
 
 function windows()
 {
 	cd ${NERVA_DIR}/Bin/Release/Windows
-	zip -rj ${NERVA_DIR}/nerva-gui-v${NERVA_VERSION}_windows.zip ./*
-}
-
-#the code of this function is used to generate the install script
-function linuxinstall()
-{
-	dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-	homedir=$(realpath ~/)
-
-	mkdir -p ${homedir}/.local/bin/nervagui
-	cp -r ${dir}/Bin/* ${homedir}/.local/bin/nervagui
-
-	if [ ! -d ${homedir}/.nerva ]; then
-		mkdir ${homedir}/.nerva
-	fi
-
-	#generate a launcher script
-	lfile=${homedir}/.local/bin/nerva-gui
-	echo "#!/bin/bash" > $lfile
-	echo "mono ${homedir}/.local/bin/nervagui/Nerva.Toolkit.exe --log-file ${homedir}/.nerva/gui.log --config-file ${homedir}/.nerva/gui.config" >> $lfile
-	chmod +x $lfile
-
-	dfile=${homedir}/.local/share/applications/nerva-gui.desktop
-
-	#Construct .desktop file
-	echo "[Desktop Entry]" > $dfile
-	echo "Name=Nerva GUI" >> $dfile
-	echo "Exec=nerva-gui" >> $dfile
-	echo "Terminal=false" >> $dfile
-	echo "Type=Application" >> $dfile
-	echo "Icon=${homedir}/.local/bin/nervagui/Res/nerva-logo-color.png" >> $dfile
-
-	chmod +x $dfile
-
-	ufile=${homedir}/.local/bin/nerva-gui-uninstall
-
-	#Construct uninstaller script
-	echo "#!/bin/bash" > $ufile
-	echo "rm -rf ${homedir}/.local/bin/nervagui" >> $ufile
-	echo "rm ${homedir}/.local/bin/nerva-gui" >> $ufile
-	echo "rm ${homedir}/.local/share/applications/nerva-gui.desktop" >> $ufile
-	echo "rm ${homedir}/.local/bin/nerva-gui-uninstall" >> $ufile
-
-	chmod +x $ufile
+	mkdir -p ${NERVA_DIR}/Bin/output
+	zip -r ${NERVA_DIR}/Bin/output/nerva-gui-v${NERVA_VERSION}_windows.zip ./*
 }
 
 function linux()
 {
-	linuxdir=${NERVA_DIR}/Bin/Release/Linux
-	mkdir -p ${linuxdir}/Bin/Res
-
-	find ${linuxdir}/ -maxdepth 1 -type f -name '*' -exec mv -n {} ${linuxdir}/Bin \;
-	cp ${BUILDER_DIR}/logos/nerva-logo-color.png ${linuxdir}/Bin/Res/nerva-logo-color.png
-
-	#Construct linux installer script
-	lscript=${linuxdir}/install
-	echo "#!/bin/bash" > $lscript
-	echo "function $(declare -f linuxinstall)" >> $lscript
-	echo "linuxinstall" >> $lscript
-	chmod +x $lscript
-
 	cd ${NERVA_DIR}/Bin/Release/Linux
-	zip -r ${NERVA_DIR}/nerva-gui-v${NERVA_VERSION}_linux.zip ./*
+	mkdir -p ${NERVA_DIR}/Bin/output
+	zip -r ${NERVA_DIR}/Bin/output/nerva-gui-v${NERVA_VERSION}_linux.zip ./*
 }
 
 $1

@@ -1,5 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="../Nerva.Toolkit.targets" />
+  <Import Project="../Nerva.Toolkit.targets"/>
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <RootNamespace>Nerva.Toolkit</RootNamespace>
@@ -8,10 +8,11 @@
     <OutputPath>../../Bin/$(Configuration)/Linux</OutputPath>
   </PropertyGroup>
   <ItemGroup>
-    <EmbeddedResource Include="../../Content/NERVA-Logo.png" />
+    <EmbeddedResource Include="../../Content/NERVA-Logo.png"/>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Eto.Platform.Gtk" Version="*" />
-    <PackageReference Include="Mono.Posix.NETStandard" Version="*" />
+    <PackageReference Include="Eto.Platform.Gtk" Version="*"/>
+    <PackageReference Include="Mono.Posix.NETStandard" Version="*"/>
+    <PackageReference Include="System.IO.Compression" Version="*"/>
   </ItemGroup>
 </Project>

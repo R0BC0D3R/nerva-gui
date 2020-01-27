@@ -1,6 +1,6 @@
 <Project>
   <PropertyGroup>
-    <TargetFrameworks>net47</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.1</TargetFrameworks>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <MacBundleMono>false</MacBundleMono>

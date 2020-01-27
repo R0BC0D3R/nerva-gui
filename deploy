@@ -5,7 +5,7 @@ dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source ${dir}/builder/helpers
 source ${dir}/credentials
 
-files=($(find ${dir}/*.zip))
+files=($(find ${dir}/Bin/output/*.zip))
 for item in ${files[*]}
 do
 	echo ${item}

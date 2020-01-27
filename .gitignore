@@ -8,3 +8,4 @@ version.php
 *.md5.txt
 credentials
 *.zip.sig
+app.*

@@ -1,53 +1,41 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
         {
             "name": "Debug-Linux",
-            "type": "mono",
+            "type": "coreclr",
             "request": "launch",
-            "program": "${workspaceRoot}/Bin/Debug/Linux/Nerva.Toolkit.exe",
+            "program": "${workspaceRoot}/Bin/Debug/Linux/Nerva.Toolkit",
             "cwd": "${workspaceRoot}/Bin/Debug/Linux",
             "preLaunchTask": "linux-debug",
             "args":[
-                "--log-file", "./app.log",
-                "--config-file", "./app.config",
-                "--cli-path", "./CLI",
-                "--wallet-path", "./Wallets"
+                "--log-file", "${workspaceRoot}/app.log",
+                "--config-file", "${workspaceRoot}/app.config",
             ]
         },
         {
             "name": "Debug-Windows",
-            "type": "clr",
+            "type": "coreclr",
             "request": "launch",
             "program": "${workspaceRoot}/Bin/Debug/Windows/Nerva.Toolkit.exe",
             "cwd": "${workspaceRoot}/Bin/Debug/Windows",
             "preLaunchTask": "windows-debug",
             "args":[
-                "--log-file", "./app.log",
-                "--config-file", "./app.config",
+                "--log-file", "${workspaceRoot}/app.log",
+                "--config-file", "${workspaceRoot}/app.config",
             ]
         },
         {
             "name": "Debug-Mac",
-            "type": "mono",
+            "type": "coreclr",
             "request": "launch",
             "program": "${workspaceRoot}/Bin/Debug/Mac/Nerva.Toolkit.exe",
             "cwd": "${workspaceRoot}/Bin/Debug/Mac",
             "preLaunchTask": "mac-debug",
             "args":[
-                "--log-file", "./app.log",
-                "--config-file", "./app.config"
+                "--log-file", "${workspaceRoot}/app.log",
+                "--config-file", "${workspaceRoot}/app.config",
             ]
-        },
-        {
-            "name": "Attach",
-            "type": "mono",
-            "request": "attach",
-            "address": "localhost",
-            "port": 55555
         }
     ]
 }

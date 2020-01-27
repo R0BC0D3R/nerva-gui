@@ -21,29 +21,41 @@ function build()
 
     preclean
 
-    #dotnet restore ${NERVA_DIR}/Src/Nerva.Toolkit/Nerva.Toolkit.$2.csproj
-    #dotnet build -c $1 ${NERVA_DIR}/Src/Nerva.Toolkit/Nerva.Toolkit.$2.csproj
-
-    msbuild /t:restore /t:build \
+    dotnet build /t:restore /t:build \
     /p:GenerateFullPaths=true /p:Configuration=$1 /p:TrimUnusedDependencies=true \
     ${NERVA_DIR}/Src/Nerva.Toolkit/Nerva.Toolkit.$2.csproj
 
     postclean
 }
 
-function linux()
+function linux-release()
 {
     build Release Linux
 }
 
-function mac()
+function linux-debug()
+{
+    build Debug Linux
+}
+
+function mac-release()
 {
     build Release Mac
 }
 
-function windows()
+function mac-debug()
+{
+    build Debug Mac
+}
+
+function windows-release()
 {
     build Release Windows
+}
+
+function windows-debug()
+{
+    build Debug Windows
 }
 
 $1

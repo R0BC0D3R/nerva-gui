@@ -5,8 +5,8 @@ namespace Nerva.Toolkit.Helpers
 {	
 	public static class Constants
 	{
-        public const string VERSION = "2.6.0";
-        public const string CODE_NAME = "Beta-6";
+        public const string VERSION = "2.7.0";
+        public const string CODE_NAME = "Beta-7";
         public static readonly string LONG_VERSION = $"{VERSION}: {CODE_NAME}";
 
         public const string DEFAULT_CONFIG_FILENAME = "app.config";
