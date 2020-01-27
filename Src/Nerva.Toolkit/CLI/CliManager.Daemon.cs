@@ -18,51 +18,15 @@ namespace Nerva.Toolkit.CLI
         {
             Log.Instance.Write($"Starting process {exe} {args}");
 
-            switch (OS.Type)
+            Process proc = Process.Start(new ProcessStartInfo(exe, args)
             {
-                case OS_Type.Linux:
-                case OS_Type.Osx:
-                    {
-                    //On Linux we have to use the --detach option to keep
-                    //the daemon running after the wallet closes
-                    //Using --detach spawns the daemon in a new process, different to the one we originally
-                    //spawned on the next line. So we have to wait for that first one to exit, then
-                    //do a search for the new nervad process and link to that. 
+                UseShellExecute = false,
+                RedirectStandardError = true,
+                RedirectStandardOutput = true,
+                CreateNoWindow = true
+            });
 
-                    Process proc = Process.Start(new ProcessStartInfo(exe, args)
-                    {
-                        UseShellExecute = false,
-                        RedirectStandardError = true,
-                        RedirectStandardOutput = true,
-                        CreateNoWindow = true
-                    });
-
-                    proc.WaitForExit();
-        
-                    string n = Path.GetFileNameWithoutExtension(exe);
-                    var p = CliInterface.GetRunningProcesses(n);
-
-                    if (p.Count == 1)
-                        controller.DoProcessStarted(exe, p[0]);
-                    else
-                        Log.Instance.Write(Log_Severity.Fatal, $"Error creating CLI process {exe}");
-                }
-                break;
-                case OS_Type.Windows:
-                {
-                    //The --detach option is not available on Windows. So we just start the daemon.
-                    Process proc = Process.Start(new ProcessStartInfo(exe, args)
-                    {
-                        UseShellExecute = false,
-                        RedirectStandardError = true,
-                        RedirectStandardOutput = true,
-                        CreateNoWindow = true
-                    });
-                    
-                    controller.DoProcessStarted(exe, proc);
-                }
-                break;
-            }
+            controller.DoProcessStarted(exe, proc);
         }
 
         bool threadRunning = false;
