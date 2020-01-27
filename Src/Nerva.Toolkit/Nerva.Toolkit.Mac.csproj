@@ -12,5 +12,6 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Eto.Platform.Mac64" Version="*" />
+    <PackageReference Include="Mono.Posix.NETStandard" Version="*"/>
   </ItemGroup>
 </Project>

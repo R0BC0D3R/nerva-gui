@@ -13,6 +13,5 @@
   <ItemGroup>
     <PackageReference Include="Eto.Platform.Gtk" Version="*"/>
     <PackageReference Include="Mono.Posix.NETStandard" Version="*"/>
-    <PackageReference Include="System.IO.Compression" Version="*"/>
   </ItemGroup>
 </Project>

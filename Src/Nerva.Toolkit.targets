@@ -1,6 +1,6 @@
 <Project>
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.1</TargetFrameworks>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <MacBundleMono>false</MacBundleMono>
@@ -30,5 +30,6 @@
     <PackageReference Include="Newtonsoft.Json" Version="*"/>
     <PackageReference Include="Eto.Forms" Version="*" />
     <PackageReference Include="DnsClient" Version="*"/>
+    <PackageReference Include="System.IO.Compression" Version="*"/>
   </ItemGroup>
 </Project>
