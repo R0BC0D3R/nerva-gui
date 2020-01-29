@@ -4,10 +4,8 @@ BUILDER_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source ${BUILDER_DIR}/helpers
 detectversion
 
-function preclean()
+function clean()
 {
-    rm -rf ${NERVA_DIR}/Bin/$1/$2
-
     find ${NERVA_DIR}/External -iname "bin" -o -iname "obj" | xargs rm -rf
     find ${NERVA_DIR}/Src -iname "bin" -o -iname "obj" | xargs rm -rf
 }
@@ -19,31 +17,40 @@ function postclean()
 
 function debug()
 {
-    preclean
-
     msbuild -v:minimal /t:restore /t:build \
     /p:GenerateFullPaths=true /p:Configuration=Debug /p:TrimUnusedDependencies=true \
-    ${NERVA_DIR}/Src/Nerva.Toolkit/Nerva.Toolkit.Linux.csproj
+    ${NERVA_DIR}/Src/Nerva.Toolkit/Nerva.Toolkit.Mac.csproj
 }
 
-function linux()
+function dotnet()
 {
-    preclean
+    clean
 
-    msbuild -v:minimal /t:restore /t:build \
+    dotnet build -v:minimal /p:TargetFramework=netcoreapp3.1 \
     /p:GenerateFullPaths=true /p:Configuration=Release /p:TrimUnusedDependencies=true \
-    ${NERVA_DIR}/Src/Nerva.Toolkit/Nerva.Toolkit.Linux.csproj
+    ${NERVA_DIR}/Src/Nerva.Toolkit/Nerva.Toolkit.Mac.csproj
 
     postclean
 }
 
-function mac()
+function dotnet-publish()
 {
-    preclean
+    clean
 
-    msbuild -v:minimal /t:restore /t:build \
+    dotnet publish -v:minimal /p:TargetFramework=netcoreapp3.1 /p:Publish=true \
     /p:GenerateFullPaths=true /p:Configuration=Release /p:TrimUnusedDependencies=true \
     ${NERVA_DIR}/Src/Nerva.Toolkit/Nerva.Toolkit.Mac.csproj
+
+    postclean
+}
+
+function mono()
+{
+    clean
+
+    msbuild -v:minimal /t:restore /t:build /p:TargetFramework=net48 \
+    /p:GenerateFullPaths=true /p:Configuration=Release /p:TrimUnusedDependencies=true \
+    ${NERVA_DIR}/Src/Nerva.Toolkit/Nerva.Toolkit.Linux.csproj
 
     postclean
 }
