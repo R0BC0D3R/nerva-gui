@@ -6,29 +6,7 @@
             "type": "coreclr",
             "request": "launch",
             "program": "${workspaceRoot}/Bin/Debug/Linux/Nerva.Toolkit",
-            "cwd": "${workspaceRoot}/Bin/Debug/Linux",
-            "args":[
-                "--log-file", "${workspaceRoot}/app.log",
-                "--config-file", "${workspaceRoot}/app.config",
-            ]
-        },
-        {
-            "name": "Debug-Windows",
-            "type": "coreclr",
-            "request": "launch",
-            "program": "${workspaceRoot}/Bin/Debug/Windows/Nerva.Toolkit.exe",
-            "cwd": "${workspaceRoot}/Bin/Debug/Windows",
-            "args":[
-                "--log-file", "${workspaceRoot}/app.log",
-                "--config-file", "${workspaceRoot}/app.config",
-            ]
-        },
-        {
-            "name": "Debug-Mac",
-            "type": "coreclr",
-            "request": "launch",
-            "program": "${workspaceRoot}/Bin/Debug/Mac/Nerva.Toolkit",
-            "cwd": "${workspaceRoot}/Bin/Debug/Mac",
+            "cwd": "${workspaceRoot}",
             "args":[
                 "--log-file", "${workspaceRoot}/app.log",
                 "--config-file", "${workspaceRoot}/app.config",

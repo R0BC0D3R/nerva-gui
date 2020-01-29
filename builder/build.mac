@@ -3,61 +3,31 @@
 BUILDER_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source ${BUILDER_DIR}/helpers
 
-function prepare_bundle()
-{
-    bundle=${NERVA_DIR}/Bin/$1/Nerva.Toolkit.app
-    mkdir -p ${bundle}/Contents
-	mkdir -p ${bundle}/Contents/MacOS
-	mkdir -p ${bundle}/Contents/MonoBundle
-	mkdir -p ${bundle}/Contents/Resources
+bundle=${NERVA_DIR}/Bin/Release/Nerva.Toolkit.app
+mkdir -p ${bundle}/Contents
+mkdir -p ${bundle}/Contents/MacOS
+mkdir -p ${bundle}/Contents/MonoBundle
+mkdir -p ${bundle}/Contents/Resources
 
-    #Generate plist
-    plist=$(sed -e "s/{NERVA_VERSION}/${NERVA_VERSION}/" -e "s/{DISPLAY_NAME}/${NERVA_CODENAME}/" ${BUILDER_DIR}/Info.plist.template)
-	echo "$plist" > ${bundle}/Contents/Info.plist
+#Generate plist
+plist=$(sed -e "s/{NERVA_VERSION}/${NERVA_VERSION}/" -e "s/{DISPLAY_NAME}/${NERVA_CODENAME}/" ${BUILDER_DIR}/Info.plist.template)
+echo "$plist" > ${bundle}/Contents/Info.plist
 
-    #Copy icons to resources
-    cp ${BUILDER_DIR}/logos/nerva-logo-color.icns ${bundle}/Contents/Resources/nerva-logo-color.icns
-	cp ${BUILDER_DIR}/logos/nerva-logo-color-2.icns ${bundle}/Contents/Resources/nerva-logo-color-2.icns
+#Copy icons to resources
+cp ${BUILDER_DIR}/logos/nerva-logo-color.icns ${bundle}/Contents/Resources/nerva-logo-color.icns
+cp ${BUILDER_DIR}/logos/nerva-logo-color-2.icns ${bundle}/Contents/Resources/nerva-logo-color-2.icns
 
-    #Copy launcher
-    cp ${NERVA_DIR}/External/Eto/src/Eto.Mac/build/Launcher64 ${bundle}/Contents/MacOS/Nerva.Toolkit
+#Copy launcher
+cp ${NERVA_DIR}/External/Eto/src/Eto.Mac/build/Launcher64 ${bundle}/Contents/MacOS/Nerva.Toolkit
 
-}
+#build
+msbuild /t:restore /t:build /p:GenerateFullPaths=true /p:Configuration=Release /p:TrimUnusedDependencies=true \
+${NERVA_DIR}/Src/Nerva.Toolkit/Nerva.Toolkit.Mac.csproj
 
-function debug()
-{
-    prepare_bundle Debug
+#clean up a bit
+find ${bundle} -iname "*.pdb" | xargs rm -rf
 
-    dotnet build /p:TargetFramework=netcoreapp3.1 \
-    /p:GenerateFullPaths=true /p:Configuration=Debug /p:TrimUnusedDependencies=true \
-    ${NERVA_DIR}/Src/Nerva.Toolkit/Nerva.Toolkit.Mac.csproj
-}
-
-function release()
-{
-    prepare_bundle Release
-
-    dotnet build /p:TargetFramework=netcoreapp3.1 \
-    /p:GenerateFullPaths=true /p:Configuration=Release /p:TrimUnusedDependencies=true \
-    ${NERVA_DIR}/Src/Nerva.Toolkit/Nerva.Toolkit.Mac.csproj
-}
-
-function publish()
-{
-    prepare_bundle Publish
-
-    dotnet publish /p:TargetFramework=netcoreapp3.1 /p:Publish=true \
-    /p:GenerateFullPaths=true /p:Configuration=Release /p:TrimUnusedDependencies=true \
-    ${NERVA_DIR}/Src/Nerva.Toolkit/Nerva.Toolkit.Mac.csproj
-}
-
-function mono()
-{
-    prepare_bundle Release
-
-    msbuild /t:restore /t:build /p:TargetFramework=net48 \
-    /p:GenerateFullPaths=true /p:Configuration=Release /p:TrimUnusedDependencies=true \
-    ${NERVA_DIR}/Src/Nerva.Toolkit/Nerva.Toolkit.Mac.csproj
-}
-
-$1
+#package
+cd ${NERVA_DIR}/Bin/Release
+mkdir -p ${NERVA_DIR}/Bin/Publish
+zip -r ${NERVA_DIR}/Bin/Publish/nerva-gui-v${NERVA_VERSION}_osx.zip Nerva.Toolkit.app/

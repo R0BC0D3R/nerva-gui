@@ -6,30 +6,12 @@
         {
             "label": "linux-debug",
             "type": "shell",
-            "command": "${workspaceRoot}/builder/build",
-            "args": [ "linux-debug" ],
+            "command": "${workspaceRoot}/builder/build.linux",
+            "args": [ "debug" ],
             "group": "build",
             "presentation": { "reveal": "silent" },
             "problemMatcher": "$msCompile"
-        },
-        {
-            "label": "windows-debug",
-            "type": "shell",
-            "command": "${workspaceRoot}/builder/build",
-            "args": [ "windows-debug" ],
-            "group": "build",
-            "presentation": { "reveal": "silent" },
-            "problemMatcher": "$msCompile"
-        },
-        {
-            "label": "mac-debug",
-            "type": "shell",
-            "command": "${workspaceRoot}/builder/build",
-            "args": [ "mac-debug" ],
-            "group": "build",
-            "presentation": { "reveal": "silent" },
-            "problemMatcher": "$msCompile"
-        },
+        }
     ]
 }
 

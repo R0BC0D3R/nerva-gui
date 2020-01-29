@@ -18,9 +18,4 @@ function clean_build_artifacts()
     find ${NERVA_DIR}/Src -iname "bin" -o -iname "obj" | xargs rm -rf
 }
 
-function clean_debug_symbols()
-{
-    find ${NERVA_DIR}/Bin -iname "*.pdb" | xargs rm -rf
-}
-
 detect_version
