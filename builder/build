@@ -4,27 +4,48 @@ BUILDER_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source ${BUILDER_DIR}/helpers
 detectversion
 
-function build()
+function preclean()
 {
     rm -rf ${NERVA_DIR}/Bin/$1/$2
 
     find ${NERVA_DIR}/External -iname "bin" -o -iname "obj" | xargs rm -rf
     find ${NERVA_DIR}/Src -iname "bin" -o -iname "obj" | xargs rm -rf
-
-    dotnet build /t:restore /t:build \
-    /p:GenerateFullPaths=true /p:Configuration=$1 /p:TrimUnusedDependencies=true \
-    ${NERVA_DIR}/Src/Nerva.Toolkit/Nerva.Toolkit.$2.csproj
 }
 
-function release()
+function postclean()
 {
-    build Release Linux
     find ${NERVA_DIR}/Bin -iname "*.pdb" | xargs rm -rf
 }
 
 function debug()
 {
-    build Debug Linux
+    preclean
+
+    msbuild -v:minimal /t:restore /t:build \
+    /p:GenerateFullPaths=true /p:Configuration=Debug /p:TrimUnusedDependencies=true \
+    ${NERVA_DIR}/Src/Nerva.Toolkit/Nerva.Toolkit.Linux.csproj
+}
+
+function linux()
+{
+    preclean
+
+    msbuild -v:minimal /t:restore /t:build \
+    /p:GenerateFullPaths=true /p:Configuration=Release /p:TrimUnusedDependencies=true \
+    ${NERVA_DIR}/Src/Nerva.Toolkit/Nerva.Toolkit.Linux.csproj
+
+    postclean
+}
+
+function mac()
+{
+    preclean
+
+    msbuild -v:minimal /t:restore /t:build \
+    /p:GenerateFullPaths=true /p:Configuration=Release /p:TrimUnusedDependencies=true \
+    ${NERVA_DIR}/Src/Nerva.Toolkit/Nerva.Toolkit.Mac.csproj
+
+    postclean
 }
 
 $1

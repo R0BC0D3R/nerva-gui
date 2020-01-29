@@ -8,21 +8,6 @@ detectversion
 
 function mac()
 {
-	macdir=${NERVA_DIR}/Bin/Release/Mac/Nerva.Toolkit.Mac.app
-
-	plist=$(sed -e "s/{NERVA_VERSION}/${NERVA_VERSION}/" -e "s/{DISPLAY_NAME}/${NERVA_CODENAME}/" ${BUILDER_DIR}/Info.plist.template)
-	echo $plist > ${macdir}/Contents/Info.plist
-
-	cp ${BUILDER_DIR}/logos/nerva-logo-color.icns ${macdir}/Contents/Resources/nerva-logo-color.icns
-	cp ${BUILDER_DIR}/logos/nerva-logo-color-2.icns ${macdir}/Contents/Resources/nerva-logo-color-2.icns
-
-	cd ${NERVA_DIR}/Bin/Release/Mac/Nerva.Toolkit.Mac.app
-	mkdir -p ${NERVA_DIR}/Bin/output
-	zip -r ${NERVA_DIR}/Bin/output/nerva-gui-v${NERVA_VERSION}_osx.zip ./*
-}
-
-function mac2()
-{
 	macdir=${NERVA_DIR}/Bin/Release/Mac
 
 	mkdir -p ${macdir}/Contents
@@ -33,32 +18,32 @@ function mac2()
 	find ${macdir}/ -maxdepth 1 -type f -name '*' -exec mv -n {} ${macdir}/Contents/MonoBundle \;
 
 	plist=$(sed -e "s/{NERVA_VERSION}/${NERVA_VERSION}/" -e "s/{DISPLAY_NAME}/${NERVA_CODENAME}/" ${BUILDER_DIR}/Info.plist.template)
-	echo $plist > ${macdir}/Contents/info.plist
+	echo "$plist" > ${macdir}/Contents/info.plist
 
 	cp ${BUILDER_DIR}/logos/nerva-logo-color.icns ${macdir}/Contents/Resources/nerva-logo-color.icns
 	cp ${BUILDER_DIR}/logos/nerva-logo-color-2.icns ${macdir}/Contents/Resources/nerva-logo-color-2.icns
 
-	cp ${BUILDER_DIR}/Launcher64 ${macdir}/Contents/MacOS/Nerva.Toolkit
+	cp ${NERVA_DIR}/External/Eto/src/Eto.Mac/build/Launcher64 ${macdir}/Contents/MacOS/Nerva.Toolkit
 
 	mv ${macdir} ${NERVA_DIR}/Bin/Release/Nerva.Toolkit.app
 
-
 	cd ${NERVA_DIR}/Bin/Release
-	zip -r ${NERVA_DIR}/nerva-gui-v${NERVA_VERSION}_mac.zip Nerva.Toolkit.app/
+	mkdir -p ${NERVA_DIR}/Bin/Publish
+	zip -r ${NERVA_DIR}/Bin/Publish/nerva-gui-v${NERVA_VERSION}_osx.zip Nerva.Toolkit.app/
 }
 
 function windows()
 {
 	cd ${NERVA_DIR}/Bin/Release/Windows
-	mkdir -p ${NERVA_DIR}/Bin/output
-	zip -r ${NERVA_DIR}/Bin/output/nerva-gui-v${NERVA_VERSION}_windows.zip ./*
+	mkdir -p ${NERVA_DIR}/Bin/Publish
+	zip -r ${NERVA_DIR}/Bin/Publish/nerva-gui-v${NERVA_VERSION}_windows.zip ./*
 }
 
 function linux()
 {
 	cd ${NERVA_DIR}/Bin/Release/Linux
-	mkdir -p ${NERVA_DIR}/Bin/output
-	zip -r ${NERVA_DIR}/Bin/output/nerva-gui-v${NERVA_VERSION}_linux.zip ./*
+	mkdir -p ${NERVA_DIR}/Bin/Publish
+	zip -r ${NERVA_DIR}/Bin/Publish/nerva-gui-v${NERVA_VERSION}_linux.zip ./*
 }
 
 $1

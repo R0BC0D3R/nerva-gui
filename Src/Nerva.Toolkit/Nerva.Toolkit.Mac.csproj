@@ -4,11 +4,9 @@
     <TargetFramework>net48</TargetFramework>
     <OutputType>Exe</OutputType>
     <RootNamespace>Nerva.Toolkit</RootNamespace>
-    <DefineConstants>$(DefineConstants);UNIX;OSX;DESKTOP;MONOMAC;Mac64</DefineConstants>
+    <DefineConstants>$(DefineConstants);UNIX</DefineConstants>
     <AssemblyName>Nerva.Toolkit</AssemblyName>
     <OutputPath>../../Bin/$(Configuration)/Mac</OutputPath>
-    <CreatePackage>true</CreatePackage>
-    <IncludeMonoRuntime>true</IncludeMonoRuntime>
   </PropertyGroup>
   <ItemGroup>
     <EmbeddedResource Include="../../Content/NERVA-Logo.png"/>
