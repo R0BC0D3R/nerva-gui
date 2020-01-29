@@ -1,17 +1,23 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <Import Project="../Nerva.Toolkit.targets"/>
   <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
     <OutputType>Exe</OutputType>
     <RootNamespace>Nerva.Toolkit</RootNamespace>
-    <DefineConstants>$(DefineConstants);UNIX;</DefineConstants>
+    <DefineConstants>$(DefineConstants);UNIX;OSX;DESKTOP;MONOMAC;Mac64</DefineConstants>
     <AssemblyName>Nerva.Toolkit</AssemblyName>
     <OutputPath>../../Bin/$(Configuration)/Mac</OutputPath>
+    <CreatePackage>true</CreatePackage>
+    <IncludeMonoRuntime>true</IncludeMonoRuntime>
   </PropertyGroup>
   <ItemGroup>
-    <EmbeddedResource Include="../../Content/NERVA-Logo.png" />
+    <EmbeddedResource Include="../../Content/NERVA-Logo.png"/>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Eto.Platform.Mac64" Version="*" />
-    <PackageReference Include="Mono.Posix.NETStandard" Version="*"/>
+    <ProjectReference Include="../../External/Eto/src/Eto.Mac/Eto.Mac64.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="Mono.Posix" />
   </ItemGroup>
 </Project>

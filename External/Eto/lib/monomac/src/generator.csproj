@@ -1,0 +1,76 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworks>net48</TargetFrameworks>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <EnableDefaultItems>False</EnableDefaultItems>
+    <BaseNamespace Condition="$(BaseNamespace) == ''">MonoMac.ObjCRuntime</BaseNamespace>
+    <GeneratedOutputDir Condition="$(GeneratedOutputDir) == ''">$(ArtifactsDir)generated\$(Platform)\</GeneratedOutputDir>
+    <BaseDefines Condition="$(BaseDefines) == ''">MONOMAC;MAC64;SDCONVERT</BaseDefines>
+  </PropertyGroup>
+ 
+  <PropertyGroup>
+    <DefineConstants>$(BaseDefines);GENERATOR;MONOMAC_BOOTSTRAP</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Apis Include="@(SharedApis)" />
+    <Apis Include="appkit.cs" />
+    <Apis Include="corewlan.cs" />
+    <Apis Include="foundation-desktop.cs" />
+    <Apis Include="imagekit.cs" />
+    <Apis Include="qtkit.cs" />
+    <Apis Include="pdfkit.cs" />
+    <Apis Include="webkit.cs" />
+    <Apis Include="composer.cs" />
+    <Apis Include="scriptingbridge.cs" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Compile Include="generator.cs" />
+    <Compile Include="error.cs" />
+    <Compile Include="Options.cs" />
+    <Compile Include="btouch.cs" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Net.Compilers.Toolset" Version="3.4.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <Target Name="GenerateSources" AfterTargets="AfterBuild" Inputs="@(Apis)" Outputs="$(GeneratedOutputDir)generated_sources">
+    <ItemGroup>
+      <BaseDefineItems Include="$(BaseDefines)" />
+    </ItemGroup>
+
+    <PropertyGroup>
+      <GeneratorCompiler Condition="$(GeneratorCompiler) == '' AND Exists('$(_RoslynTasksDirectory)csc.exe')">$(_RoslynTasksDirectory)csc.exe</GeneratorCompiler>
+      <GeneratorCompiler Condition="$(GeneratorCompiler) == ''">csc</GeneratorCompiler>
+      
+      <GeneratorParameters>$(GeneratorParameters) -a --core -v</GeneratorParameters>
+      <GeneratorParameters>$(GeneratorParameters) "--compiler=$(GeneratorCompiler)"</GeneratorParameters> 
+      <GeneratorParameters>$(GeneratorParameters) "--sourceonly=$(GeneratedOutputDir)generated_sources"</GeneratorParameters> 
+      <GeneratorParameters>$(GeneratorParameters) "-outdir=$(GeneratedOutputDir)."</GeneratorParameters> 
+      <GeneratorParameters>$(GeneratorParameters) "-tmpdir=$(IntermediateOutputPath)\generate_temp"</GeneratorParameters> 
+      <GeneratorParameters>$(GeneratorParameters) @(Apis-&gt;'%(Identity)', ' ')</GeneratorParameters> 
+      <GeneratorParameters>$(GeneratorParameters) @(BaseDefineItems-&gt;'-d=%(Identity)', ' ')</GeneratorParameters> 
+      <GeneratorParameters>$(GeneratorParameters) "--baselib=$(TargetDir)core.dll"</GeneratorParameters>
+      <GeneratorParameters>$(GeneratorParameters) "--ns=$(BaseNamespace)"</GeneratorParameters>
+      
+    </PropertyGroup>
+    <MakeDir Directories="$(IntermediateOutputPath)\generate_temp" />
+    <Exec Command="$(TargetPath) $(GeneratorParameters)" />
+  </Target>
+  
+  <Target Name="CleanGeneratedSource" BeforeTargets="AfterClean">
+    <Message Importance="high" Text="Cleaning generated folder" />
+    <RemoveDir Directories="$(GeneratedOutputDir)" />
+  </Target>
+
+</Project>

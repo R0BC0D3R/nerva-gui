@@ -7,7 +7,7 @@
             "request": "launch",
             "program": "${workspaceRoot}/Bin/Debug/Linux/Nerva.Toolkit",
             "cwd": "${workspaceRoot}/Bin/Debug/Linux",
-            "preLaunchTask": "linux-debug",
+            //"preLaunchTask": "linux-debug",
             "args":[
                 "--log-file", "${workspaceRoot}/app.log",
                 "--config-file", "${workspaceRoot}/app.config",

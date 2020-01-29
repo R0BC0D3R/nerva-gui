@@ -4,33 +4,22 @@ BUILDER_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source ${BUILDER_DIR}/helpers
 detectversion
 
-function preclean()
-{
-    find ${NERVA_DIR}/External -iname "bin" -o -iname "obj" | xargs rm -rf
-    find ${NERVA_DIR}/Src -iname "bin" -o -iname "obj" | xargs rm -rf
-}
-
-function postclean()
-{
-    find ${NERVA_DIR}/Bin -iname "*.pdb" | xargs rm -rf
-}
-
 function build()
 {
     rm -rf ${NERVA_DIR}/Bin/$1/$2
 
-    preclean
+    find ${NERVA_DIR}/External -iname "bin" -o -iname "obj" | xargs rm -rf
+    find ${NERVA_DIR}/Src -iname "bin" -o -iname "obj" | xargs rm -rf
 
     dotnet build /t:restore /t:build \
     /p:GenerateFullPaths=true /p:Configuration=$1 /p:TrimUnusedDependencies=true \
     ${NERVA_DIR}/Src/Nerva.Toolkit/Nerva.Toolkit.$2.csproj
-
-    postclean
 }
 
 function release()
 {
     build Release Linux
+    find ${NERVA_DIR}/Bin -iname "*.pdb" | xargs rm -rf
 }
 
 function debug()

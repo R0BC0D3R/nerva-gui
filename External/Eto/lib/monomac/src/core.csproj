@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>net48</TargetFrameworks>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <EnableDefaultItems>False</EnableDefaultItems>
+    <NoWarn>3021,0219,0414,114,108</NoWarn>
+    <BaseDefines Condition="$(BaseDefines) == ''">MONOMAC;MAC64;SDCONVERT</BaseDefines>
+  </PropertyGroup>
+  <PropertyGroup>
+    <DefineConstants>$(BaseDefines);GENERATOR;MONOMAC_BOOTSTRAP;COREBUILD</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="System.Reflection.Emit" Version="4.7.0" />
+    <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.7.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="@(CoreSource)" />
+    <Compile Include="@(SharedCoreSource)" />
+  </ItemGroup>
+</Project>

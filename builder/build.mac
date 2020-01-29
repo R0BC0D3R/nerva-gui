@@ -7,7 +7,9 @@ detectversion
 find ${NERVA_DIR}/External -iname "bin" -o -iname "obj" | xargs rm -rf
 find ${NERVA_DIR}/Src -iname "bin" -o -iname "obj" | xargs rm -rf
 
-msbuild /t:restore /t:build \
+dotnet restore ${NERVA_DIR}/External/Eto/lib/monomac/src/generator.csproj
+
+msbuild -v:minimal /t:restore /t:build \
 /p:GenerateFullPaths=true /p:Configuration=Release /p:TrimUnusedDependencies=true \
 ${NERVA_DIR}/Src/Nerva.Toolkit/Nerva.Toolkit.Mac.csproj
 
