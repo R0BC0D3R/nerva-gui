@@ -24,7 +24,8 @@ function publish()
     ${NERVA_DIR}/Src/Nerva.Toolkit/Nerva.Toolkit.Linux.csproj
 
 	mkdir -p ${NERVA_DIR}/Bin/Publish
-	zip -r ${NERVA_DIR}/Bin/Publish/nerva-gui-v${NERVA_VERSION}_linux.zip ${NERVA_DIR}/Bin/Release/Linux/linux-x64/publish/Nerva.Toolkit
+    cd ${NERVA_DIR}/Bin/Release/Linux/linux-x64/publish
+	zip -r ${NERVA_DIR}/Bin/Publish/nerva-gui-v${NERVA_VERSION}_linux.zip ./Nerva.Toolkit
 }
 
 function mono()
