@@ -1,9 +1,7 @@
 <Project>
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <MacBundleMono>false</MacBundleMono>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <OutputPath>../../Bin/$(Configuration)</OutputPath>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -20,6 +18,7 @@
     <Optimize>true</Optimize>
   </PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="../../External/Eto/src/Eto/Eto.csproj" />
     <ProjectReference Include="../../External/Nerva.Rpc.CSharp/Src/Nerva.Rpc/Nerva.Rpc.csproj" />
     <ProjectReference Include="../../External/AngryWasp.Serializer/External/AngryWasp.Logger/Src/AngryWasp.Logger/AngryWasp.Logger.csproj" />
     <ProjectReference Include="../../External/AngryWasp.Serializer/External/AngryWasp.Helpers/Src/AngryWasp.Helpers/AngryWasp.Helpers.csproj" />
@@ -28,8 +27,12 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="*"/>
-    <PackageReference Include="Eto.Forms" Version="*" />
     <PackageReference Include="DnsClient" Version="*"/>
-    <PackageReference Include="System.IO.Compression" Version="*"/>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="../../LICENSE.txt">
+      <Link>AngryWasp.LICENSE.txt</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 </Project>

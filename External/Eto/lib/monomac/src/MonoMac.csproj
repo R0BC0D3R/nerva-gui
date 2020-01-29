@@ -1,0 +1,64 @@
+﻿<Project>
+  
+  <Import Sdk="Microsoft.NET.Sdk" Project="Sdk.props" />
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;netstandard2.1;net48</TargetFrameworks>
+    <BaseDefines Condition="$(BaseDefines) == ''">MONOMAC;MAC64;SDCONVERT</BaseDefines>
+    <Version>0.0.1</Version>
+    <EnableDefaultItems>False</EnableDefaultItems>
+    <GeneratedOutputDir Condition="$(GeneratedOutputDir) == ''">$(ArtifactsDir)generated\$(Platform)\</GeneratedOutputDir>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <DefineConstants>$(BaseDefines)</DefineConstants>
+    <NoWarn>3021,0219,0414,114,108,612,618,4014</NoWarn>
+  </PropertyGroup>
+  <ItemGroup Condition="$(TargetFramework.StartsWith('netstandard')) == 'False'">
+    <Reference Include="System.Net.Http" />
+  </ItemGroup>
+  <ItemGroup Condition="$(TargetFramework.StartsWith('netstandard')) == 'True'">
+    <PackageReference Include="System.Reflection.Emit" Version="4.7.0" />
+    <PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.7.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="@(CoreSource)" />
+    <Compile Include="@(SharedSource)" />
+    <Compile Include="@(SharedCoreSource)" />
+    <Compile Include="@(BaseSource)" />
+    <Compile Include="@(OpenGlSource)" />
+    <Compile Include="@(CFNetworkSource)" />
+  </ItemGroup>
+  
+  <Import Sdk="Microsoft.NET.Sdk" Project="Sdk.targets" />
+
+  <PropertyGroup>
+    <CoreCompileDependsOn>IncludeGeneratedSource;$(CoreCompileDependsOn)</CoreCompileDependsOn>
+  </PropertyGroup>
+  
+  <Target Name="IncludeGeneratedSource" DependsOnTargets="GenerateApiSource" BeforeTargets="BeforeBuild">
+    <!-- include generated code in output -->
+    <ItemGroup>
+      <Compile Include="$(GeneratedOutputDir)**\*.cs" />
+    </ItemGroup>
+   </Target>
+  
+  <Target Name="GenerateApiSource" Inputs="$(MSBuildProjectFile)" Outputs="$(GeneratedOutputDir)generated_sources ">
+    <PropertyGroup>
+      <GeneratorBuildProperties>BaseDefines=$(BaseDefines.Replace(";", "%3b"))</GeneratorBuildProperties>
+      <GeneratorBuildProperties>$(GeneratorBuildProperties);Configuration=$(Configuration)</GeneratorBuildProperties>
+      <GeneratorBuildProperties>$(GeneratorBuildProperties);BaseNamespace=MonoMac.ObjCRuntime</GeneratorBuildProperties>
+      <GenIgnoreProperties>TargetFramework;PlatformTarget</GenIgnoreProperties>
+    </PropertyGroup>
+    
+    <ItemGroup>
+      <GeneratorProjects Include="core.csproj" />
+      <GeneratorProjects Include="generator.csproj" />
+    </ItemGroup>
+    
+    <!-- build generator and core apis (if needed) -->
+    <MSBuild Projects="@(GeneratorProjects)" Targets="Build" Properties="$(GeneratorBuildProperties)" TargetAndPropertyListSeparators="%3b" RemoveProperties="$(GenIgnoreProperties)" />
+
+  </Target>
+  
+  </Project>

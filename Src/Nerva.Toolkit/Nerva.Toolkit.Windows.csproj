@@ -14,7 +14,10 @@
   <ItemGroup>
     <EmbeddedResource Include="../../Content/NERVA-Logo.png"/>
   </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System.IO.Compression" />
+  </ItemGroup>
   <ItemGroup> 
-    <PackageReference Include="Eto.Platform.Wpf" Version="*" />
+    <ProjectReference Include="../../External/Eto/src/Eto.Wpf/Eto.Wpf.csproj" />
   </ItemGroup>
 </Project>

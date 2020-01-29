@@ -5,7 +5,7 @@
 	<key>CFBundleIdentifier</key>
 	<string>org.getnerva.toolkit</string>
 	<key>NSHumanReadableCopyright</key>
-	<string>Copyright © 2018 AngryWasp</string>
+	<string>Copyright © 2017-2020 Angry Wasp</string>
 	<key>CFBundleShortVersionString</key>
 	<string>{NERVA_VERSION}</string>
 	<key>CFBundleVersion</key>
@@ -27,6 +27,6 @@
     <key>CFBundleExecutable</key>
     <string>Nerva.Toolkit</string>
     <key>MonoMinimumVersion</key>
-    <string>5.10</string>
+    <string>5.18</string>
 </dict>
 </plist>

@@ -1,17 +1,30 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <Import Project="../Nerva.Toolkit.targets"/>
   <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
     <OutputType>Exe</OutputType>
     <RootNamespace>Nerva.Toolkit</RootNamespace>
     <DefineConstants>$(DefineConstants);UNIX;</DefineConstants>
     <AssemblyName>Nerva.Toolkit</AssemblyName>
-    <OutputPath>../../Bin/$(Configuration)/Mac</OutputPath>
+    <OutputPath>../../Bin/$(Configuration)/Nerva.Toolkit.app/Contents/MonoBundle</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="$(TargetFramework) == 'netcoreapp3.1' and $(Publish) == 'true'">
+    <PublishTrimmed>true</PublishTrimmed>
+    <RuntimeIdentifier>osx-x64</RuntimeIdentifier>
+    <PublishSingleFile>true</PublishSingleFile>
   </PropertyGroup>
   <ItemGroup>
-    <EmbeddedResource Include="../../Content/NERVA-Logo.png" />
+    <EmbeddedResource Include="../../Content/NERVA-Logo.png"/>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Eto.Platform.Mac64" Version="*" />
+    <ProjectReference Include="../../External/Eto/src/Eto.Mac/Eto.Mac64.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="$(TargetFramework) == 'netcoreapp3.1'">
     <PackageReference Include="Mono.Posix.NETStandard" Version="*"/>
+    <PackageReference Include="System.IO.Compression" Version="*"/>
+  </ItemGroup>
+  <ItemGroup Condition="$(TargetFramework) == 'net48'">
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="Mono.Posix" />
   </ItemGroup>
 </Project>
