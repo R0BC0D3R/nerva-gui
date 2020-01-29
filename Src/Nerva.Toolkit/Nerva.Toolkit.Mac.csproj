@@ -1,12 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <Import Project="../Nerva.Toolkit.targets"/>
   <PropertyGroup>
-    <TargetFramework>invalid</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <OutputType>Exe</OutputType>
     <RootNamespace>Nerva.Toolkit</RootNamespace>
     <DefineConstants>$(DefineConstants);UNIX;</DefineConstants>
     <AssemblyName>Nerva.Toolkit</AssemblyName>
-    <OutputPath>../../Bin/$(Configuration)/Mac/$(TargetFramework)</OutputPath>
+    <OutputPath>../../Bin/$(Configuration)/Nerva.Toolkit.app/Contents/MonoBundle</OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition="$(TargetFramework) == 'netcoreapp3.1' and $(Publish) == 'true'">
     <PublishTrimmed>true</PublishTrimmed>

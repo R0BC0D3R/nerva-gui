@@ -2,57 +2,62 @@
 
 BUILDER_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source ${BUILDER_DIR}/helpers
-detectversion
 
-function clean()
+function prepare_bundle()
 {
-    find ${NERVA_DIR}/External -iname "bin" -o -iname "obj" | xargs rm -rf
-    find ${NERVA_DIR}/Src -iname "bin" -o -iname "obj" | xargs rm -rf
-}
+    bundle=${NERVA_DIR}/Bin/$1/Nerva.Toolkit.app
+    mkdir -p ${bundle}/Contents
+	mkdir -p ${bundle}/Contents/MacOS
+	mkdir -p ${bundle}/Contents/MonoBundle
+	mkdir -p ${bundle}/Contents/Resources
 
-function postclean()
-{
-    find ${NERVA_DIR}/Bin -iname "*.pdb" | xargs rm -rf
+    #Generate plist
+    plist=$(sed -e "s/{NERVA_VERSION}/${NERVA_VERSION}/" -e "s/{DISPLAY_NAME}/${NERVA_CODENAME}/" ${BUILDER_DIR}/Info.plist.template)
+	echo "$plist" > ${bundle}/Contents/Info.plist
+
+    #Copy icons to resources
+    cp ${BUILDER_DIR}/logos/nerva-logo-color.icns ${bundle}/Contents/Resources/nerva-logo-color.icns
+	cp ${BUILDER_DIR}/logos/nerva-logo-color-2.icns ${bundle}/Contents/Resources/nerva-logo-color-2.icns
+
+    #Copy launcher
+    cp ${NERVA_DIR}/External/Eto/src/Eto.Mac/build/Launcher64 ${bundle}/Contents/MacOS/Nerva.Toolkit
+
 }
 
 function debug()
 {
-    msbuild -v:minimal /t:restore /t:build \
+    prepare_bundle Debug
+
+    dotnet build /p:TargetFramework=netcoreapp3.1 \
     /p:GenerateFullPaths=true /p:Configuration=Debug /p:TrimUnusedDependencies=true \
     ${NERVA_DIR}/Src/Nerva.Toolkit/Nerva.Toolkit.Mac.csproj
 }
 
-function dotnet()
+function release()
 {
-    clean
+    prepare_bundle Release
 
-    dotnet build -v:minimal /p:TargetFramework=netcoreapp3.1 \
+    dotnet build /p:TargetFramework=netcoreapp3.1 \
     /p:GenerateFullPaths=true /p:Configuration=Release /p:TrimUnusedDependencies=true \
     ${NERVA_DIR}/Src/Nerva.Toolkit/Nerva.Toolkit.Mac.csproj
-
-    postclean
 }
 
-function dotnet-publish()
+function publish()
 {
-    clean
+    prepare_bundle Publish
 
-    dotnet publish -v:minimal /p:TargetFramework=netcoreapp3.1 /p:Publish=true \
+    dotnet publish /p:TargetFramework=netcoreapp3.1 /p:Publish=true \
     /p:GenerateFullPaths=true /p:Configuration=Release /p:TrimUnusedDependencies=true \
     ${NERVA_DIR}/Src/Nerva.Toolkit/Nerva.Toolkit.Mac.csproj
-
-    postclean
 }
 
 function mono()
 {
-    clean
+    prepare_bundle Release
 
-    msbuild -v:minimal /t:restore /t:build /p:TargetFramework=net48 \
+    msbuild /t:restore /t:build /p:TargetFramework=net48 \
     /p:GenerateFullPaths=true /p:Configuration=Release /p:TrimUnusedDependencies=true \
-    ${NERVA_DIR}/Src/Nerva.Toolkit/Nerva.Toolkit.Linux.csproj
-
-    postclean
+    ${NERVA_DIR}/Src/Nerva.Toolkit/Nerva.Toolkit.Mac.csproj
 }
 
 $1

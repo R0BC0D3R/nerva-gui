@@ -2,66 +2,35 @@
 
 BUILDER_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source ${BUILDER_DIR}/helpers
-detectversion
-
-function clean()
-{
-    find ${NERVA_DIR}/External -iname "bin" -o -iname "obj" | xargs rm -rf
-    find ${NERVA_DIR}/Src -iname "bin" -o -iname "obj" | xargs rm -rf
-}
-
-function postclean()
-{
-    find ${NERVA_DIR}/Bin -iname "*.pdb" | xargs rm -rf
-}
 
 function debug()
 {
-    msbuild -v:minimal /t:restore /t:build \
+    dotnet build /p:TargetFramework=netcoreapp3.1 \
     /p:GenerateFullPaths=true /p:Configuration=Debug /p:TrimUnusedDependencies=true \
     ${NERVA_DIR}/Src/Nerva.Toolkit/Nerva.Toolkit.Linux.csproj
 }
 
-function dotnet()
+function release()
 {
-    clean
-
-    dotnet build -v:minimal /p:TargetFramework=netcoreapp3.1 \
+    dotnet build /p:TargetFramework=netcoreapp3.1 \
     /p:GenerateFullPaths=true /p:Configuration=Release /p:TrimUnusedDependencies=true \
     ${NERVA_DIR}/Src/Nerva.Toolkit/Nerva.Toolkit.Linux.csproj
-
-    postclean
 }
 
-function dotnet-publish()
+function publish()
 {
-    clean
-
-    dotnet publish -v:minimal /p:TargetFramework=netcoreapp3.1 /p:Publish=true \
+    dotnet publish /p:TargetFramework=netcoreapp3.1 /p:Publish=true \
     /p:GenerateFullPaths=true /p:Configuration=Release /p:TrimUnusedDependencies=true \
     ${NERVA_DIR}/Src/Nerva.Toolkit/Nerva.Toolkit.Linux.csproj
-
-    postclean
 }
 
 function mono()
 {
-    clean
+    #TODO: Do we really want or need this option?
 
-    msbuild -v:minimal /t:restore /t:build /p:TargetFramework=net48 \
+    msbuild /t:restore /t:build /p:TargetFramework=net48 \
     /p:GenerateFullPaths=true /p:Configuration=Release /p:TrimUnusedDependencies=true \
     ${NERVA_DIR}/Src/Nerva.Toolkit/Nerva.Toolkit.Linux.csproj
-
-    postclean
-}
-
-function mac()
-{
-    msbuild -v:minimal /t:restore /t:build \
-    /p:GenerateFullPaths=true /p:Configuration=Release /p:TrimUnusedDependencies=true \
-    ${NERVA_DIR}/Src/Nerva.Toolkit/Nerva.Toolkit.Mac.csproj
-
-    postclean
 }
 
 $1
