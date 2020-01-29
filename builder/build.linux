@@ -30,9 +30,15 @@ function publish()
 
 function mono()
 {
-    msbuild /t:restore /t:build /p:TargetFramework=net48 \
+    msbuild /t:restore /t:build /p:TargetFramework=net48 /p:OutputPath=${NERVA_DIR}/Bin/Release/Linux-mono \
     /p:GenerateFullPaths=true /p:Configuration=Release /p:TrimUnusedDependencies=true \
     ${NERVA_DIR}/Src/Nerva.Toolkit/Nerva.Toolkit.Linux.csproj
+
+    find ${NERVA_DIR}/Bin/Release/Linux-mono -iname "*.pdb" | xargs rm -rf
+
+    mkdir -p ${NERVA_DIR}/Bin/Publish
+    cd ${NERVA_DIR}/Bin/Release/Linux-mono
+	zip -r ${NERVA_DIR}/Bin/Publish/nerva-gui-v${NERVA_VERSION}_linux-mono.zip ./*
 }
 
 $1
