@@ -1,14 +1,14 @@
 ﻿using System;
 using System.IO;
-using AngryWasp.Helpers;
+using AngryWasp.Cli.Args;
 using AngryWasp.Logger;
 using AngryWasp.Serializer;
-using AngryWasp.Serializer.Serializers;
 using Eto;
-using Eto.Forms;
 using Nerva.Toolkit.CLI;
 using Nerva.Toolkit.Config;
 using Nerva.Toolkit.Helpers;
+using Application = Eto.Forms.Application;
+using Log = AngryWasp.Logger.Log;
 
 namespace Nerva.Toolkit
 {
@@ -25,19 +25,19 @@ namespace Nerva.Toolkit
 		/// --log-cli-wallet: Log output from cli wallet to app.log
 		/// </summary>
 		[STAThread]
-		public static void Main(string[] args)
+		public static void Main(string[] rawArgs)
 		{
             //Workaround for debugging on Mac
             Directory.SetCurrentDirectory(AppDomain.CurrentDomain.BaseDirectory);
-            CommandLineParser cmd = CommandLineParser.Parse(args);
+            Arguments args = Arguments.Parse(rawArgs);
 
 #if DEBUG
-			cmd.Push(new CommandLineParserOption("log-cli-wallet", null));
+			args.Push(new Argument("log-cli-wallet", null));
 #endif
 
 			string logFile, configFile;
 
-			ParseFileArguments(cmd, out logFile, out configFile);
+			ParseFileArguments(args, out logFile, out configFile);
 
 			InitializeLog(logFile);
 
@@ -53,24 +53,24 @@ namespace Nerva.Toolkit
 			
 			Cli.Instance.KillCliProcesses(FileNames.RPC_WALLET);
 
-			Configuration.Instance.NewDaemonOnStartup = cmd["new-daemon"] != null;
+			Configuration.Instance.NewDaemonOnStartup = args["new-daemon"] != null;
 
-			if (cmd["log-cli-wallet"] != null)
+			if (args["log-cli-wallet"] != null)
 				Configuration.Instance.LogCliWallet = true;
 
-			if (cmd["log-cli-daemon"] != null)
+			if (args["log-cli-daemon"] != null)
 				Configuration.Instance.LogCliDaemon = true;
 
-			if (cmd["cli-path"] != null)
+			if (args["cli-path"] != null)
 			{
-				string p = cmd["cli-path"].Value;
+				string p = args["cli-path"].Value;
 				Log.Instance.Write($"CLI path manually set to {p}");
 				Configuration.Instance.ToolsPath = p;
 			}
 
-			if (cmd["wallet-path"] != null)
+			if (args["wallet-path"] != null)
 			{
-				string p = cmd["wallet-path"].Value;
+				string p = args["wallet-path"].Value;
 				Log.Instance.Write($"Wallet path manually set to {p}");
 				Configuration.Instance.Wallet.WalletDir = p;
 			}
@@ -117,13 +117,13 @@ namespace Nerva.Toolkit
 			Environment.Exit(0);
 		}
 
-		private static void ParseFileArguments(CommandLineParser cmd, out string logFile, out string configFile)
+		private static void ParseFileArguments(Arguments args, out string logFile, out string configFile)
 		{
 			logFile = Path.Combine(Environment.CurrentDirectory, Constants.DEFAULT_LOG_FILENAME);
 			configFile = Path.Combine(Environment.CurrentDirectory, Constants.DEFAULT_CONFIG_FILENAME);
 
-			var lf = cmd["log-file"];
-			var cf = cmd["config-file"];
+			var lf = args["log-file"];
+			var cf = args["config-file"];
 
 			if (lf != null && !string.IsNullOrEmpty(lf.Value))
 			{

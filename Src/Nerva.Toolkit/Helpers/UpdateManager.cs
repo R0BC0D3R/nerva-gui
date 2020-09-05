@@ -288,6 +288,9 @@ namespace Nerva.Toolkit.Helpers
                     {
                         Log.Instance.Write(Log_Severity.Warning, "Package does not contain an installer. Copying to install directory");
 
+                        if (!Directory.Exists(installDir))
+                            Directory.CreateDirectory(installDir);
+
                         try
                         {
                             foreach (var f in new DirectoryInfo(destDir).GetFiles())

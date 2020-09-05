@@ -24,7 +24,10 @@
     <PackageReference Include="System.IO.Compression" Version="*"/>
   </ItemGroup>
   <ItemGroup Condition="$(TargetFramework) == 'net48'">
-    <Reference Include="System.IO.Compression" />
     <Reference Include="Mono.Posix" />
+    <Reference Include="System.IO.Compression" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies.net48" Version="*"/>
   </ItemGroup>
 </Project>
