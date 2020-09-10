@@ -5,7 +5,18 @@
             "name": "Debug-Linux",
             "type": "coreclr",
             "request": "launch",
-            "program": "${workspaceRoot}/Bin/Debug/Linux/Nerva.Toolkit",
+            "program": "${workspaceRoot}/Bin/Debug/linux-x64/Nerva.Toolkit",
+            "cwd": "${workspaceRoot}",
+            "args":[
+                "--log-file", "${workspaceRoot}/app.log",
+                "--config-file", "${workspaceRoot}/app.config",
+            ]
+        },
+        {
+            "name": "Debug-Windows",
+            "type": "coreclr",
+            "request": "launch",
+            "program": "${workspaceRoot}/Bin/Debug/win-x64/Nerva.Toolkit.exe",
             "cwd": "${workspaceRoot}",
             "args":[
                 "--log-file", "${workspaceRoot}/app.log",

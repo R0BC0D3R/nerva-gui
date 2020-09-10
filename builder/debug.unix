@@ -3,6 +3,6 @@
 BUILDER_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source ${BUILDER_DIR}/helpers
 
-dotnet build /p:TargetFramework=netcoreapp3.1 \
+dotnet build
 /p:GenerateFullPaths=true /p:Configuration=Debug /p:TrimUnusedDependencies=true \
 /p:OutputPath=${NERVA_DIR}/Bin/Debug/linux-x64/ ${NERVA_DIR}/Src/Nerva.Toolkit/Nerva.Toolkit.Linux.csproj
