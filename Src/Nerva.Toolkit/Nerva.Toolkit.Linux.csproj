@@ -1,13 +1,16 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <Import Project="../Nerva.Toolkit.targets"/>
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.1</TargetFrameworks>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <DefineConstants>$(DefineConstants);UNIX;</DefineConstants>
     <AssemblyName>Nerva.Toolkit</AssemblyName>
   </PropertyGroup>
   <ItemGroup>
     <EmbeddedResource Include="../../Content/NERVA-Logo.png"/>
   </ItemGroup>
+  <PropertyGroup Condition="$(Publish) == 'true'">
+    <RuntimeIdentifiers>linux-x64</RuntimeIdentifiers>
+  </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Eto.Forms" Version="*"/>
     <PackageReference Include="Eto.Platform.Gtk" Version="*"/>

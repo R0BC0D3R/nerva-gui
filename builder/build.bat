@@ -1,6 +1,5 @@
 @echo off
 
-dotnet publish /t:restore /t:build /p:GenerateFullPaths=true ^
-/p:Configuration=Release /p:TrimUnusedDependencies=true ^
-/p:Publish=true /p:RuntimeIdentifier=win-x64 ^
-../Src/Nerva.Toolkit/Nerva.Toolkit.Windows.csproj
+dotnet publish ^
+/p:GenerateFullPaths=true /p:Configuration=Release /p:TrimUnusedDependencies=true ^
+/p:OutputPath=%~dp0..\Bin\Release\win-x64\ %~dp0..\Src\Nerva.Toolkit\Nerva.Toolkit.Windows.csproj

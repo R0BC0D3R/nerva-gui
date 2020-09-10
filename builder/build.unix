@@ -5,7 +5,7 @@ source ${BUILDER_DIR}/helpers
 
 function linux()
 {
-    dotnet publish /p:TargetFramework=netcoreapp3.1 /p:Publish=true /p:RuntimeIdentifier=linux-x64 \
+    dotnet publish \
     /p:GenerateFullPaths=true /p:Configuration=Release /p:TrimUnusedDependencies=true \
     /p:OutputPath=${NERVA_DIR}/Bin/Release/linux-x64/ ${NERVA_DIR}/Src/Nerva.Toolkit/Nerva.Toolkit.Linux.csproj
 
@@ -16,7 +16,7 @@ function linux()
 
 function mac()
 {
-    dotnet publish /p:TargetFramework=netcoreapp3.1 /p:Publish=true /p:RuntimeIdentifier=osx-x64 \
+    dotnet publish \
     /p:GenerateFullPaths=true /p:Configuration=Release /p:TrimUnusedDependencies=true \
     /p:OutputPath=${NERVA_DIR}/Bin/Release/osx-x64/ ${NERVA_DIR}/Src/Nerva.Toolkit/Nerva.Toolkit.Mac.csproj
 
