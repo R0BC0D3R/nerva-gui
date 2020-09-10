@@ -3,6 +3,7 @@ using Eto.Drawing;
 using System.Reflection;
 using Nerva.Toolkit.Content;
 using Nerva.Toolkit.Helpers;
+using System.Diagnostics;
 
 namespace Nerva.Toolkit
 {
@@ -35,7 +36,7 @@ namespace Nerva.Toolkit
 			string[] names = Assembly.GetExecutingAssembly().GetManifestResourceNames();
 			ad.Title = "About NERVA Toolkit";
 			ad.License = "Code: Copyright © 2018 Angry Wasp\r\nLogo design:  Copyright © 2018 ukminer";
-			ad.Logo = new Bitmap(Assembly.GetExecutingAssembly().GetManifestResourceStream("Nerva.Toolkit.NERVA-Logo.png"));
+			ad.Logo = new Bitmap(Assembly.GetExecutingAssembly().GetManifestResourceStream("NERVA-Logo.png"));
 
 			daemonPage.ConstructLayout();
 			balancesPage.ConstructLayout();

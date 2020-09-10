@@ -6,7 +6,9 @@
     <AssemblyName>Nerva.Toolkit</AssemblyName>
   </PropertyGroup>
   <ItemGroup>
-    <EmbeddedResource Include="../../Content/NERVA-Logo.png"/>
+    <EmbeddedResource Include="../../Content/NERVA-Logo.png">
+      <LogicalName>NERVA-Logo.png</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup Condition="$(Publish) == 'true'">
     <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>

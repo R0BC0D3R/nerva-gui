@@ -67,7 +67,7 @@ namespace Nerva.Toolkit.Content.Wizard
                         {
                             new StackLayoutItem(new ImageView
                             {
-                                Image = Bitmap.FromResource("Nerva.Toolkit.NERVA-Logo.png", Assembly.GetExecutingAssembly())
+                                Image = Bitmap.FromResource("NERVA-Logo.png", Assembly.GetExecutingAssembly())
                             }, false),
                             new StackLayoutItem(pages[currentPage].Content, true),
                         }
