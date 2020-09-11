@@ -4,6 +4,8 @@
     <DefineConstants>$(DefineConstants);WINDOWS;</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="$(Publish) == 'true'">
+    <!-- PublishTrimmed causes a runtime error -->
+    <PublishTrimmed>false</PublishTrimmed>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier>
   </PropertyGroup>
   <ItemGroup>

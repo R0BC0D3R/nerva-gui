@@ -4,6 +4,7 @@
     <DefineConstants>$(DefineConstants);UNIX;</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="$(Publish) == 'true'">
+    <PublishTrimmed>false</PublishTrimmed>
     <RuntimeIdentifier>linux-x64</RuntimeIdentifier>
   </PropertyGroup>
   <ItemGroup>
