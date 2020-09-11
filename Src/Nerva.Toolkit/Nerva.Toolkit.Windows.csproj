@@ -1,17 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <Import Project="../Nerva.Toolkit.targets"/>
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
     <DefineConstants>$(DefineConstants);WINDOWS;</DefineConstants>
-    <AssemblyName>Nerva.Toolkit</AssemblyName>
   </PropertyGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="../../Content/NERVA-Logo.png">
-      <LogicalName>NERVA-Logo.png</LogicalName>
-    </EmbeddedResource>
-  </ItemGroup>
   <PropertyGroup Condition="$(Publish) == 'true'">
-    <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Eto.Forms" Version="*"/>

@@ -3,7 +3,14 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <AssemblyName>Nerva.Toolkit</AssemblyName>
   </PropertyGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="../../Content/NERVA-Logo.png">
+      <LogicalName>NERVA-Logo.png</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="*"/>
     <PackageReference Include="DnsClient" Version="*"/>

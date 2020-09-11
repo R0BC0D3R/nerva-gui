@@ -6,7 +6,7 @@ source ${BUILDER_DIR}/helpers
 function linux()
 {
     dotnet publish \
-    /p:GenerateFullPaths=true /p:Configuration=Release /p:TrimUnusedDependencies=true \
+    /p:Publish=true /p:GenerateFullPaths=true /p:Configuration=Release /p:TrimUnusedDependencies=true \
     /p:OutputPath=${NERVA_DIR}/Bin/Release/linux-x64/ ${NERVA_DIR}/Src/Nerva.Toolkit/Nerva.Toolkit.Linux.csproj
 
 	mkdir -p ${NERVA_DIR}/Bin/Publish
@@ -17,7 +17,7 @@ function linux()
 function mac()
 {
     dotnet publish \
-    /p:GenerateFullPaths=true /p:Configuration=Release /p:TrimUnusedDependencies=true \
+    /p:Publish=true /p:GenerateFullPaths=true /p:Configuration=Release /p:TrimUnusedDependencies=true \
     /p:OutputPath=${NERVA_DIR}/Bin/Release/osx-x64/ ${NERVA_DIR}/Src/Nerva.Toolkit/Nerva.Toolkit.Mac.csproj
 
     bundle=${NERVA_DIR}/Bin/Release/osx-x64/Nerva.Toolkit.app
@@ -39,6 +39,12 @@ function mac()
 	mkdir -p ${NERVA_DIR}/Bin/Publish
     cd ${NERVA_DIR}/Bin/Release/osx-x64
 	zip -r ${NERVA_DIR}/Bin/Publish/nerva-gui-v${NERVA_VERSION}_osx.zip Nerva.Toolkit.app/
+}
+
+function unix()
+{
+    linux
+    mac
 }
 
 $1
