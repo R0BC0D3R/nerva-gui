@@ -26,7 +26,5 @@
     <string>Nerva GUI - {DISPLAY_NAME}</string>
     <key>CFBundleExecutable</key>
     <string>Nerva.Toolkit</string>
-    <key>MonoMinimumVersion</key>
-    <string>5.18</string>
 </dict>
 </plist>

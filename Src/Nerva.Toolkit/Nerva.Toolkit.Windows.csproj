@@ -1,26 +1,16 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <Import Project="../Nerva.Toolkit.targets"/>
   <PropertyGroup>
-    <TargetFramework>net48</TargetFramework>
-    <OutputType>WinExe</OutputType>
-    <RootNamespace>Nerva.Toolkit</RootNamespace>
+    <TargetFrameworks>netcoreapp3.1</TargetFrameworks>
     <DefineConstants>$(DefineConstants);WINDOWS;</DefineConstants>
     <AssemblyName>Nerva.Toolkit</AssemblyName>
-    <OutputPath>../../Bin/$(Configuration)/Windows</OutputPath>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-    <DebugType>portable</DebugType>
   </PropertyGroup>
   <ItemGroup>
     <EmbeddedResource Include="../../Content/NERVA-Logo.png"/>
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="System.IO.Compression"/>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="../../External/Eto/src/Eto.Wpf/Eto.Wpf.csproj"/>
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies.net48" Version="*"/>
+    <PackageReference Include="Eto.Forms" Version="*"/>
+    <PackageReference Include="Eto.Platform.Wpf" Version="*"/>
+    <PackageReference Include="System.IO.Compression" Version="*"/>
   </ItemGroup>
 </Project>

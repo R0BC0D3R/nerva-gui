@@ -1,7 +1,5 @@
 #!/bin/bash
 
-#Launcher64 is taken from the Eto.Forms.Mac64 2.5.0-ci-10024 nuget package
-
 BUILDER_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source ${BUILDER_DIR}/helpers
 detectversion

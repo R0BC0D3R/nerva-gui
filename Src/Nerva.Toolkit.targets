@@ -1,25 +1,9 @@
 <Project>
+<Import Project="../External/AngryWasp.Build/AngryWasp.Build.Application.targets"/>
   <PropertyGroup>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <OutputPath>../../Bin/$(Configuration)</OutputPath>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>portable</DebugType>
-    <Optimize>false</Optimize>
-    <DefineConstants>DEBUG</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-    <DebugSymbols>false</DebugSymbols>
-    <DebugType>none</DebugType>
-    <Optimize>true</Optimize>
-  </PropertyGroup>
-  <ItemGroup>
-    <ProjectReference Include="../../External/Eto/src/Eto/Eto.csproj" />
-  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="*"/>
     <PackageReference Include="DnsClient" Version="*"/>
@@ -28,11 +12,5 @@
     <PackageReference Include="AngryWasp.Serializer" Version="*"/>
     <PackageReference Include="AngryWasp.Cli" Version="*"/>
     <PackageReference Include="Nerva.Rpc.CSharp" Version="*"/>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="../../External/AngryWasp.Build/LICENSE.txt">
-      <Link>AngryWasp.LICENSE.txt</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
 </Project>

@@ -1,30 +1,17 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <Import Project="../Nerva.Toolkit.targets"/>
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
-    <OutputType>Exe</OutputType>
-    <RootNamespace>Nerva.Toolkit</RootNamespace>
+    <TargetFrameworks>netcoreapp3.1</TargetFrameworks>
     <DefineConstants>$(DefineConstants);UNIX;</DefineConstants>
     <AssemblyName>Nerva.Toolkit</AssemblyName>
-    <OutputPath>../../Bin/$(Configuration)/Linux</OutputPath>
-  </PropertyGroup>
-  <PropertyGroup Condition="$(TargetFramework) == 'netcoreapp3.1' and $(Publish) == 'true'">
-    <PublishTrimmed>true</PublishTrimmed>
-    <RuntimeIdentifier>linux-x64</RuntimeIdentifier>
-    <PublishSingleFile>true</PublishSingleFile>
   </PropertyGroup>
   <ItemGroup>
     <EmbeddedResource Include="../../Content/NERVA-Logo.png"/>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="../../External/Eto/src/Eto.Gtk/Eto.Gtk.csproj"/>
-  </ItemGroup>
-  <ItemGroup Condition="$(TargetFramework) == 'netcoreapp3.1'">
+    <PackageReference Include="Eto.Forms" Version="*"/>
+    <PackageReference Include="Eto.Platform.Gtk" Version="*"/>
     <PackageReference Include="Mono.Posix.NETStandard" Version="*"/>
     <PackageReference Include="System.IO.Compression" Version="*"/>
-  </ItemGroup>
-  <ItemGroup Condition="$(TargetFramework) == 'net48'">
-    <Reference Include="Mono.Posix"/>
-    <Reference Include="System.IO.Compression"/>
   </ItemGroup>
 </Project>
