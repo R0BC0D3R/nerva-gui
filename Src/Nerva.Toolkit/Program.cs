@@ -119,8 +119,8 @@ namespace Nerva.Toolkit
 
 		private static void ParseFileArguments(Arguments args, out string logFile, out string configFile)
 		{
-			logFile = Path.Combine(Environment.CurrentDirectory, Constants.DEFAULT_LOG_FILENAME);
-			configFile = Path.Combine(Environment.CurrentDirectory, Constants.DEFAULT_CONFIG_FILENAME);
+			logFile = Path.Combine(OS.HomeDirectory, "nerva", Constants.DEFAULT_LOG_FILENAME);
+			configFile = Path.Combine(OS.HomeDirectory, "nerva", Constants.DEFAULT_CONFIG_FILENAME);
 
 			var lf = args["log-file"];
 			var cf = args["config-file"];
