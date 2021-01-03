@@ -11,7 +11,7 @@ namespace Nerva.Toolkit.Helpers
 
         public const string DEFAULT_CONFIG_FILENAME = "app.config";
         public const string DEFAULT_LOG_FILENAME = "app.log";
-        public const string DEV_WALLET_ADDRESS = "NV1r8P6THPASAQX77re6hXTMJ1ykXXvtYXFXgMv4vFAQNYo3YatUvZ8LFNRu4dPQBjTwqJbMvqoeiipywmREPHpD2AgWnmG7Q";
+        public const string DEV_WALLET_ADDRESS = "NV2RS6bgCjHNtUFnyA9MiYFNMwEwxVivfbKcH8DdM1UVfXQ3oAAFJvfiuDGidRbFgR2Pk6FaqkriRV565qhajcfv2SBcKM77o";
         public const int ONE_SECOND = 1000;
         public const int FIVE_SECONDS = 5000;
         public const int BAN_TIME = 6000;
@@ -87,12 +87,17 @@ namespace Nerva.Toolkit.Helpers
             }
         }
 
-        public static bool IsWindows() => type == OS_Type.Windows;
+        public static bool IsWindows() => Type == OS_Type.Windows;
 
-        public static bool IsLinux() => type == OS_Type.Linux;
+        public static bool IsLinux() => Type == OS_Type.Linux;
 
-        public static bool IsMac() => type == OS_Type.Osx;
+        public static bool IsMac() => Type == OS_Type.Osx;
 
-        public static bool IsUnix() => type == OS_Type.Linux || type == OS_Type.Osx;
+        public static bool IsUnix() => Type == OS_Type.Linux || type == OS_Type.Osx;
+
+        public static string HomeDirectory
+        {
+            get => IsUnix() ? Environment.GetEnvironmentVariable("HOME") : Environment.ExpandEnvironmentVariables("%HOMEDRIVE%%HOMEPATH%");
+        }
     }
 }

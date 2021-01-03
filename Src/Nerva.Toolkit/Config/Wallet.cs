@@ -34,7 +34,7 @@ namespace Nerva.Toolkit.Config
         {
             return new Wallet
             {
-                WalletDir = Path.Combine(Environment.CurrentDirectory, "Wallets"),
+                WalletDir = Path.Combine(OS.HomeDirectory, "nerva", "wallets"),
                 LastOpenedWallet = null,
                 Rpc = RpcDetails.New((uint)MathHelper.Random.NextInt(10000, 50000))
             };

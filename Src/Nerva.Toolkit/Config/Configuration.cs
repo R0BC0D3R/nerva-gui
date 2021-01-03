@@ -3,6 +3,7 @@ using System.IO;
 using AngryWasp.Helpers;
 using AngryWasp.Logger;
 using AngryWasp.Serializer;
+using Nerva.Toolkit.Helpers;
 
 namespace Nerva.Toolkit.Config
 {
@@ -10,7 +11,7 @@ namespace Nerva.Toolkit.Config
 	{
         #region Configuration properties
 
-        public string ToolsPath { get; set; }
+        public string ToolsPath { get; set; } 
 
         public bool Testnet { get; set; }
         
@@ -20,7 +21,7 @@ namespace Nerva.Toolkit.Config
 
         public bool ReconnectToDaemonProcess { get; set; }
 
-        public string AddressBookPath { get; set; } = Path.Combine(Environment.CurrentDirectory, "AddressBook.xml");
+        public string AddressBookPath { get; set; }
 
         #endregion
 
@@ -41,7 +42,8 @@ namespace Nerva.Toolkit.Config
         {
             return new Configuration
             {
-                ToolsPath = Path.Combine(Environment.CurrentDirectory, "CLI"),
+                ToolsPath = Path.Combine(OS.HomeDirectory, "nerva", "cli"),
+                AddressBookPath = Path.Combine(OS.HomeDirectory, "nerva", "address-book.xml"),
                 Testnet = false,
 
                 Daemon = Daemon.New(true),
