@@ -15,6 +15,7 @@ namespace Nerva.Toolkit.Content.Dialogs
 
         private CheckBox chkStopOnExit = new CheckBox { Text = "Stop daemon on GUI exit", ToolTip = "Stop daemon when GUI exits. This will stop mining" };
         private CheckBox chkAutoStartMining = new CheckBox { Text = "Auto start mining when GUI starts", ToolTip = "Automatically start mining when GUI starts" };
+        private TextBox  txtAdditionalArguments = new TextBox { PlaceholderText = "Additional nervad arguments", ToolTip = "Additional arguments to pass to nervad" };
         private TextBox txtMiningAddress = new TextBox { PlaceholderText = "Mining Address", ToolTip = "Address to send mining rewards to" };
         private NumericStepper nsMiningThreads = new NumericStepper { MinValue = 1, MaxValue = Environment.ProcessorCount, DecimalPlaces = 0, MaximumDecimalPlaces = 0, ToolTip = "Number of CPU threads to use for mining" };
 
@@ -93,6 +94,7 @@ namespace Nerva.Toolkit.Content.Dialogs
 
             chkStopOnExit.Checked = Configuration.Instance.Daemon.StopOnExit;
             chkAutoStartMining.Checked = Configuration.Instance.Daemon.AutoStartMining;
+            txtAdditionalArguments.Text = Configuration.Instance.Daemon.AdditionalArguments;
             txtMiningAddress.Text = Configuration.Instance.Daemon.MiningAddress;
             nsMiningThreads.Value = Configuration.Instance.Daemon.MiningThreads;
             nsDaemonPort.Value = Configuration.Instance.Daemon.Rpc.Port;
@@ -149,6 +151,8 @@ namespace Nerva.Toolkit.Content.Dialogs
                             {
                                 chkStopOnExit,
                                 chkAutoStartMining,
+                                new Label { Text = "Additional Daemon Arguments" },
+                                txtAdditionalArguments,
                                 new Label { Text = "Mining Address" },
                                 new StackLayout
                                 {
@@ -172,7 +176,7 @@ namespace Nerva.Toolkit.Content.Dialogs
                                     {
                                         new StackLayoutItem(nsDaemonPort, true),
                                         btnUseDefaultPort,
-                                        btnGenRandDaemonPort
+                                        btnGenRandDaemonPort,
                                     }
                                 }
                             }
@@ -253,7 +257,8 @@ namespace Nerva.Toolkit.Content.Dialogs
                 txtToolsPath.Text != Configuration.Instance.ToolsPath || // tool path changed
                 nsDaemonPort.Value != Configuration.Instance.Daemon.Rpc.Port || // daemon port changed
                 nsWalletPort.Value != Configuration.Instance.Wallet.Rpc.Port ||
-                txtWalletPath.Text != Configuration.Instance.Wallet.WalletDir) // wallet port changed
+                txtWalletPath.Text != Configuration.Instance.Wallet.WalletDir || // wallet port changed
+                txtAdditionalArguments.Text != Configuration.Instance.Daemon.AdditionalArguments) 
                 restartCliRequired = true;
 
             //Miner details have changed. Only restart miner
@@ -272,6 +277,8 @@ namespace Nerva.Toolkit.Content.Dialogs
 
             Configuration.Instance.Wallet.WalletDir = txtWalletPath.Text;
             Configuration.Instance.Wallet.Rpc.Port = (uint)nsWalletPort.Value;
+
+            Configuration.Instance.Daemon.AdditionalArguments = txtAdditionalArguments.Text;
 
             this.Close(DialogResult.Ok);
         }

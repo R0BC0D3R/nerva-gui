@@ -14,6 +14,8 @@ namespace Nerva.Toolkit.Config
 
         public int MiningThreads { get; set; }
 
+        public string AdditionalArguments { get; set; }
+
         public static Daemon New(bool testnet)
         {
             return new Daemon

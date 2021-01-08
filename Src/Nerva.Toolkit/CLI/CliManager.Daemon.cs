@@ -102,7 +102,8 @@ namespace Nerva.Toolkit.CLI
             if (OS.IsUnix())
                 a += " --detach";
 
-            a += " --log level 2";
+            a += " --log-level 2";
+            a += $" {Configuration.Instance.Daemon.AdditionalArguments}";
 
             return a;
         }
