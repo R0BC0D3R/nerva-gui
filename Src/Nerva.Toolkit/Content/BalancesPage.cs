@@ -223,14 +223,9 @@ namespace Nerva.Toolkit.Content
 					accounts.Clear();
 				}
 
-				if (OS.Type == OS_Type.Windows || OS.Type == OS_Type.Osx)
-				{
-					int si = grid.SelectedRow;
-					grid.DataStore = accounts.Count == 0 ? null : accounts;
-					grid.SelectRow(si);
-				}
-				else
-					grid.DataStore = accounts.Count == 0 ? null : accounts;
+				int si = grid.SelectedRow;
+				grid.DataStore = accounts.Count == 0 ? null : accounts;
+				grid.SelectRow(si);
 			}
 			catch (Exception ex)
 			{

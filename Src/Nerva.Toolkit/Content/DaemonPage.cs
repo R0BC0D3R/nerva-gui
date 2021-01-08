@@ -166,14 +166,9 @@ namespace Nerva.Toolkit.Content
 				if (connections == null)
 					connections = new List<GetConnectionsResponseData>();
 
-				if (OS.Type == OS_Type.Windows || OS.Type == OS_Type.Osx)
-				{
-					int si = grid.SelectedRow;
-					grid.DataStore = connections;
-					grid.SelectRow(si);
-				}
-				else
-					grid.DataStore = connections;
+				int si = grid.SelectedRow;
+				grid.DataStore = connections;
+				grid.SelectRow(si);
 			}
 			catch (Exception ex)
 			{
