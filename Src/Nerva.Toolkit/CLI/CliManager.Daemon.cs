@@ -102,6 +102,8 @@ namespace Nerva.Toolkit.CLI
             if (OS.IsUnix())
                 a += " --detach";
 
+            a += " --log level 2";
+
             return a;
         }
 
