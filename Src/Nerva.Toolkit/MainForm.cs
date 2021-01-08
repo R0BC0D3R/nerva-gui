@@ -25,9 +25,6 @@ namespace Nerva.Toolkit
         AsyncTaskContainer updateDaemonTask;
 
         ulong lastTxHeight = 0;
-        ulong lastHeight = 0;
-        uint averageHashrateAmount;
-        uint averageHashRateCount;
 
         public MainForm(bool newConfig)
         {
@@ -209,18 +206,6 @@ namespace Nerva.Toolkit
                                     lblVersion.Text = $"Version: {r.Version}";
                                     ad.Version = $"GUI: {Constants.VERSION}\r\nCLI: {r.Version}";
                                 });
-
-                                if (lastHeight != r.Height)
-                                {
-                                    lastHeight = r.Height;
-                                    if (averageHashRateCount > 0)
-                                    {
-                                        uint avg = averageHashrateAmount / averageHashRateCount;
-                                        chartsPage.HrPlot.AddDataPoint(1, avg);
-                                        averageHashrateAmount = 0;
-                                        averageHashRateCount = 0;
-                                    }
-                                }
                             }, (RequestError e) =>
                             {
                                 Application.Instance.Invoke(() =>
@@ -249,9 +234,6 @@ namespace Nerva.Toolkit
                                 Application.Instance.Invoke(() =>
                                 {
                                     daemonPage.UpdateMinerStatus(r);
-                                    chartsPage.HrPlot.AddDataPoint(0, r.Speed);
-                                    averageHashrateAmount += (uint)r.Speed;
-                                    ++averageHashRateCount;
                                 });
                             }, (RequestError e) =>
                             {
