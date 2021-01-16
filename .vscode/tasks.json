@@ -1,13 +1,20 @@
 {
-    // See https://go.microsoft.com/fwlink/?LinkId=733558
-    // for the documentation about the tasks.json format
     "version": "2.0.0",
     "tasks": [
         {
             "label": "linux-debug",
             "type": "shell",
-            "command": "${workspaceRoot}/builder/build.linux",
-            "args": [ "debug" ],
+            "command": "${workspaceRoot}/builder/debug.unix",
+            "args": [ "linux" ],
+            "group": "build",
+            "presentation": { "reveal": "silent" },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "osx-debug",
+            "type": "shell",
+            "command": "${workspaceRoot}/builder/debug.unix",
+            "args": [ "mac" ],
             "group": "build",
             "presentation": { "reveal": "silent" },
             "problemMatcher": "$msCompile"

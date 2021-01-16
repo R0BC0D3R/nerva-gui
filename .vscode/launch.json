@@ -7,6 +7,21 @@
             "request": "launch",
             "program": "${workspaceRoot}/Bin/Debug/linux-x64/Nerva.Toolkit",
             "cwd": "${workspaceRoot}",
+            "preLaunchTask": "linux-debug",
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen",
+            "args":[
+                "--log-file", "${workspaceRoot}/app.log",
+                "--config-file", "${workspaceRoot}/app.config",
+            ]
+        },
+        {
+            "name": "Debug-Mac",
+            "type": "coreclr",
+            "request": "launch",
+            "program": "${workspaceRoot}/Bin/Debug/osx-x64/Nerva.Toolkit.Mac.app/Contents/MacOS/Nerva.Toolkit",
+            "cwd": "${workspaceRoot}",
+            "preLaunchTask": "osx-debug",
             "console": "integratedTerminal",
             "internalConsoleOptions": "neverOpen",
             "args":[

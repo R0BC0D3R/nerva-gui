@@ -16,6 +16,9 @@ namespace Nerva.Toolkit.CLI
 
         public static List<Process> GetRunningProcesses(string exe)
         {
+            if (OS.IsMac() && exe.Length > 15) // Mac truncates process names to 15 characters
+                exe = exe.Substring(0, 15);
+
             Process[] pl = Process.GetProcessesByName(exe);
             List<Process> r = new  List<Process>();
 

@@ -5,7 +5,7 @@ source ${BUILDER_DIR}/helpers
 
 function linux()
 {
-    dotnet publish \
+    dotnet publish -f net5.0 -r linux-x64 \
     /p:Publish=true /p:GenerateFullPaths=true /p:Configuration=Release /p:TrimUnusedDependencies=true \
     /p:OutputPath=${NERVA_DIR}/Bin/Release/linux-x64/ ${NERVA_DIR}/Src/Nerva.Toolkit/Nerva.Toolkit.Linux.csproj
 
@@ -16,7 +16,7 @@ function linux()
 
 function mac()
 {
-    dotnet publish \
+    dotnet publish -f net5.0 -r osx-x64 \
     /p:Publish=true /p:GenerateFullPaths=true /p:Configuration=Release /p:TrimUnusedDependencies=true \
     /p:OutputPath=${NERVA_DIR}/Bin/Release/osx-x64/ ${NERVA_DIR}/Src/Nerva.Toolkit/Nerva.Toolkit.Mac.csproj
 

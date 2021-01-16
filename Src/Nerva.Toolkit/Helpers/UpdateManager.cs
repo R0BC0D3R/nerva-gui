@@ -277,10 +277,10 @@ namespace Nerva.Toolkit.Helpers
                     string installerFile = Path.Combine(destDir, "install");
                     string installDir = null;
 
-                    if (OS.IsLinux())
-                        installDir = Path.Combine(Environment.GetEnvironmentVariable("HOME"), ".local/bin");
-                    else if (OS.IsMac())
-                        installDir = "/usr/local/bin";
+                    installDir = Path.Combine(Environment.GetEnvironmentVariable("HOME"), ".local/bin");
+
+                    if (!Directory.Exists(installDir))
+                        Directory.CreateDirectory(installDir);
 
                     if (File.Exists(installerFile))
                         Process.Start(installerFile);
@@ -302,7 +302,12 @@ namespace Nerva.Toolkit.Helpers
                         }
                     }
 
-                    UnixNative.Symlink(Path.Combine(installDir, "nervad-aes"), Path.Combine(installDir, "nervad"));
+                    if (OS.IsLinux())
+                        UnixNative.Symlink(Path.Combine(installDir, "nervad-aes"), Path.Combine(installDir, "nervad"));
+                    else
+                        File.Move(Path.Combine(installDir, "nervad-aes"), Path.Combine(installDir, "nervad"));
+
+                    //todo: add ~/.local/bin to mac $PATH
 
                     destDir = installDir;
                 }

@@ -183,7 +183,7 @@ namespace Nerva.Toolkit.CLI
             {
                 foreach (Process p in pl)
                 {
-                    Log.Instance.Write(Log_Severity.Warning, $"Killing running instance of {p.ProcessName} with id {p.Id}");
+                    Log.Instance.Write(Log_Severity.Warning, $"Killing running instance of {exe} with id {p.Id}");
                     p.Kill();
                     p.WaitForExit();
                 }

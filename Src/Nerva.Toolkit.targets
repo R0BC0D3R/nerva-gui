@@ -3,7 +3,6 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
     <AssemblyName>Nerva.Toolkit</AssemblyName>
   </PropertyGroup>
   <ItemGroup>
