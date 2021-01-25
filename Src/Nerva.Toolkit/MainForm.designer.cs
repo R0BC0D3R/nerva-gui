@@ -3,7 +3,6 @@ using Eto.Drawing;
 using System.Reflection;
 using Nerva.Toolkit.Content;
 using Nerva.Toolkit.Helpers;
-using System.Diagnostics;
 
 namespace Nerva.Toolkit
 {
@@ -25,7 +24,7 @@ namespace Nerva.Toolkit
 
 		public void ConstructLayout()
 		{
-			Title = $"NERVA Toolkit {Constants.LONG_VERSION}";
+			Title = $"NERVA Toolkit {Version.LONG_VERSION}";
 			ClientSize = new Size(640, 480);
 			
 			//Construct About dialog

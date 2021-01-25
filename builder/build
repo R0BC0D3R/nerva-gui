@@ -1,0 +1,28 @@
+#!/bin/bash
+
+BUILDER_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_DIR=$(dirname $BUILDER_DIR)
+
+function detect_version()
+{
+    ver=$(awk '/public const string VERSION = /{ print $6 }' < ${ROOT_DIR}/Src/Nerva.Toolkit/Version.cs)
+	name=$(awk '/public const string CODE_NAME = /{ print $6 }' < ${ROOT_DIR}/Src/Nerva.Toolkit/Version.cs)
+    export APP_VERSION=$(echo ${ver} | tr -d '";')
+	export APP_CODENAME=$(echo ${name} | tr -d '";')
+    echo App version detected as ${APP_VERSION}: ${APP_CODENAME}
+}
+
+function publish()
+{
+    cd ${ROOT_DIR}
+    echo Building $1
+    dotnet restore -r $1
+    dotnet publish -c release -r $1 -f net5.0 -p:Version=${APP_VERSION} -p:PublishSingleFile=true
+
+    #cd ${ROOT_DIR}/Bin/Release/net5.0/$1/publish
+    #zip ${ROOT_DIR}/Bin/ems-v${APP_VERSION}_$1.zip ./*
+}
+
+detect_version
+
+publish $1

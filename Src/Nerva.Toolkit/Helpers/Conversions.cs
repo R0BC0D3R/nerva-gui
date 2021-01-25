@@ -1,11 +1,9 @@
 using System;
-using System.Text;
-using AngryWasp.Helpers;
 using AngryWasp.Logger;
 
 namespace Nerva.Toolkit.Helpers
-{	
-	public static class Conversions
+{
+    public static class Conversions
     {
         public static double FromAtomicUnits(ulong i)
         {

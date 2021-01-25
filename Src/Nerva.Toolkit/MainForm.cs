@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using AngryWasp.Logger;
@@ -204,7 +203,7 @@ namespace Nerva.Toolkit
                                         lblDaemonStatus.Text += " | Sync OK";
 
                                     lblVersion.Text = $"Version: {r.Version}";
-                                    ad.Version = $"GUI: {Constants.VERSION}\r\nCLI: {r.Version}";
+                                    ad.Version = $"GUI: {Version.VERSION}\r\nCLI: {r.Version}";
                                 });
                             }, (RequestError e) =>
                             {

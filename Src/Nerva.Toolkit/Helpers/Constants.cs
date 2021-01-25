@@ -5,10 +5,6 @@ namespace Nerva.Toolkit.Helpers
 {	
 	public static class Constants
 	{
-        public const string VERSION = "2.9.0";
-        public const string CODE_NAME = "Beta-9";
-        public static readonly string LONG_VERSION = $"{VERSION}: {CODE_NAME}";
-
         public const string DEFAULT_CONFIG_FILENAME = "app.config";
         public const string DEFAULT_LOG_FILENAME = "app.log";
         public const string DEV_WALLET_ADDRESS = "NV2RS6bgCjHNtUFnyA9MiYFNMwEwxVivfbKcH8DdM1UVfXQ3oAAFJvfiuDGidRbFgR2Pk6FaqkriRV565qhajcfv2SBcKM77o";

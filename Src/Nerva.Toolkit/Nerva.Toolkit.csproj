@@ -1,0 +1,52 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <Import Project="../../External/AngryWasp.Build/AngryWasp.Build.Application.targets"/>
+    <PropertyGroup>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <AssemblyName>Nerva.Toolkit</AssemblyName>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="Eto.Forms" Version="*"/>
+        <PackageReference Include="System.IO.Compression" Version="*"/>
+        <PackageReference Include="Newtonsoft.Json" Version="*"/>
+        <PackageReference Include="DnsClient" Version="*"/>
+        <PackageReference Include="AngryWasp.Logger" Version="*"/>
+        <PackageReference Include="AngryWasp.Helpers" Version="*"/>
+        <PackageReference Include="AngryWasp.Serializer" Version="*"/>
+        <PackageReference Include="AngryWasp.Cli" Version="*"/>
+        <PackageReference Include="Nerva.Rpc.CSharp" Version="*"/>
+    </ItemGroup>
+    <ItemGroup>
+        <EmbeddedResource Include="../../Content/NERVA-Logo.png">
+            <LogicalName>NERVA-Logo.png</LogicalName>
+        </EmbeddedResource>
+    </ItemGroup>
+
+    <PropertyGroup Condition=" '$(RuntimeIdentifier)' == 'linux-x64' ">
+        <OutputType>Exe</OutputType>
+        <DefineConstants>$(DefineConstants);UNIX;LINUX;</DefineConstants>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(RuntimeIdentifier)' == 'osx-x64' ">
+        <OutputType>Exe</OutputType>
+        <DefineConstants>$(DefineConstants);UNIX;OSX;</DefineConstants>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(RuntimeIdentifier)' == 'win-x64' ">
+        <OutputType>WinExe</OutputType>
+        <DefineConstants>$(DefineConstants);WINDOWS;</DefineConstants>
+    </PropertyGroup>
+
+    <ItemGroup Condition=" '$(RuntimeIdentifier)' == 'linux-x64' ">
+        <PackageReference Include="Eto.Platform.Gtk" Version="*"/>
+        <PackageReference Include="Mono.Posix.NETStandard" Version="*"/>
+    </ItemGroup>
+
+    <ItemGroup Condition=" '$(RuntimeIdentifier)' == 'osx-x64' ">
+        <PackageReference Include="Eto.Platform.Mac64" Version="*"/>
+        <PackageReference Include="Mono.Posix.NETStandard" Version="*"/>
+    </ItemGroup>
+
+    <ItemGroup Condition=" '$(RuntimeIdentifier)' == 'win-x64' ">
+        <PackageReference Include="Eto.Platform.Wpf" Version="*"/>
+    </ItemGroup>
+</Project>

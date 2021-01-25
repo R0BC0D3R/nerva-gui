@@ -1,32 +1,17 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27130.2026
-MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nerva.Toolkit.Linux", "Src/Nerva.Toolkit/Nerva.Toolkit.Linux.csproj", "{1AC47DD1-4744-4442-8790-547F9A05C1AA}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nerva.Toolkit.Windows", "Src/Nerva.Toolkit/Nerva.Toolkit.Windows.csproj", "{1AC47DD1-4744-4442-8790-547F9A05C1BB}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nerva.Toolkit.Mac", "Src/Nerva.Toolkit/Nerva.Toolkit.Mac.csproj", "{1AC47DD1-4744-4442-8790-547F9A05C1CC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nerva.Toolkit", "Src/Nerva.Toolkit/Nerva.Toolkit.csproj", "{1AC47DD1-4744-4442-8790-547F9A05C1AA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{1AC47DD1-4744-4442-8790-547F9A05C1AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{1AC47DD1-4744-4442-8790-547F9A05C1AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-
-		{1AC47DD1-4744-4442-8790-547F9A05C1BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1AC47DD1-4744-4442-8790-547F9A05C1BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-
-		{1AC47DD1-4744-4442-8790-547F9A05C1CC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1AC47DD1-4744-4442-8790-547F9A05C1CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {47857121-F23B-4FD1-B3FD-23A0B03BB92D}
+		{1AC47DD1-4744-4442-8790-547F9A05C1AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1AC47DD1-4744-4442-8790-547F9A05C1AA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

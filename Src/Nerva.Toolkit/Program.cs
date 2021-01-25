@@ -14,16 +14,6 @@ namespace Nerva.Toolkit
 {
     public class Program
 	{
-		/// <summary>
-		/// Program entry point
-		/// Available command line arguments
-		/// --log-file: Location to write a log file to
-		/// --config-file: Location to load a config file from
-		/// --cli-path: Set a path to look for the CLI
-		/// --new-daemon: Kill any running daemon instances and restart them.
-		/// --rpc-log-level: Log level fo the RPC library
-		/// --log-cli-wallet: Log output from cli wallet to app.log
-		/// </summary>
 		[STAThread]
 		public static void Main(string[] rawArgs)
 		{
@@ -38,6 +28,14 @@ namespace Nerva.Toolkit
 			string logFile, configFile;
 
 			ParseFileArguments(args, out logFile, out configFile);
+
+			string logPath = Path.GetDirectoryName(logFile);
+            if (!Directory.Exists(logPath))
+                Directory.CreateDirectory(logPath);
+
+			string configPath = Path.GetDirectoryName(configFile);
+            if (!Directory.Exists(configPath))
+                Directory.CreateDirectory(configPath);
 
 			InitializeLog(logFile);
 
@@ -143,7 +141,7 @@ namespace Nerva.Toolkit
 		private static void InitializeLog(string logPath)
 		{
 			Log.CreateInstance(true, logPath);
-			Log.Instance.Write($"NERVA Unified Toolkit. Version {Constants.LONG_VERSION}");
+			Log.Instance.Write($"NERVA Unified Toolkit. Version {Version.LONG_VERSION}");
 
 			//Crash the program if not 64-bit
 			if (!Environment.Is64BitOperatingSystem)
