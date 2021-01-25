@@ -19,8 +19,26 @@ function publish()
     dotnet restore -r $1
     dotnet publish -c release -r $1 -f net5.0 -p:Version=${APP_VERSION} -p:PublishSingleFile=true
 
-    #cd ${ROOT_DIR}/Bin/Release/net5.0/$1/publish
-    #zip ${ROOT_DIR}/Bin/ems-v${APP_VERSION}_$1.zip ./*
+    if [ "$1" == "osx-x64" ]; then
+        bundle=${ROOT_DIR}/Bin/Nerva.Toolkit.app
+        mkdir -p ${bundle}/Contents
+        mkdir -p ${bundle}/Contents/MacOS
+        mkdir -p ${bundle}/Contents/Resources
+
+        # Generate plist
+        plist=$(sed -e "s/{NERVA_VERSION}/${NERVA_VERSION}/" -e "s/{DISPLAY_NAME}/${NERVA_CODENAME}/" ${BUILDER_DIR}/Info.plist.template)
+        echo "$plist" > ${bundle}/Contents/Info.plist
+
+        # Copy icons to resources
+        cp ${BUILDER_DIR}/logos/nerva-logo-color.icns ${bundle}/Contents/Resources/nerva-logo-color.icns
+        cp ${BUILDER_DIR}/logos/nerva-logo-color-2.icns ${bundle}/Contents/Resources/nerva-logo-color-2.icns
+
+        # Copy launcher
+        cp ${ROOT_DIR}/Bin/Release/net5.0/osx-x64/publish/* ${bundle}/Contents/MacOS/
+
+        cd ${ROOT_DIR}/Bin
+        zip -r ${ROOT_DIR}/Bin/nerva-gui-v${APP_VERSION}_$1.zip ./Nerva.Toolkit.app
+    fi
 }
 
 detect_version
