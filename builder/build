@@ -1,5 +1,7 @@
 #!/bin/bash
 
+reset
+
 BUILDER_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT_DIR=$(dirname $BUILDER_DIR)
 
@@ -16,8 +18,15 @@ function publish()
 {
     cd ${ROOT_DIR}
     echo Building $1
-    dotnet restore -r $1
-    dotnet publish -c release -r $1 -f net5.0 -p:Version=${APP_VERSION} -p:PublishSingleFile=true
+    dotnet restore -r $1 --no-cache
+
+    targetFramework=net5.0
+
+    if [ "$1" == "win-x64" ]; then
+        targetFramework=netcoreapp3.1
+    fi
+
+    dotnet publish -c release -r $1 -f ${targetFramework} -p:Version=${APP_VERSION} -p:PublishSingleFile=true
 
     if [ "$1" == "osx-x64" ]; then
         bundle=${ROOT_DIR}/Bin/Nerva.Toolkit.app
@@ -34,10 +43,13 @@ function publish()
         cp ${BUILDER_DIR}/logos/nerva-logo-color-2.icns ${bundle}/Contents/Resources/nerva-logo-color-2.icns
 
         # Copy launcher
-        cp ${ROOT_DIR}/Bin/Release/net5.0/osx-x64/publish/* ${bundle}/Contents/MacOS/
+        cp ${ROOT_DIR}/Bin/Release/${targetFramework}/osx-x64/publish/* ${bundle}/Contents/MacOS/
 
         cd ${ROOT_DIR}/Bin
         zip -r ${ROOT_DIR}/Bin/nerva-gui-v${APP_VERSION}_$1.zip ./Nerva.Toolkit.app
+    else
+        cd ${ROOT_DIR}/Bin
+        zip -j ${ROOT_DIR}/Bin/nerva-gui-v${APP_VERSION}_$1.zip ./Release/${targetFramework}/$1/publish/*
     fi
 }
 
