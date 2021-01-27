@@ -153,19 +153,6 @@ namespace Nerva.Toolkit.Helpers
                 RedirectStandardOutput = true,
                 CreateNoWindow = true
             });
-
-#if DEBUG
-            proc.OutputDataReceived += (s, e) => {
-                Log.Instance.Write(Log_Severity.Info, e.Data);
-            };
-
-            proc.ErrorDataReceived += (s, e) => {
-                Log.Instance.Write(Log_Severity.Error, e.Data);
-            };
-
-            proc.BeginOutputReadLine();
-            proc.BeginErrorReadLine();
-#endif
         }
 
         public static string CycleLogFile(string path)
