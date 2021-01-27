@@ -139,7 +139,6 @@ namespace Nerva.Toolkit.Content.Wizard
                 lblImport2.Text = "Press 'Next' to continue";
                 lblImport.Visible = lblImport2.Visible = true;
                 Parent.EnableNextButton(true);  
-                Configuration.Instance.Wallet.LastOpenedWallet = name;
                 Configuration.Instance.Daemon.MiningAddress = address;                                    
             });
             

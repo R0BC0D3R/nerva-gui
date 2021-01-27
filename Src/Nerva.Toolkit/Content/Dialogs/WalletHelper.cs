@@ -188,11 +188,5 @@ namespace Nerva.Toolkit.Content.Dialogs
 
             return Directory.Exists(Configuration.Instance.Wallet.WalletDir);
         }
-
-        public static void SaveWalletLogin(string walletFile)
-        {
-            Configuration.Instance.Wallet.LastOpenedWallet = walletFile;
-            Configuration.Save();
-        }
     }
 }

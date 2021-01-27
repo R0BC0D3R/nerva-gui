@@ -374,7 +374,6 @@ namespace Nerva.Toolkit
                 {
                     WalletRpc.OpenWallet(name, password, () => {
                         Log.Instance.Write($"Opened wallet {name}");
-                        WalletHelper.SaveWalletLogin(name);
                     }, OpenError);
                 });
             }, (RequestError error) =>
@@ -386,7 +385,6 @@ namespace Nerva.Toolkit
                 {
                     WalletRpc.OpenWallet(name, password, () => {
                         Log.Instance.Write($"Opened wallet {name}");
-                        WalletHelper.SaveWalletLogin(name);
                     }, OpenError);
                 });
             });
@@ -453,8 +451,6 @@ namespace Nerva.Toolkit
                 lastTxHeight = 0;
 
                 WalletRpc.CloseWallet(null, null);
-                Configuration.Instance.Wallet.LastOpenedWallet = null;
-                Configuration.Save();
 
                 Application.Instance.AsyncInvoke( () =>
                 {
