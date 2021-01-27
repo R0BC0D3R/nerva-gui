@@ -33,7 +33,7 @@
             "name": "Debug-Windows",
             "type": "coreclr",
             "request": "launch",
-            "program": "${workspaceRoot}/Src/Nerva.Toolkit/Bin/debug/net5.0/win-x64/Nerva.Toolkit.exe",
+            "program": "${workspaceRoot}/Src/Nerva.Toolkit/Bin/debug/net5.0-windows/win-x64/Nerva.Toolkit.exe",
             "cwd": "${workspaceRoot}",
             "preLaunchTask": "debug-windows",
             "console": "integratedTerminal",
