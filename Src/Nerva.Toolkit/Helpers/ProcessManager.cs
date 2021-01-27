@@ -16,16 +16,8 @@ namespace Nerva.Toolkit.Helpers
 {
     public static class ProcessManager
     {
-        private static string ExeNameToProcessName(string exe)
-        {
-            exe = Path.GetFileNameWithoutExtension(exe);
-#if OSX
-            if (exe.Length > 15) // Mac truncates process names to 15 characters
-                exe = exe.Substring(0, 15);
-#endif
-
-            return exe;
-        }
+        private static string ExeNameToProcessName(string exe) =>
+            Path.GetFileNameWithoutExtension(exe);
 
         public static void Kill(string exe)
         {

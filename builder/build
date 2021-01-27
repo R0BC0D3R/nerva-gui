@@ -18,7 +18,7 @@ function publish()
 {
     cd ${ROOT_DIR}
     echo Building $1
-    dotnet restore -r $1 --no-cache
+    dotnet restore -r $1
 
     targetFramework=net5.0
 
@@ -26,7 +26,7 @@ function publish()
         targetFramework=${targetFramework}-windows
     fi
 
-    dotnet publish -c release -r $1 -f ${targetFramework} -p:Version=${APP_VERSION} -p:PublishSingleFile=true
+    dotnet publish -c release -r $1 -f ${targetFramework}
 
     if [ "$1" == "osx-x64" ]; then
         bundle=${ROOT_DIR}/Bin/Nerva.Toolkit.app
@@ -35,7 +35,7 @@ function publish()
         mkdir -p ${bundle}/Contents/Resources
 
         # Generate plist
-        plist=$(sed -e "s/{NERVA_VERSION}/${NERVA_VERSION}/" -e "s/{DISPLAY_NAME}/${NERVA_CODENAME}/" ${BUILDER_DIR}/Info.plist.template)
+        plist=$(sed -e "s/{APP_VERSION}/${APP_VERSION}/" -e "s/{DISPLAY_NAME}/${APP_CODENAME}/" ${BUILDER_DIR}/Info.plist.template)
         echo "$plist" > ${bundle}/Contents/Info.plist
 
         # Copy icons to resources
@@ -43,13 +43,13 @@ function publish()
         cp ${BUILDER_DIR}/logos/nerva-logo-color-2.icns ${bundle}/Contents/Resources/nerva-logo-color-2.icns
 
         # Copy launcher
-        cp ${ROOT_DIR}/Bin/Release/${targetFramework}/osx-x64/publish/* ${bundle}/Contents/MacOS/
+        cp ${ROOT_DIR}/Bin/Release/${targetFramework}/osx-x64/* ${bundle}/Contents/MacOS/
 
         cd ${ROOT_DIR}/Bin
         zip -r ${ROOT_DIR}/Bin/nerva-gui-v${APP_VERSION}_$1.zip ./Nerva.Toolkit.app
     else
         cd ${ROOT_DIR}/Bin
-        zip -j ${ROOT_DIR}/Bin/nerva-gui-v${APP_VERSION}_$1.zip ./Release/${targetFramework}/$1/publish/*
+        zip -j ${ROOT_DIR}/Bin/nerva-gui-v${APP_VERSION}_$1.zip ./Release/${targetFramework}/$1/*
     fi
 }
 
