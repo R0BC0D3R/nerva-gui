@@ -22,7 +22,7 @@ namespace Nerva.Toolkit.Config
             {
                 StopOnExit = false,
                 AutoStartMining = false,
-                MiningAddress = Constants.DEV_WALLET_ADDRESS,
+                MiningAddress = string.Empty,
                 MiningThreads = 2,
 
                 Rpc = RpcDetails.New(testnet ? Constants.NERVAD_RPC_PORT_TESTNET : Constants.NERVAD_RPC_PORT_MAINNET)

@@ -48,7 +48,7 @@ namespace Nerva.Toolkit.Helpers
 #else
                     p.Kill();
 #endif
-                    Log.Instance.Write($"Process {p.Id} dead");
+                    Log.Instance.Write($"Process {p.Id} killed");
                 }
             }
             catch (Exception ex)

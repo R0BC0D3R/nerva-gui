@@ -32,7 +32,7 @@ namespace Nerva.Toolkit.Helpers.Native
                 Log.Instance.Write(Log_Severity.Warning, "Syscall 'symlink' failed. Possibly already exists.");
         }
 
-        public static  void Kill(int pid, Signum sig)
+        public static void Kill(int pid, Signum sig)
         {
             if (Syscall.kill(pid, sig) != 0)
                 Log.Instance.Write(Log_Severity.Warning, $"Syscall 'kill' failed to kill process {pid}.");

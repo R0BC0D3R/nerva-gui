@@ -8,9 +8,6 @@ namespace Nerva.Toolkit.Helpers
 {	
 	public static class Constants
 	{
-        public const string DEFAULT_CONFIG_FILENAME = "app.config";
-        public const string DEFAULT_LOG_FILENAME = "app.log";
-        public const string DEV_WALLET_ADDRESS = "NV2RS6bgCjHNtUFnyA9MiYFNMwEwxVivfbKcH8DdM1UVfXQ3oAAFJvfiuDGidRbFgR2Pk6FaqkriRV565qhajcfv2SBcKM77o";
         public const int ONE_SECOND = 1000;
 
         public const uint NERVAD_RPC_PORT_MAINNET = 17566;
