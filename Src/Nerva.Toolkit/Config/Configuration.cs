@@ -60,12 +60,13 @@ namespace Nerva.Toolkit.Config
             }
             else
             {
+                newFile = false;
+
                 try
                 {
                     Log.Instance.Write($"Configuration loaded from '{loadedConfigFile}'");
                     var os = new ObjectSerializer();
                     instance = os.Deserialize<Configuration>(XHelper.LoadDocument(loadedConfigFile));
-                    newFile = false;
                 }
                 catch
                 {

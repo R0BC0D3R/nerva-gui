@@ -46,8 +46,6 @@ namespace Nerva.Toolkit.CLI
                     Thread.Sleep(Constants.ONE_SECOND);
                 }
 
-                Log.Instance.Write("Daemon crash check stopped");
-
                 threadRunning = false;
             }));
 
