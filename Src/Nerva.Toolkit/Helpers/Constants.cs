@@ -84,7 +84,7 @@ namespace Nerva.Toolkit.Helpers
         }
 
 #if WINDOWS
-        public static string HomeDirectory => Environment.GetEnvironmentVariable("%HOMEDRIVE%%HOMEPATH%");
+        public static string HomeDirectory => Environment.GetEnvironmentVariable("LOCALAPPDATA");
 #else
         public static string HomeDirectory => Environment.GetEnvironmentVariable("HOME");
 #endif
