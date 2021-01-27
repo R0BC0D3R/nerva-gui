@@ -277,7 +277,13 @@ namespace Nerva.Toolkit
                 }
                 else
                     if (DaemonRpc.StartMining())
-                    Log.Instance.Write($"Mining started for @ {Conversions.WalletAddressShortForm(Configuration.Instance.Daemon.MiningAddress)} on {Configuration.Instance.Daemon.MiningThreads} threads");
+                        Log.Instance.Write($"Mining started for @ {Conversions.WalletAddressShortForm(Configuration.Instance.Daemon.MiningAddress)} on {Configuration.Instance.Daemon.MiningThreads} threads");
+                    else
+                        Application.Instance.AsyncInvoke( () =>
+                        {
+                            MessageBox.Show(Application.Instance.MainForm, $"Failed to start mining.\r\nMake sure you are synced and check your mining address", "Toggle Miner",
+                            MessageBoxButtons.OK, MessageBoxType.Error, MessageBoxDefaultButton.OK);
+                        });
             }, null);
         }
 
