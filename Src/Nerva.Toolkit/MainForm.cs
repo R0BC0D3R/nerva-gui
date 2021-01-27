@@ -47,12 +47,7 @@ namespace Nerva.Toolkit
                 StartUiUpdate();
             };
 
-            this.Closing += (s, e) =>
-            {
-                WalletProcess.StopCrashCheck();
-                WalletProcess.ForceClose();
-                Program.Shutdown();
-            };
+            this.Closing += (s, e) => Program.Shutdown(false);
         }
 
         public void StartUpdateTaskList()
@@ -369,19 +364,25 @@ namespace Nerva.Toolkit
 
             WalletRpc.CloseWallet(() =>
             {
-                WalletRpc.OpenWallet(name, password, () => {
-                    Log.Instance.Write("Opened wallet");
-                    WalletHelper.SaveWalletLogin(name);
-                }, OpenError);
+                Helpers.TaskFactory.Instance.RunTask("openwallet", $"Opening wallet {name}", () =>
+                {
+                    WalletRpc.OpenWallet(name, password, () => {
+                        Log.Instance.Write($"Opened wallet {name}");
+                        WalletHelper.SaveWalletLogin(name);
+                    }, OpenError);
+                });
             }, (RequestError error) =>
             {
                 if (error.Code != -13)
                     Log.Instance.Write(Log_Severity.Error, $"Error closing wallet: {error.Message}");
 
-                WalletRpc.OpenWallet(name, password, () => {
-                    Log.Instance.Write($"Opened wallet {name}");
-                    WalletHelper.SaveWalletLogin(name);
-                }, OpenError);
+                Helpers.TaskFactory.Instance.RunTask("openwallet", $"Opening wallet {name}", () =>
+                {
+                    WalletRpc.OpenWallet(name, password, () => {
+                        Log.Instance.Write($"Opened wallet {name}");
+                        WalletHelper.SaveWalletLogin(name);
+                    }, OpenError);
+                });
             });
         }
 

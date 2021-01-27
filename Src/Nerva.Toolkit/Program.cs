@@ -33,8 +33,8 @@ namespace Nerva.Toolkit
 			if (!Directory.Exists(Configuration.StorageDirectory))
                 Directory.CreateDirectory(Configuration.StorageDirectory);
 
-			string logFile = ProcessManager.CycleLogFile(Path.Combine(Configuration.StorageDirectory, Constants.DEFAULT_LOG_FILENAME));
-			string configFile = Path.Combine(Configuration.StorageDirectory, Constants.DEFAULT_CONFIG_FILENAME);
+			string logFile = ProcessManager.CycleLogFile(Path.Combine(Configuration.StorageDirectory, "nerva-gui"));
+			string configFile = Path.Combine(Configuration.StorageDirectory, "app.config");
 
 #if UNIX
 			string[] unixScripts = new string[] {
@@ -90,25 +90,17 @@ namespace Nerva.Toolkit
 			}
 			catch (Exception ex)
 			{
-				AngryWasp.Logger.Log.Instance.Write(Log_Severity.Error, $".NET Exception, {ex.Message}");
-
-				DaemonProcess.StopCrashCheck();
-				DaemonProcess.ForceClose();
-
-				WalletProcess.StopCrashCheck();
-				WalletProcess.ForceClose();
-
-				Configuration.Save();
-				Log.Instance.Write(Log_Severity.Fatal, "PROGRAM TERMINATED");
+				AngryWasp.Logger.Log.Instance.WriteNonFatalException(ex);
+				Shutdown(true);
 			}
 			
-			Shutdown();
+			Shutdown(false);
 		}
 
-		public static void Shutdown()
+		public static void Shutdown(bool forceDaemonShutdown)
 		{
 			//Prevent the daemon restarting automatically before telling it to stop
-			if (Configuration.Instance.Daemon.StopOnExit)
+			if (Configuration.Instance.Daemon.StopOnExit || forceDaemonShutdown)
 			{
 				DaemonProcess.StopCrashCheck();
 				DaemonRpc.StopDaemon();
@@ -119,6 +111,7 @@ namespace Nerva.Toolkit
 			WalletProcess.ForceClose();
 
 			Configuration.Save();
+			Log.Instance.Write(Log_Severity.Fatal, "PROGRAM TERMINATED");
 			Log.Instance.Shutdown();
 
 			Environment.Exit(0);
