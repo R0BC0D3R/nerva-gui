@@ -1,8 +1,5 @@
-using System.ComponentModel;
 using System.Text;
-using Eto.Drawing;
 using Eto.Forms;
-using Nerva.Toolkit.CLI;
 using Nerva.Toolkit.Helpers;
 
 namespace Nerva.Toolkit.Content.Dialogs

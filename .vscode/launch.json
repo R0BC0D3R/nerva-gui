@@ -5,9 +5,9 @@
             "name": "Debug-Linux",
             "type": "coreclr",
             "request": "launch",
-            "program": "${workspaceRoot}/Bin/Debug/linux-x64/Nerva.Toolkit",
+            "program": "${workspaceRoot}/Src/Nerva.Toolkit/Bin/debug/net5.0/linux-x64/Nerva.Toolkit",
             "cwd": "${workspaceRoot}",
-            "preLaunchTask": "linux-debug",
+            "preLaunchTask": "debug-linux",
             "console": "integratedTerminal",
             "internalConsoleOptions": "neverOpen",
             "args":[
@@ -16,12 +16,12 @@
             ]
         },
         {
-            "name": "Debug-Mac",
+            "name": "Debug-Osx",
             "type": "coreclr",
             "request": "launch",
-            "program": "${workspaceRoot}/Bin/Debug/osx-x64/Nerva.Toolkit.Mac.app/Contents/MacOS/Nerva.Toolkit",
+            "program": "${workspaceRoot}/Src/Nerva.Toolkit/Bin/debug/net5.0/osx-x64/Nerva.Toolkit.app/Contents/MacOS/Nerva.Toolkit",
             "cwd": "${workspaceRoot}",
-            "preLaunchTask": "osx-debug",
+            "preLaunchTask": "debug-osx",
             "console": "integratedTerminal",
             "internalConsoleOptions": "neverOpen",
             "args":[
@@ -33,8 +33,9 @@
             "name": "Debug-Windows",
             "type": "coreclr",
             "request": "launch",
-            "program": "${workspaceRoot}/Bin/Debug/win-x64/Nerva.Toolkit.exe",
+            "program": "${workspaceRoot}/Src/Nerva.Toolkit/Bin/debug/net5.0/win-x64/Nerva.Toolkit.exe",
             "cwd": "${workspaceRoot}",
+            "preLaunchTask": "debug-windows",
             "console": "integratedTerminal",
             "internalConsoleOptions": "neverOpen",
             "args":[

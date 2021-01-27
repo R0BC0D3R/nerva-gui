@@ -1,8 +1,4 @@
-using System;
-using System.IO;
 using Eto.Forms;
-using Nerva.Toolkit.Config;
-using Nerva.Toolkit.Helpers;
 
 namespace Nerva.Toolkit.Content.Wizard
 {

@@ -1,9 +1,7 @@
-using System;
-using AngryWasp.Logger;
+#if UNIX
 
-#if (UNIX)
-    using Mono.Unix.Native;
-#endif
+using Mono.Unix.Native;
+using AngryWasp.Logger;
 
 namespace Nerva.Toolkit.Helpers.Native
 {
@@ -11,17 +9,12 @@ namespace Nerva.Toolkit.Helpers.Native
     {
         public static void Chmod(string path, uint mode)
         {
-#if (UNIX)
             if(Syscall.chmod(path, (FilePermissions)mode) != 0)
                 Log.Instance.Write(Log_Severity.Fatal, "Syscall 'chmod' failed.");
-#else
-            Log.Instance.Write(Log_Severity.Fatal, "Unix native functions are not supported in this configuration");
-#endif
         }
 
         public static string Sysname()
         {
-#if (UNIX)
             Utsname results;
 
             if(Syscall.uname(out results) != 0)
@@ -31,20 +24,20 @@ namespace Nerva.Toolkit.Helpers.Native
             }
 
             return results.sysname.ToLower();
-#else
-            Log.Instance.Write(Log_Severity.Fatal, "Unix native functions are not supported in this configuration");
-            return null;
-#endif
         }
 
         public static void Symlink(string source, string target)
         {
-#if (UNIX)
             if(Syscall.symlink(source, target) != 0)
-                Log.Instance.Write(Log_Severity.Warning, "Syscall 'symlink' failed. Possibly already exist");
-#else
-            Log.Instance.Write(Log_Severity.Fatal, "Unix native functions are not supported in this configuration");
-#endif
+                Log.Instance.Write(Log_Severity.Warning, "Syscall 'symlink' failed. Possibly already exists.");
+        }
+
+        public static  void Kill(int pid, Signum sig)
+        {
+            if (Syscall.kill(pid, sig) != 0)
+                Log.Instance.Write(Log_Severity.Warning, $"Syscall 'kill' failed to kill process {pid}.");
         }
     }
 }
+
+#endif

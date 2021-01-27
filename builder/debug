@@ -1,0 +1,29 @@
+#!/bin/bash
+
+reset
+
+BUILDER_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_DIR=$(dirname $BUILDER_DIR)
+
+function osx()
+{
+    dotnet build -c debug -f net5.0 -r osx-x64 \
+    -p:GenerateFullPaths=true /consoleloggerparameters:NoSummary \
+    ${ROOT_DIR}/Src/Nerva.Toolkit/Nerva.Toolkit.csproj
+}
+
+function linux()
+{
+    dotnet build -c debug -f net5.0 -r linux-x64 \
+    -p:GenerateFullPaths=true /consoleloggerparameters:NoSummary \
+    ${ROOT_DIR}/Src/Nerva.Toolkit/Nerva.Toolkit.csproj
+}
+
+function windows()
+{
+    dotnet build -c debug -f net5.0-windows -r win-x64 \
+    -p:GenerateFullPaths=true /consoleloggerparameters:NoSummary \
+    ${ROOT_DIR}/Src/Nerva.Toolkit/Nerva.Toolkit.csproj
+}
+
+$1

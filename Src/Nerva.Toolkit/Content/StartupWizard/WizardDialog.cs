@@ -1,11 +1,8 @@
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Reflection;
 using Eto.Drawing;
 using Eto.Forms;
-using Nerva.Toolkit.Helpers;
 
 namespace Nerva.Toolkit.Content.Wizard
 {

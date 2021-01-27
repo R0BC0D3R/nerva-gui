@@ -5,15 +5,9 @@ namespace Nerva.Toolkit.Helpers
 {
     public static class Conversions
     {
-        public static double FromAtomicUnits(ulong i)
-        {
-            return Math.Round((double)i / 1000000000000.0d, 4);
-        }
+        public static double FromAtomicUnits(ulong i) => Math.Round((double)i / 1000000000000.0d, 4);
 
-        public static ulong ToAtomicUnits(double i)
-        {
-            return (ulong)(i * 1000000000000.0d);
-        }
+        public static ulong ToAtomicUnits(double i) => (ulong)(i * 1000000000000.0d);
 
         public static string WalletAddressShortForm(string a)
         {

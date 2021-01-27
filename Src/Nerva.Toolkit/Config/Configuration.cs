@@ -25,25 +25,12 @@ namespace Nerva.Toolkit.Config
 
         #endregion
 
-        #region Not serialized
-        
-        [SerializerExclude]
-        public bool NewDaemonOnStartup { get; set; } = true;
-
-        [SerializerExclude]
-        public bool LogCliWallet { get; set; } = false;
-
-        [SerializerExclude]
-        public bool LogCliDaemon{ get; set; } = false;
-
-        #endregion
-
         public static Configuration New()
         {
             return new Configuration
             {
-                ToolsPath = Path.Combine(OS.HomeDirectory, "nerva", "cli"),
-                AddressBookPath = Path.Combine(OS.HomeDirectory, "nerva", "address-book.xml"),
+                ToolsPath = Path.Combine(storageDirectory, "cli"),
+                AddressBookPath = Path.Combine(storageDirectory, "address-book.xml"),
                 Testnet = false,
 
                 Daemon = Daemon.New(true),
@@ -58,9 +45,13 @@ namespace Nerva.Toolkit.Config
         private static string loadedConfigFile;
         private static Configuration instance;
 
+        private static readonly string storageDirectory = Path.Combine(OS.HomeDirectory, ".nerva-gui");
+
         public static string LoadedConfigFile => loadedConfigFile;
 
         public static Configuration Instance => instance;
+
+        public static string StorageDirectory => storageDirectory;
 
         public static void Load(string file, out bool newFile)
         {

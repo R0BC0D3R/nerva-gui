@@ -2,23 +2,37 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "linux-debug",
+            "label": "debug-osx",
+            "command": "./builder/debug",
             "type": "shell",
-            "command": "${workspaceRoot}/builder/debug.unix",
-            "args": [ "linux" ],
+            "args": [ "osx" ],
             "group": "build",
-            "presentation": { "reveal": "silent" },
+            "presentation": {
+                "reveal": "silent"
+            },
             "problemMatcher": "$msCompile"
         },
         {
-            "label": "osx-debug",
+            "label": "debug-linux",
+            "command": "./builder/debug",
             "type": "shell",
-            "command": "${workspaceRoot}/builder/debug.unix",
-            "args": [ "mac" ],
+            "args": [ "linux" ],
             "group": "build",
-            "presentation": { "reveal": "silent" },
+            "presentation": {
+                "reveal": "silent"
+            },
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "debug-windows",
+            "command": "./builder/debug",
+            "type": "shell",
+            "args": [ "windows" ],
+            "group": "build",
+            "presentation": {
+                "reveal": "silent"
+            },
             "problemMatcher": "$msCompile"
         }
     ]
 }
-

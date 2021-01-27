@@ -7,7 +7,6 @@ using Nerva.Toolkit.Helpers;
 using AngryWasp.Helpers;
 using Nerva.Toolkit.Content.Dialogs;
 using Nerva.Toolkit.CLI;
-using Nerva.Toolkit.Config;
 using Nerva.Rpc.Wallet;
 using Nerva.Rpc;
 using Configuration = Nerva.Toolkit.Config.Configuration;
@@ -40,7 +39,7 @@ namespace Nerva.Toolkit.Content
 
                 Helpers.TaskFactory.Instance.RunTask("gettx", $"Fetching transaction information", () =>
                 {
-                    var txid = Cli.Instance.Wallet.Interface.GetTransferByTxID(t.TxId,
+                    var txid = WalletRpc.GetTransferByTxID(t.TxId,
                     (GetTransferByTxIDResponseData r) =>
                     {
                         Application.Instance.AsyncInvoke( () =>
@@ -183,7 +182,7 @@ namespace Nerva.Toolkit.Content
                 txList = txList.Take(maxRows).ToList();
 
             if (i > 0)
-                Cli.Instance.Wallet.Interface.Store();
+                WalletRpc.Store();
 
 			return i;
         }

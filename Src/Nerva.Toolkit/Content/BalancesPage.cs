@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using Eto.Forms;
 using AngryWasp.Logger;
 using Nerva.Toolkit.Helpers;
-using Nerva.Toolkit.CLI;
 using Nerva.Toolkit.Content.Dialogs;
 using Nerva.Rpc.Wallet;
 using Configuration = Nerva.Toolkit.Config.Configuration;
 using Nerva.Rpc;
 using Log = AngryWasp.Logger.Log;
+using Nerva.Toolkit.CLI;
 
 namespace Nerva.Toolkit.Content
 {
@@ -43,10 +43,10 @@ namespace Nerva.Toolkit.Content
 				Configuration.Instance.Daemon.MiningAddress = a.BaseAddress;
 				Configuration.Save();
 
-				Cli.Instance.Daemon.Interface.StopMining();
+				DaemonRpc.StopMining();
 				Log.Instance.Write("Mining stopped");
 
-				if (Cli.Instance.Daemon.Interface.StartMining())
+				if (DaemonRpc.StartMining())
 					Log.Instance.Write($"Mining started for @ {Conversions.WalletAddressShortForm(Configuration.Instance.Daemon.MiningAddress)} on {Configuration.Instance.Daemon.MiningThreads} threads");
 			};
 
@@ -72,7 +72,7 @@ namespace Nerva.Toolkit.Content
 
 				Helpers.TaskFactory.Instance.RunTask("makeintaddr", $"Creating integrated address", () =>
 				{
-					Cli.Instance.Wallet.Interface.MakeIntegratedAddress(a.BaseAddress, (MakeIntegratedAddressResponseData r) =>
+					WalletRpc.MakeIntegratedAddress(a.BaseAddress, (MakeIntegratedAddressResponseData r) =>
 					{
 						Application.Instance.AsyncInvoke(() =>
 						{
@@ -102,7 +102,7 @@ namespace Nerva.Toolkit.Content
 				{
                     Helpers.TaskFactory.Instance.RunTask("transfer", $"Transferring {d.Amount} XNV to {d.Address}", () =>
 					{
-						Cli.Instance.Wallet.Interface.TransferFunds(a, d.Address, d.PaymentId, d.Amount, d.Priority,
+						WalletRpc.TransferFunds(a, d.Address, d.PaymentId, d.Amount, d.Priority,
 						(TransferResponseData r) =>
 						{
 							Application.Instance.AsyncInvoke(() =>
@@ -130,7 +130,7 @@ namespace Nerva.Toolkit.Content
 				TextDialog d = new TextDialog("Select Account Name", false);
 
 				if (d.ShowModal() == DialogResult.Ok)
-					if (!Cli.Instance.Wallet.Interface.LabelAccount((uint)grid.SelectedRow, d.Text))
+					if (!WalletRpc.LabelAccount((uint)grid.SelectedRow, d.Text))
 						MessageBox.Show(this.MainControl, "Failed to rename account", "Wallet rename",
                     		MessageBoxButtons.OK, MessageBoxType.Error, MessageBoxDefaultButton.OK);
 			};

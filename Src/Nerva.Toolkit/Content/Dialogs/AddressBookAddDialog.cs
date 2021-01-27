@@ -1,4 +1,3 @@
-using System;
 using System.Text;
 using Eto.Forms;
 using Nerva.Toolkit.Helpers;

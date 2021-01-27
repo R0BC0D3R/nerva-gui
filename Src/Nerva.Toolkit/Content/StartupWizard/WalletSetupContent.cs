@@ -45,7 +45,7 @@ namespace Nerva.Toolkit.Content.Wizard
                     {
                         if (d.HwWallet)
                         {
-                            Cli.Instance.Wallet.Interface.CreateHwWallet(d.Name, d.Password,
+                            WalletRpc.CreateHwWallet(d.Name, d.Password,
                                 (CreateHwWalletResponseData result) =>
                             {
                                 CreateSuccess(d.Name, d.Password, result.Address);
@@ -53,7 +53,7 @@ namespace Nerva.Toolkit.Content.Wizard
                         }
                         else
                         {
-                            Cli.Instance.Wallet.Interface.CreateWallet(d.Name, d.Password, 
+                            WalletRpc.CreateWallet(d.Name, d.Password, 
                                 (CreateWalletResponseData result) =>
                             {
                                 CreateSuccess(d.Name, d.Password, result.Address);
@@ -77,13 +77,13 @@ namespace Nerva.Toolkit.Content.Wizard
                         switch (d.ImportType)
                         {
                             case Import_Type.Key:
-                                Cli.Instance.Wallet.Interface.RestoreWalletFromKeys(d.Name, d.Address, d.ViewKey, d.SpendKey, d.Password, d.Language,
+                                WalletRpc.RestoreWalletFromKeys(d.Name, d.Address, d.ViewKey, d.SpendKey, d.Password, d.Language,
                                 (RestoreWalletFromKeysResponseData result) => {
                                     CreateSuccess(d.Name, d.Password, result.Address);
                                 }, CreateError);
                             break;
                             case Import_Type.Seed:
-                                Cli.Instance.Wallet.Interface.RestoreWalletFromSeed(d.Name, d.Seed, d.SeedOffset, d.Password, d.Language,
+                                WalletRpc.RestoreWalletFromSeed(d.Name, d.Seed, d.SeedOffset, d.Password, d.Language,
                                 (RestoreWalletFromSeedResponseData result) => {
                                     CreateSuccess(d.Name, d.Password, result.Address);
                                 }, CreateError);
@@ -143,12 +143,12 @@ namespace Nerva.Toolkit.Content.Wizard
                 Configuration.Instance.Daemon.MiningAddress = address;                                    
             });
             
-            Cli.Instance.Wallet.Interface.CloseWallet(null, null);
+            WalletRpc.CloseWallet(null, null);
         }
 
         private void CreateError(RequestError error)
         {
-            Cli.Instance.Wallet.Interface.CloseWallet(null, null);
+            WalletRpc.CloseWallet(null, null);
             Application.Instance.Invoke( () =>
             {
                 lblImport.Text = "Wallet creation failed";

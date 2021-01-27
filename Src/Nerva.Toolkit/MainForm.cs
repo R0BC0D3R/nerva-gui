@@ -41,17 +41,16 @@ namespace Nerva.Toolkit
 
                 Configuration.Save();
 
-                Cli.Instance.StartDaemon();
-                Cli.Instance.StartWallet();
+                DaemonProcess.StartCrashCheck();
+                WalletProcess.StartCrashCheck();
 
-                StartUpdateDaemonUiTask();
-                StartUpdateWalletUiTask();
+                StartUiUpdate();
             };
 
             this.Closing += (s, e) =>
             {
-                Cli.Instance.Wallet.StopCrashCheck();
-                Cli.Instance.Wallet.ForceClose();
+                WalletProcess.StopCrashCheck();
+                WalletProcess.ForceClose();
                 Program.Shutdown();
             };
         }
@@ -85,7 +84,23 @@ namespace Nerva.Toolkit
             });
         }
 
-        public void StartUpdateWalletUiTask()
+        public void StartUiUpdate()
+        {
+            Log.Instance.Write("UI update will begin in 5 seconds");
+            var tmr = new System.Timers.Timer(5000);
+            tmr.Elapsed += (s, e) =>
+            {
+                Log.Instance.Write("Starting UI update from CLI");
+                tmr.Stop();
+
+                StartDaemonUiUpdate();
+                StartWalletUiUpdate();
+            };
+
+            tmr.Start();
+        }
+
+        public void StartWalletUiUpdate()
         {
             if (Debugger.IsAttached && updateWalletTask != null && updateWalletTask.IsRunning)
                 Debugger.Break();
@@ -98,7 +113,7 @@ namespace Nerva.Toolkit
                     if (token.IsCancellationRequested)
                         token.ThrowIfCancellationRequested();
 
-                    if (CliInterface.GetRunningProcesses(Cli.Instance.Wallet.BaseExeName).Count == 0)
+                    if (ProcessManager.GetRunningByName(FileNames.RPC_WALLET).Count == 0)
                     {
                         await Task.Delay(Constants.ONE_SECOND);
                         continue;
@@ -109,7 +124,7 @@ namespace Nerva.Toolkit
 
                     await Task.Run( () =>
                     {
-                        Cli.Instance.Wallet.Interface.GetAccounts((GetAccountsResponseData ra) =>
+                        WalletRpc.GetAccounts((GetAccountsResponseData ra) =>
                         {
                             Application.Instance.AsyncInvoke( () =>
                             {
@@ -118,7 +133,7 @@ namespace Nerva.Toolkit
                             });
                         }, WalletUpdateFailed);
 
-                        Cli.Instance.Wallet.Interface.GetTransfers(lastTxHeight, (GetTransfersResponseData rt) =>
+                        WalletRpc.GetTransfers(lastTxHeight, (GetTransfersResponseData rt) =>
                         {
                             Application.Instance.AsyncInvoke( () =>
                             {
@@ -163,7 +178,7 @@ namespace Nerva.Toolkit
             });
         }
 
-        public void StartUpdateDaemonUiTask()
+        public void StartDaemonUiUpdate()
         {
             if (updateDaemonTask != null && updateDaemonTask.IsRunning)
                 Debugger.Break();
@@ -176,7 +191,7 @@ namespace Nerva.Toolkit
                     if (token.IsCancellationRequested)
                         token.ThrowIfCancellationRequested();
 
-                    if (CliInterface.GetRunningProcesses(Cli.Instance.Daemon.BaseExeName).Count == 0)
+                    if (ProcessManager.GetRunningByName(FileNames.NERVAD).Count == 0)
                     {
                         await Task.Delay(Constants.ONE_SECOND);
                         continue;
@@ -189,7 +204,7 @@ namespace Nerva.Toolkit
                     {
                         try
                         {
-                            Cli.Instance.Daemon.Interface.GetInfo((GetInfoResponseData r) =>
+                            DaemonRpc.GetInfo((GetInfoResponseData r) =>
                             {
                                 Application.Instance.Invoke(() =>
                                 {
@@ -214,7 +229,7 @@ namespace Nerva.Toolkit
                                 });
                             });
 
-                            Cli.Instance.Daemon.Interface.GetConnections((List<GetConnectionsResponseData> r) =>
+                            DaemonRpc.GetConnections((List<GetConnectionsResponseData> r) =>
                             {
                                 Application.Instance.Invoke(() =>
                                 {
@@ -228,7 +243,7 @@ namespace Nerva.Toolkit
                                 });
                             });
 
-                            Cli.Instance.Daemon.Interface.MiningStatus((MiningStatusResponseData r) =>
+                            DaemonRpc.MiningStatus((MiningStatusResponseData r) =>
                             {
                                 Application.Instance.Invoke(() =>
                                 {
@@ -258,15 +273,15 @@ namespace Nerva.Toolkit
 
         protected void daemon_ToggleMining_Clicked(object sender, EventArgs e)
         {
-            Cli.Instance.Daemon.Interface.MiningStatus(( MiningStatusResponseData r) =>
+            DaemonRpc.MiningStatus(( MiningStatusResponseData r) =>
             {
                 if (r.Active)
                 {
-                    Cli.Instance.Daemon.Interface.StopMining();
+                    DaemonRpc.StopMining();
                     Log.Instance.Write("Mining stopped");
                 }
                 else
-                    if (Cli.Instance.Daemon.Interface.StartMining())
+                    if (DaemonRpc.StartMining())
                     Log.Instance.Write($"Mining started for @ {Conversions.WalletAddressShortForm(Configuration.Instance.Daemon.MiningAddress)} on {Configuration.Instance.Daemon.MiningThreads} threads");
             }, null);
         }
@@ -275,8 +290,8 @@ namespace Nerva.Toolkit
         {
             //Log the restart and kill the daemon
             Log.Instance.Write("Restarting daemon");
-            Cli.Instance.Daemon.Interface.StopDaemon();
-            //From here the crash handler should reboot the daemon
+            DaemonRpc.StopDaemon();
+            DaemonProcess.ForceClose();
         }
 
         protected void wallet_New_Clicked(object sender, EventArgs e)
@@ -288,7 +303,7 @@ namespace Nerva.Toolkit
                 {
                     if (d.HwWallet)
                     {
-                        Cli.Instance.Wallet.Interface.CreateHwWallet(d.Name, d.Password,
+                        WalletRpc.CreateHwWallet(d.Name, d.Password,
                             (CreateHwWalletResponseData result) =>
                         {
                             CreateSuccess(result.Address);
@@ -296,7 +311,7 @@ namespace Nerva.Toolkit
                     }
                     else
                     {
-                        Cli.Instance.Wallet.Interface.CreateWallet(d.Name, d.Password,
+                        WalletRpc.CreateWallet(d.Name, d.Password,
                             (CreateWalletResponseData result) =>
                         {
                             CreateSuccess(result.Address);
@@ -324,14 +339,14 @@ namespace Nerva.Toolkit
                     switch (d.ImportType)
                     {
                         case Import_Type.Key:
-                            Cli.Instance.Wallet.Interface.RestoreWalletFromKeys(d.Name, d.Address, d.ViewKey, d.SpendKey, d.Password, d.Language,
+                            WalletRpc.RestoreWalletFromKeys(d.Name, d.Address, d.ViewKey, d.SpendKey, d.Password, d.Language,
                                 (RestoreWalletFromKeysResponseData result) =>
                             {
                                 CreateSuccess(result.Address);
                             }, CreateError);
                         break;
                         case Import_Type.Seed:
-                            Cli.Instance.Wallet.Interface.RestoreWalletFromSeed(d.Name, d.Seed, d.SeedOffset, d.Password, d.Language,
+                            WalletRpc.RestoreWalletFromSeed(d.Name, d.Seed, d.SeedOffset, d.Password, d.Language,
                             (RestoreWalletFromSeedResponseData result) =>
                             {
                                 CreateSuccess(result.Address);
@@ -352,9 +367,9 @@ namespace Nerva.Toolkit
                 transfersPage.Update(null);
             });
 
-            Cli.Instance.Wallet.Interface.CloseWallet(() =>
+            WalletRpc.CloseWallet(() =>
             {
-                Cli.Instance.Wallet.Interface.OpenWallet(name, password, () => {
+                WalletRpc.OpenWallet(name, password, () => {
                     Log.Instance.Write("Opened wallet");
                     WalletHelper.SaveWalletLogin(name);
                 }, OpenError);
@@ -363,7 +378,7 @@ namespace Nerva.Toolkit
                 if (error.Code != -13)
                     Log.Instance.Write(Log_Severity.Error, $"Error closing wallet: {error.Message}");
 
-                Cli.Instance.Wallet.Interface.OpenWallet(name, password, () => {
+                WalletRpc.OpenWallet(name, password, () => {
                     Log.Instance.Write($"Opened wallet {name}");
                     WalletHelper.SaveWalletLogin(name);
                 }, OpenError);
@@ -413,7 +428,7 @@ namespace Nerva.Toolkit
 			Helpers.TaskFactory.Instance.RunTask("store", $"Saving wallet information", () =>
            	{
                	Log.Instance.Write("Saving wallet");
-            	Cli.Instance.Wallet.Interface.Store();
+            	WalletRpc.Store();
 
                	Application.Instance.AsyncInvoke(() =>
                	{
@@ -430,7 +445,7 @@ namespace Nerva.Toolkit
                 Log.Instance.Write("Closing wallet");
                 lastTxHeight = 0;
 
-                Cli.Instance.Wallet.Interface.CloseWallet(null, null);
+                WalletRpc.CloseWallet(null, null);
                 Configuration.Instance.Wallet.LastOpenedWallet = null;
                 Configuration.Save();
 
@@ -448,7 +463,7 @@ namespace Nerva.Toolkit
             Helpers.TaskFactory.Instance.RunTask("rescanspent", $"Rescanning spent outputs", () =>
            	{
                	Log.Instance.Write("Rescanning spent outputs");
-               	if (!Cli.Instance.Wallet.Interface.RescanSpent())
+               	if (!WalletRpc.RescanSpent())
                    	Log.Instance.Write("Rescanning spent outputs failed");
                	else
                    	Log.Instance.Write("Rescanning spent outputs success");
@@ -466,7 +481,7 @@ namespace Nerva.Toolkit
             Helpers.TaskFactory.Instance.RunTask("rescanchain", $"Rescanning the blockchain", () =>
         	{
                	Log.Instance.Write("Rescanning blockchain");
-               	if (!Cli.Instance.Wallet.Interface.RescanBlockchain())
+               	if (!WalletRpc.RescanBlockchain())
             		Log.Instance.Write("Rescanning blockchain failed");
             	else
                 	Log.Instance.Write("Rescanning blockchain success");
@@ -491,7 +506,7 @@ namespace Nerva.Toolkit
             {
                 Helpers.TaskFactory.Instance.RunTask("createwallet", "Creating new wallet", () =>
             	{
-                	Cli.Instance.Wallet.Interface.CreateAccount(d.Text, (CreateAccountResponseData r) =>
+                	WalletRpc.CreateAccount(d.Text, (CreateAccountResponseData r) =>
                     {
                         Application.Instance.AsyncInvoke(() =>
                     	{
@@ -552,8 +567,8 @@ namespace Nerva.Toolkit
 
                         Task.Delay(Constants.ONE_SECOND).Wait();
 
-                        Cli.Instance.Daemon.ForceClose();
-                        Cli.Instance.Wallet.ForceClose();
+                        DaemonProcess.ForceClose();
+                        WalletProcess.ForceClose();
 
                         Application.Instance.AsyncInvoke( () =>
                         {
@@ -564,16 +579,15 @@ namespace Nerva.Toolkit
                             transfersPage.Update(null);
                         });
                         
-                        StartUpdateWalletUiTask();
-                        StartUpdateDaemonUiTask();
+                        StartUiUpdate();
                     });
                 }
                 else
                 {
                     if (d.RestartMinerRequired)
                     {
-                        Cli.Instance.Daemon.Interface.StopMining();
-                        Cli.Instance.Daemon.Interface.StartMining();
+                        DaemonRpc.StopMining();
+                        DaemonRpc.StartMining();
                     }
                 }
             }

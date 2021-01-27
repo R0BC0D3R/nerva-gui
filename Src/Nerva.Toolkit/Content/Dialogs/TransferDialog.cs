@@ -1,12 +1,9 @@
 using System;
 using System.Text;
 using AngryWasp.Helpers;
-using Eto.Drawing;
 using Eto.Forms;
 using Nerva.Rpc.Wallet;
-using Nerva.Toolkit.CLI;
 using Nerva.Toolkit.Helpers;
-using static Nerva.Toolkit.CLI.WalletInterface;
 
 namespace Nerva.Toolkit.Content.Dialogs
 {

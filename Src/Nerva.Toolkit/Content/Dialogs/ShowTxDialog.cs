@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using AngryWasp.Helpers;
 using Eto.Forms;
 using Nerva.Rpc.Wallet;

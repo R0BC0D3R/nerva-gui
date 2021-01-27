@@ -21,22 +21,25 @@
         </EmbeddedResource>
     </ItemGroup>
 
+    <ItemGroup Condition=" '$(RuntimeIdentifier)' == 'linux-x64' OR '$(RuntimeIdentifier)' == 'osx-x64'">
+        <EmbeddedResource  Include="../../Content/Scripts/FindProcesses.sh">
+            <LogicalName>FindProcesses.sh</LogicalName>
+        </EmbeddedResource>
+    </ItemGroup>
+
     <PropertyGroup Condition=" '$(RuntimeIdentifier)' == 'linux-x64' ">
-        <OutputType>Exe</OutputType>
         <RuntimeIdentifiers>linux-x64</RuntimeIdentifiers>
         <DefineConstants>$(DefineConstants);UNIX;LINUX;</DefineConstants>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(RuntimeIdentifier)' == 'osx-x64' ">
-        <OutputType>Exe</OutputType>
         <RuntimeIdentifiers>osx-x64</RuntimeIdentifiers>
         <DefineConstants>$(DefineConstants);UNIX;OSX;</DefineConstants>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(RuntimeIdentifier)' == 'win-x64' ">
-        <OutputType>WinExe</OutputType>
         <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
-        <TargetFrameworks>netcoreapp3.1;net5.0-windows;net48;net5.0</TargetFrameworks>
+        <TargetFrameworks>net5.0-windows</TargetFrameworks>
         <DefineConstants>$(DefineConstants);WINDOWS;</DefineConstants>
     </PropertyGroup>
 
@@ -52,6 +55,5 @@
 
     <ItemGroup Condition=" '$(RuntimeIdentifier)' == 'win-x64' ">
         <PackageReference Include="Eto.Platform.Wpf" Version="*"/>
-        <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies.net48" Version="*" />
     </ItemGroup>
 </Project>

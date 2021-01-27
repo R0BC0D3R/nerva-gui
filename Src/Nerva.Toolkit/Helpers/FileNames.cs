@@ -1,56 +1,41 @@
 using System.IO;
+using AngryWasp.Logger;
 using Nerva.Toolkit.Config;
 
 namespace Nerva.Toolkit.Helpers
 {
     public static class FileNames
     {
+#if WINDOWS
+        public const string NERVAD = "nervad.exe";
+        public const string RPC_WALLET = "nerva-wallet-rpc.exe";
+#else
         public const string NERVAD = "nervad";
         public const string RPC_WALLET = "nerva-wallet-rpc";
+#endif
 
-        public static string GetCliExePath(string exe)
+        public static string DaemonPath 
         {
-            exe = GetCliExeBaseName(exe);   
-            return Path.Combine(Configuration.Instance.ToolsPath, GetFormattedCliExeName(exe));
+            get {
+                if (string.IsNullOrEmpty(Configuration.Instance.ToolsPath))
+                    Log.Instance.Write(Log_Severity.Fatal, "ToolPath is null");
+
+                if (string.IsNullOrEmpty(NERVAD))
+                    Log.Instance.Write(Log_Severity.Fatal, "NERVAD is null");
+
+                return Path.Combine(Configuration.Instance.ToolsPath, NERVAD);
+            }
         }
 
-        public static string GetFormattedCliExeName(string exe)
-        {
-            exe = GetCliExeBaseName(exe);
-            return (OS.Type == OS_Type.Windows) ? $"{exe}.exe" : exe;
-        }
+        public static string RpcWalletPath => Path.Combine(Configuration.Instance.ToolsPath, RPC_WALLET);
 
-        public static string GetCliExeBaseName(string exe) => Path.GetFileNameWithoutExtension(exe).ToLower();
-        
         public static bool DirectoryContainsCliTools(string path)
         {
-            DirectoryInfo d = new DirectoryInfo(path);
-
-            if (!d.Exists)
+            if (!Directory.Exists(path))
                 return false;
 
-            FileInfo[] files = d.GetFiles();
-
-            bool hasDaemon = false;
-            bool hasRpcWallet = false;
-
-            foreach (var f in files)
-            {
-                string fn = GetCliExeBaseName(f.FullName);
-                switch (fn)
-                {
-                    case NERVAD:
-                        hasDaemon = true;
-                    break;
-                    case RPC_WALLET:
-                        hasRpcWallet = true;
-                    break;
-                }
-
-                //early exit if we have found all the cli tools
-                if (hasRpcWallet && hasDaemon)
-                    return true;
-            }
+            bool hasDaemon = File.Exists(Path.Combine(path, NERVAD));
+            bool hasRpcWallet = File.Exists(Path.Combine(path, RPC_WALLET));
 
             return (hasRpcWallet && hasDaemon);
         }

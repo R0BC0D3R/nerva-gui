@@ -4,14 +4,16 @@ using System.Net;
 using AngryWasp.Logger;
 using Nerva.Rpc;
 using Nerva.Rpc.Daemon;
-using Nerva.Toolkit.CLI;
 using Log = AngryWasp.Logger.Log;
 using DnsClient;
-using System.Diagnostics;
 using System.IO.Compression;
-using Nerva.Toolkit.Helpers.Native;
 using Nerva.Toolkit.Config;
 using System.Linq;
+using Nerva.Toolkit.CLI;
+
+#if UNIX
+using Nerva.Toolkit.Helpers.Native;
+#endif
 
 namespace Nerva.Toolkit.Helpers
 {
@@ -97,7 +99,7 @@ namespace Nerva.Toolkit.Helpers
 
         private static void GetLocalVersion()
         {
-            Cli.Instance.Daemon.Interface.GetInfo((GetInfoResponseData r) => {
+            DaemonRpc.GetInfo((GetInfoResponseData r) => {
                 localCliVersion = r.Version;
             }, (RequestError e) => {
                 Log.Instance.Write(Log_Severity.Error, $"GetInfo RPC call returned error {e.Code}, {e.Message}");
@@ -202,19 +204,20 @@ namespace Nerva.Toolkit.Helpers
             TaskFactory.Instance.RunTask("downloadcli", "Downloading the CLI tools", () =>
             {
                 string url = cliUpdateInfo.DownloadLink;
-                string destDir = Configuration.Instance.ToolsPath;
-                
-                if (string.IsNullOrEmpty(destDir))
+
+                // Set up the CLI tool path
+                if (string.IsNullOrEmpty(Configuration.Instance.ToolsPath))
                 {
-                    if (OS.IsWindows())
-                        destDir = Path.Combine(Environment.CurrentDirectory, "CLI");
-                    else
-                        destDir = Path.Combine(Path.GetTempPath(), "nerva-cli");
+                    Configuration.Instance.ToolsPath = Path.Combine(Configuration.StorageDirectory, "cli");
+                    Configuration.Save();
                 }
+
+                string destDir = Configuration.Instance.ToolsPath;
 
                 if (!Directory.Exists(destDir))
                     Directory.CreateDirectory(destDir);
 
+                // Check if we already downloaded the CLI package
                 string destFile = Path.Combine(destDir, Path.GetFileName(file));
 
                 if (File.Exists(destFile))
@@ -255,8 +258,8 @@ namespace Nerva.Toolkit.Helpers
         {
             try
             {
-                Cli.Instance.KillCliProcesses(FileNames.NERVAD);
-                Cli.Instance.KillCliProcesses(FileNames.RPC_WALLET);
+                DaemonProcess.ForceClose();
+                WalletProcess.ForceClose();
 
                 Log.Instance.Write("Extracting CLI tools");
                 
@@ -266,53 +269,29 @@ namespace Nerva.Toolkit.Helpers
                     Log.Instance.Write($"Extracting {a.FullName}");
                     string extFile = Path.Combine(destDir, a.FullName);
                     a.ExtractToFile(extFile, true);
-
-                    // ZipFile does not maintain linux permissions, so we have to set them
-                    if (OS.IsUnix())
-                        UnixNative.Chmod(extFile, 33261);
+#if UNIX
+                    UnixNative.Chmod(extFile, 33261);
+#endif
                 }
 
-                if (OS.IsUnix())
+                string installDir = Configuration.Instance.ToolsPath;
+
+                if (!Directory.Exists(installDir))
+                    Directory.CreateDirectory(installDir);
+
+                try
                 {
-                    string installerFile = Path.Combine(destDir, "install");
-                    string installDir = null;
-
-                    installDir = Path.Combine(Environment.GetEnvironmentVariable("HOME"), ".local/bin");
-
-                    if (!Directory.Exists(installDir))
-                        Directory.CreateDirectory(installDir);
-
-                    if (File.Exists(installerFile))
-                        Process.Start(installerFile);
-                    else
-                    {
-                        Log.Instance.Write(Log_Severity.Warning, "Package does not contain an installer. Copying to install directory");
-
-                        if (!Directory.Exists(installDir))
-                            Directory.CreateDirectory(installDir);
-
-                        try
-                        {
-                            foreach (var f in new DirectoryInfo(destDir).GetFiles())
-                                File.Copy(f.FullName, Path.Combine(installDir, f.Name), true);
-                        }
-                        catch (Exception ex)
-                        {
-                            AngryWasp.Logger.Log.Instance.Write(Log_Severity.Error, $".NET Exception, {ex.Message}");
-                        }
-                    }
-
-                    if (OS.IsLinux())
-                        UnixNative.Symlink(Path.Combine(installDir, "nervad-aes"), Path.Combine(installDir, "nervad"));
-                    else
-                        File.Move(Path.Combine(installDir, "nervad-aes"), Path.Combine(installDir, "nervad"));
-
-                    //todo: add ~/.local/bin to mac $PATH
-
-                    destDir = installDir;
+                    foreach (var f in new DirectoryInfo(destDir).GetFiles())
+                        File.Copy(f.FullName, Path.Combine(installDir, f.Name), true);
                 }
-                else
-                    File.Move(Path.Combine(destDir, "nervad-aes.exe"), Path.Combine(destDir, "nervad.exe")); 
+                catch (Exception ex)
+                {
+                    AngryWasp.Logger.Log.Instance.Write(Log_Severity.Error, $".NET Exception, {ex.Message}");
+                }
+
+                //todo: add ~/.local/bin to mac $PATH
+
+                destDir = installDir; 
             }
             catch (Exception ex)
             {

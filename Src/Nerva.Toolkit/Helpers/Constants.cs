@@ -1,5 +1,8 @@
 using System;
+
+#if UNIX
 using Nerva.Toolkit.Helpers.Native;
+#endif
 
 namespace Nerva.Toolkit.Helpers
 {	
@@ -9,8 +12,6 @@ namespace Nerva.Toolkit.Helpers
         public const string DEFAULT_LOG_FILENAME = "app.log";
         public const string DEV_WALLET_ADDRESS = "NV2RS6bgCjHNtUFnyA9MiYFNMwEwxVivfbKcH8DdM1UVfXQ3oAAFJvfiuDGidRbFgR2Pk6FaqkriRV565qhajcfv2SBcKM77o";
         public const int ONE_SECOND = 1000;
-        public const int FIVE_SECONDS = 5000;
-        public const int BAN_TIME = 6000;
 
         public const uint NERVAD_RPC_PORT_MAINNET = 17566;
         public const uint NERVAD_RPC_PORT_TESTNET = 18566;
@@ -62,12 +63,14 @@ namespace Nerva.Toolkit.Helpers
                         break;
                     case PlatformID.Unix:
                         {
+#if UNIX
                             var uname = UnixNative.Sysname();
                             if (uname == "linux")
                                 type = OS_Type.Linux;
                             else if (uname == "darwin")
                                 type = OS_Type.Osx;
                             else
+#endif
                                 type = OS_Type.Unsupported;
                         }
                         break;
@@ -77,23 +80,17 @@ namespace Nerva.Toolkit.Helpers
                 }
 
                 if (type == OS_Type.Unsupported)
-                    throw new NotSupportedException("The OS type could not be determined");
+                    throw new PlatformNotSupportedException("The OS type could not be determined");
 
                 return type;
             }
         }
 
-        public static bool IsWindows() => Type == OS_Type.Windows;
+#if WINDOWS
+        public static string HomeDirectory => Environment.GetEnvironmentVariable("%HOMEDRIVE%%HOMEPATH%");
+#else
+        public static string HomeDirectory => Environment.GetEnvironmentVariable("HOME");
+#endif
 
-        public static bool IsLinux() => Type == OS_Type.Linux;
-
-        public static bool IsMac() => Type == OS_Type.Osx;
-
-        public static bool IsUnix() => Type == OS_Type.Linux || type == OS_Type.Osx;
-
-        public static string HomeDirectory
-        {
-            get => IsUnix() ? Environment.GetEnvironmentVariable("HOME") : Environment.ExpandEnvironmentVariables("%HOMEDRIVE%%HOMEPATH%");
-        }
     }
 }

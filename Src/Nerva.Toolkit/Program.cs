@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Reflection;
 using AngryWasp.Cli.Args;
 using AngryWasp.Logger;
 using AngryWasp.Serializer;
@@ -9,6 +10,10 @@ using Nerva.Toolkit.Config;
 using Nerva.Toolkit.Helpers;
 using Application = Eto.Forms.Application;
 using Log = AngryWasp.Logger.Log;
+
+#if UNIX
+using Nerva.Toolkit.Helpers.Native;
+#endif
 
 namespace Nerva.Toolkit
 {
@@ -25,22 +30,34 @@ namespace Nerva.Toolkit
 			args.Push(new Argument("log-cli-wallet", null));
 #endif
 
-			string logFile, configFile;
+			if (!Directory.Exists(Configuration.StorageDirectory))
+                Directory.CreateDirectory(Configuration.StorageDirectory);
 
-			ParseFileArguments(args, out logFile, out configFile);
+			string logFile = ProcessManager.CycleLogFile(Path.Combine(Configuration.StorageDirectory, Constants.DEFAULT_LOG_FILENAME));
+			string configFile = Path.Combine(Configuration.StorageDirectory, Constants.DEFAULT_CONFIG_FILENAME);
 
-			string logPath = Path.GetDirectoryName(logFile);
-            if (!Directory.Exists(logPath))
-                Directory.CreateDirectory(logPath);
+#if UNIX
+			string[] unixScripts = new string[] {
+				"FindProcesses.sh"
+			};
 
-			string configPath = Path.GetDirectoryName(configFile);
-            if (!Directory.Exists(configPath))
-                Directory.CreateDirectory(configPath);
+			foreach (var us in unixScripts)
+			{
+				var p = Path.Combine(Configuration.StorageDirectory, us);
+				if (!File.Exists(p))
+				{
+					var rs = Assembly.GetExecutingAssembly().GetManifestResourceStream(us);
+					using (var sr = new StreamReader(rs))
+					{
+						File.WriteAllText(p, sr.ReadToEnd());
+						UnixNative.Chmod(p, 33261);
+					}
+				}
+			}
+#endif
 
 			InitializeLog(logFile);
-
 			Serializer.Initialize();
-
 			AddressBook.Load();
 
 			bool newFile;
@@ -49,15 +66,7 @@ namespace Nerva.Toolkit
 			var w = Configuration.Instance.Wallet;
 			var d = Configuration.Instance.Daemon;
 			
-			Cli.Instance.KillCliProcesses(FileNames.RPC_WALLET);
-
-			Configuration.Instance.NewDaemonOnStartup = args["new-daemon"] != null;
-
-			if (args["log-cli-wallet"] != null)
-				Configuration.Instance.LogCliWallet = true;
-
-			if (args["log-cli-daemon"] != null)
-				Configuration.Instance.LogCliDaemon = true;
+			WalletProcess.ForceClose();
 
 			if (args["cli-path"] != null)
 			{
@@ -83,11 +92,11 @@ namespace Nerva.Toolkit
 			{
 				AngryWasp.Logger.Log.Instance.Write(Log_Severity.Error, $".NET Exception, {ex.Message}");
 
-				Cli.Instance.Daemon.StopCrashCheck();
-				Cli.Instance.Wallet.StopCrashCheck();
+				DaemonProcess.StopCrashCheck();
+				DaemonProcess.ForceClose();
 
-				Cli.Instance.Wallet.ForceClose();
-				Cli.Instance.Daemon.ForceClose();
+				WalletProcess.StopCrashCheck();
+				WalletProcess.ForceClose();
 
 				Configuration.Save();
 				Log.Instance.Write(Log_Severity.Fatal, "PROGRAM TERMINATED");
@@ -101,41 +110,18 @@ namespace Nerva.Toolkit
 			//Prevent the daemon restarting automatically before telling it to stop
 			if (Configuration.Instance.Daemon.StopOnExit)
 			{
-				Cli.Instance.Daemon.StopCrashCheck();
-				Cli.Instance.Daemon.Interface.StopDaemon();
+				DaemonProcess.StopCrashCheck();
+				DaemonRpc.StopDaemon();
+				DaemonProcess.ForceClose();
 			}
 
-			//be agressive and make sure it is dead
-			Cli.Instance.Wallet.StopCrashCheck();
-			Cli.Instance.Wallet.ForceClose();
+			WalletProcess.StopCrashCheck();
+			WalletProcess.ForceClose();
 
 			Configuration.Save();
 			Log.Instance.Shutdown();
 
 			Environment.Exit(0);
-		}
-
-		private static void ParseFileArguments(Arguments args, out string logFile, out string configFile)
-		{
-			logFile = Path.Combine(OS.HomeDirectory, "nerva", Constants.DEFAULT_LOG_FILENAME);
-			configFile = Path.Combine(OS.HomeDirectory, "nerva", Constants.DEFAULT_CONFIG_FILENAME);
-
-			var lf = args["log-file"];
-			var cf = args["config-file"];
-
-			if (lf != null && !string.IsNullOrEmpty(lf.Value))
-			{
-				string newLf = Path.GetFullPath(lf.Value);
-				if (Directory.Exists(Path.GetDirectoryName(newLf)))
-					logFile = newLf;
-			}
-
-			if (cf != null && !string.IsNullOrEmpty(cf.Value))
-			{
-				string newCf = Path.GetFullPath(cf.Value);
-				if (Directory.Exists(Path.GetDirectoryName(newCf)))
-					configFile = newCf;
-			}
 		}	
 
 		private static void InitializeLog(string logPath)

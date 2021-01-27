@@ -1,23 +1,17 @@
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
-using System.Reflection;
 using AngryWasp.Logger;
 using Eto.Drawing;
 using Eto.Forms;
 using Nerva.Toolkit.CLI;
 using Nerva.Toolkit.Config;
 using Nerva.Toolkit.Helpers;
-using Nerva.Toolkit.Helpers.Native;
 
 namespace Nerva.Toolkit.Content.Wizard
 {
     public class GetCliContent : WizardContent
     {
         private Control content;
-        private bool existingCli = false;
 
         public override string Title => "Download NERVA";
 
@@ -42,25 +36,7 @@ namespace Nerva.Toolkit.Content.Wizard
                 case OS_Type.Unsupported:
                     return CreateNotSupportedContent();
                 default:
-                    {
-                        string link = UpdateManager.CliUpdateInfo.DownloadLink;
-                        string defPath = FileNames.GetCliExePath(FileNames.NERVAD);
-                        bool defPathExists = File.Exists(defPath);
-                        switch (OS.Type)
-                        {
-                            case OS_Type.Windows:
-                                existingCli = defPathExists;
-                                break;
-                            case OS_Type.Linux:
-                                existingCli = defPathExists || File.Exists(Path.Combine(Environment.GetEnvironmentVariable("HOME"), ".local/bin/nervad"));
-                                break;
-                            case OS_Type.Osx:
-                                existingCli = defPathExists || File.Exists("/usr/local/bin/nervad");
-                                break;
-                        }
-
-                        return CreateContent(link);
-                    }
+                    return CreateContent(UpdateManager.CliUpdateInfo.DownloadLink);
             }
         }
 
@@ -71,9 +47,8 @@ namespace Nerva.Toolkit.Content.Wizard
                 HandleDownloadClick(link);
             };
 
-            if (existingCli)
+            if (FileNames.DirectoryContainsCliTools(Configuration.Instance.ToolsPath))
             {
-                GetExistingCliPath();
                 return new StackLayout
                 {
                     Orientation = Orientation.Vertical,
@@ -120,26 +95,6 @@ namespace Nerva.Toolkit.Content.Wizard
             };
         }
 
-        private void GetExistingCliPath()
-        {
-            string dest = FileNames.GetCliExePath(FileNames.NERVAD);
-            if (File.Exists(dest))
-            {
-                dest = Path.GetDirectoryName(dest);
-                Configuration.Instance.ToolsPath = dest;
-                return;
-            }
-            
-            if (OS.IsMac())
-                dest = "/usr/local/bin";
-            else if (OS.IsLinux())
-                dest = Path.Combine(Environment.GetEnvironmentVariable("HOME"), ".local/bin");
-            else //should never happen
-                Log.Instance.Write(Log_Severity.Fatal, "Attempt to use existing CLI path on unsupported system");
-
-            Configuration.Instance.ToolsPath = dest;
-        }
-
         private Control CreateNotSupportedContent()
         {
             return new StackLayout
@@ -161,13 +116,13 @@ namespace Nerva.Toolkit.Content.Wizard
         public override void OnAssignContent()
         {
             btnDownload.Enabled = OS.Type != OS_Type.Unsupported;
-            Parent.EnableNextButton(File.Exists(FileNames.GetCliExePath(FileNames.NERVAD)));
+            Parent.EnableNextButton(File.Exists(FileNames.DaemonPath));
         }
 
         public override void OnNext()
         {
-            Cli.Instance.StartDaemon();
-            Cli.Instance.StartWallet();
+            DaemonProcess.StartCrashCheck();
+            WalletProcess.StartCrashCheck();
         }
 
         private void HandleDownloadClick(string link)

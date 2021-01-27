@@ -6,7 +6,6 @@ using AngryWasp.Logger;
 using Eto.Forms;
 using Nerva.Toolkit.CLI;
 using AngryWasp.Helpers;
-using System.Diagnostics;
 using Nerva.Rpc.Daemon;
 
 namespace Nerva.Toolkit.Content
@@ -69,7 +68,7 @@ namespace Nerva.Toolkit.Content
 					return;
 
 				GetConnectionsResponseData c = (GetConnectionsResponseData)grid.DataStore.ElementAt(grid.SelectedRow);
-				Cli.Instance.Daemon.Interface.BanPeer(c.IP);
+				DaemonRpc.BanPeer(c.IP);
 			};
 
 			mainControl = new StackLayout

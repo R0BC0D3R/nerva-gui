@@ -1,4 +1,3 @@
-using Eto.Drawing;
 using Eto.Forms;
 
 namespace Nerva.Toolkit.Content.Wizard

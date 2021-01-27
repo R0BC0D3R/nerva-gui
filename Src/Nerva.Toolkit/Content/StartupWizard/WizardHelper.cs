@@ -1,12 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Reflection;
-using AngryWasp.Helpers;
-using Eto.Drawing;
 using Eto.Forms;
-using Nerva.Toolkit.Helpers;
 
 namespace Nerva.Toolkit.Content.Wizard
 {

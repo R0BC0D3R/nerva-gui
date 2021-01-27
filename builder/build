@@ -23,7 +23,7 @@ function publish()
     targetFramework=net5.0
 
     if [ "$1" == "win-x64" ]; then
-        targetFramework=netcoreapp3.1
+        targetFramework=${targetFramework}-windows
     fi
 
     dotnet publish -c release -r $1 -f ${targetFramework} -p:Version=${APP_VERSION} -p:PublishSingleFile=true

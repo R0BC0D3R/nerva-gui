@@ -1,15 +1,6 @@
-using System;
-using System.Diagnostics;
 using System.IO;
-using AngryWasp.Helpers;
-using AngryWasp.Logger;
 using Eto.Drawing;
 using Eto.Forms;
-using Nerva.Rpc;
-using Nerva.Rpc.Wallet;
-using Nerva.Toolkit.CLI;
-using Nerva.Toolkit.Config;
-using Nerva.Toolkit.Helpers;
 using Configuration = Nerva.Toolkit.Config.Configuration;
 
 namespace Nerva.Toolkit.Content.Dialogs
@@ -23,8 +14,9 @@ namespace Nerva.Toolkit.Content.Dialogs
         {
             this.Title = title;
 
-            if (OS.IsUnix())
+#if UNIX
                 this.Width = 400;
+#endif
 
             this.Resizable = true;
             //Topmost = true;
@@ -44,8 +36,9 @@ namespace Nerva.Toolkit.Content.Dialogs
         {
             //HACK On Windows, setting the width in the constructor automatically changes the height
             //So we set the width here and it seems to work
-            if (OS.IsWindows())
+#if WINDOWS
                 this.Width = 400;
+#endif
         }
 
         protected virtual void ConstructContent()

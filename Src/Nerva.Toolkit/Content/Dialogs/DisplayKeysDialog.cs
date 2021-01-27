@@ -1,4 +1,3 @@
-using AngryWasp.Logger;
 using Eto.Forms;
 using Nerva.Rpc;
 using Nerva.Rpc.Wallet;
@@ -24,7 +23,7 @@ namespace Nerva.Toolkit.Content.Dialogs
         {
             Helpers.TaskFactory.Instance.RunTask("getkeys", $"Retrieving wallet keys", () =>
             {
-                Cli.Instance.Wallet.Interface.QueryKey("all_keys", (QueryKeyResponseData r) =>
+                WalletRpc.QueryKey("all_keys", (QueryKeyResponseData r) =>
                 {
                     Application.Instance.AsyncInvoke(() =>
                     {
@@ -46,7 +45,7 @@ namespace Nerva.Toolkit.Content.Dialogs
                     });
                 });
 
-                Cli.Instance.Wallet.Interface.QueryKey("mnemonic", (QueryKeyResponseData r) =>
+                WalletRpc.QueryKey("mnemonic", (QueryKeyResponseData r) =>
                 {
                     Application.Instance.AsyncInvoke(() =>
                     {

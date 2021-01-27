@@ -1,7 +1,5 @@
 using System.IO;
-using Eto.Drawing;
 using Eto.Forms;
-using Nerva.Toolkit.CLI;
 
 namespace Nerva.Toolkit.Content.Dialogs
 {
