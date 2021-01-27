@@ -25,9 +25,6 @@ namespace Nerva.Toolkit.Content.Dialogs
         private TextBox txtWalletPath = new TextBox { PlaceholderText = "Wallet path", ToolTip = "Enter the full path to save NERVA wallets", ReadOnly = true };
         private Button btnWalletBrowse = new Button { Text = "Browse", ToolTip = "Find NERVA Wallets" };
         
-        private TextBox txtLastOpenedWallet = new TextBox { ToolTip = "No saved wallet", ReadOnly = true };
-        private Button btnClearAll = new Button { Text = "Clear", ToolTip = "Clear all previously opened wallet info" };
-        
         private NumericStepper nsWalletPort = new NumericStepper { MinValue = 1000, MaxValue = 50000, DecimalPlaces = 0, MaximumDecimalPlaces = 0, ToolTip = "Wallet port" };
         private Button btnGenRandWalletPort = new Button { Text = "Random", ToolTip = "Generate a random port number" };
 
@@ -70,18 +67,6 @@ namespace Nerva.Toolkit.Content.Dialogs
                     txtWalletPath.Text = d.Directory;
             };
 
-            btnClearAll.Click  += (s, e) =>
-            {
-                Configuration.Instance.Wallet.LastOpenedWallet = null;
-                txtLastOpenedWallet.Text = null;
-            };
-
-            txtWalletPath.TextChanged += (s, e) =>
-            {
-                Configuration.Instance.Wallet.LastOpenedWallet = null;
-                txtLastOpenedWallet.Text = null;
-            };
-
             btnGenRandWalletPort.Click += (s, e) => nsWalletPort.Value = MathHelper.Random.NextInt((int)nsWalletPort.MinValue, (int)nsWalletPort.MaxValue);
         }
 
@@ -98,7 +83,6 @@ namespace Nerva.Toolkit.Content.Dialogs
             nsDaemonPort.Value = Configuration.Instance.Daemon.Rpc.Port;
 
             txtWalletPath.Text = Configuration.Instance.Wallet.WalletDir;
-            txtLastOpenedWallet.Text = Configuration.Instance.Wallet.LastOpenedWallet;
             nsWalletPort.Value = Configuration.Instance.Wallet.Rpc.Port;
 
             return new TabControl
@@ -202,19 +186,6 @@ namespace Nerva.Toolkit.Content.Dialogs
                                     {
                                         new StackLayoutItem(txtWalletPath, true),
                                         btnWalletBrowse
-                                    }
-                                },
-                                new Label { Text = "Last Saved Wallet" },
-                                new StackLayout
-                                {
-                                    Orientation = Orientation.Horizontal,
-                                    HorizontalContentAlignment = HorizontalAlignment.Right,
-                                    VerticalContentAlignment = VerticalAlignment.Center,
-                                    Spacing = 10,
-                                    Items =
-                                    {
-                                        new StackLayoutItem(txtLastOpenedWallet, true),
-                                        btnClearAll
                                     }
                                 },
                                 new StackLayout
