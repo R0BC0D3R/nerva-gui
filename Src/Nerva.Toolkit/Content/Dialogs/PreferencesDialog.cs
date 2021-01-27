@@ -9,7 +9,6 @@ namespace Nerva.Toolkit.Content.Dialogs
     public class PreferencesDialog : DialogBase<DialogResult>
     {
         private CheckBox chkTestnet = new CheckBox { Text = "Testnet", ToolTip = "Connect to the NERVA testnet" };
-        private CheckBox chkReconnectToDaemon = new CheckBox { Text = "Reconnect to daemon", ToolTip = "Reconnect to running nervad instance when GUI starts" };
         private TextBox txtToolsPath = new TextBox { PlaceholderText = "CLI tools path", ToolTip = "Enter the full path to the NERVA CLI tools" };
         private Button btnToolsBrowse = new Button { Text = "Browse", ToolTip = "Find NERVA CLI tools" };
 
@@ -89,7 +88,6 @@ namespace Nerva.Toolkit.Content.Dialogs
         protected override Control ConstructChildContent()
         {
             txtToolsPath.Text = Configuration.Instance.ToolsPath;
-            chkReconnectToDaemon.Checked = Configuration.Instance.ReconnectToDaemonProcess;
             chkTestnet.Checked = Configuration.Instance.Testnet;
 
             chkStopOnExit.Checked = Configuration.Instance.Daemon.StopOnExit;
@@ -132,7 +130,6 @@ namespace Nerva.Toolkit.Content.Dialogs
                                         btnToolsBrowse
                                     }
                                 },
-                                chkReconnectToDaemon,
                                 chkTestnet,
                             }
                         }
@@ -267,7 +264,6 @@ namespace Nerva.Toolkit.Content.Dialogs
                 
             Configuration.Instance.ToolsPath = txtToolsPath.Text;
             Configuration.Instance.Testnet = chkTestnet.Checked.Value;
-            Configuration.Instance.ReconnectToDaemonProcess = chkReconnectToDaemon.Checked.Value;
 
             Configuration.Instance.Daemon.StopOnExit = chkStopOnExit.Checked.Value;
             Configuration.Instance.Daemon.AutoStartMining = chkAutoStartMining.Checked.Value;

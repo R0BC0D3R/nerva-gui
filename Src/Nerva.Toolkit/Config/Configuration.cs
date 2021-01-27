@@ -19,8 +19,6 @@ namespace Nerva.Toolkit.Config
 
         public Wallet Wallet { get; set; }
 
-        public bool ReconnectToDaemonProcess { get; set; }
-
         public string AddressBookPath { get; set; }
 
         #endregion
@@ -33,10 +31,8 @@ namespace Nerva.Toolkit.Config
                 AddressBookPath = Path.Combine(storageDirectory, "address-book.xml"),
                 Testnet = false,
 
-                Daemon = Daemon.New(true),
-                Wallet = Wallet.New(),
-
-                ReconnectToDaemonProcess = true
+                Daemon = Daemon.New(false),
+                Wallet = Wallet.New()
             };
         }
 
