@@ -14,6 +14,12 @@ namespace Nerva.Toolkit.CLI
 
         public static void StartCrashCheck()
         {
+            if (threadRunning)
+            {
+                Log.Instance.Write(Log_Severity.Warning, "Attempt to start wallet crash check when already running");
+                return;
+            }
+
             Thread t = new Thread(new ThreadStart(() =>
             {
                 threadRunning = true;
