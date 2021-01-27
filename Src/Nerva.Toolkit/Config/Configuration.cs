@@ -60,10 +60,17 @@ namespace Nerva.Toolkit.Config
             }
             else
             {
-                Log.Instance.Write($"Configuration loaded from '{loadedConfigFile}'");
-                var os = new ObjectSerializer();
-                instance = os.Deserialize<Configuration>(XHelper.LoadDocument(loadedConfigFile));
-                newFile = false;
+                try
+                {
+                    Log.Instance.Write($"Configuration loaded from '{loadedConfigFile}'");
+                    var os = new ObjectSerializer();
+                    instance = os.Deserialize<Configuration>(XHelper.LoadDocument(loadedConfigFile));
+                    newFile = false;
+                }
+                catch
+                {
+                    Log.Instance.Write(Log_Severity.Fatal, $"There is an error loading the config file. Delete file {file} and try again");
+                }
             }
         }
 
