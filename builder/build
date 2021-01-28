@@ -26,7 +26,7 @@ function publish()
         targetFramework=${targetFramework}-windows
     fi
 
-    dotnet publish -c release -r $1 -f ${targetFramework} -p:Publish=true
+    dotnet publish -c release -r $1 -f ${targetFramework}
 
     if [ "$1" == "osx-x64" ]; then
         bundle=${ROOT_DIR}/Bin/Nerva.Toolkit.app
@@ -55,7 +55,7 @@ function publish()
         cp ${BUILDER_DIR}/logos/nerva-logo-color.png ${bundle}/Resources/nerva-logo-color.png
         cp ${BUILDER_DIR}/logos/nerva-logo-color-2.png ${bundle}/Resources/nerva-logo-color-2.png
 
-        cp ${ROOT_DIR}/Bin/Release/${targetFramework}/linux-x64/publish/* ${bundle}/Contents/
+        cp ${ROOT_DIR}/Bin/Release/${targetFramework}/linux-x64/* ${bundle}/Contents/
         cp ${BUILDER_DIR}/install ${bundle}/install
 
         cd ${ROOT_DIR}/Bin/Nerva.Toolkit

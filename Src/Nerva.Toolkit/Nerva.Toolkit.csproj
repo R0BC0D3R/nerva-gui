@@ -40,6 +40,7 @@
     <PropertyGroup Condition=" '$(RuntimeIdentifier)' == 'win-x64' ">
         <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
         <TargetFrameworks>net5.0-windows</TargetFrameworks>
+        <OutputType>WinExe</OutputType>
         <DefineConstants>$(DefineConstants);WINDOWS;</DefineConstants>
     </PropertyGroup>
 
