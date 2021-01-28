@@ -1,0 +1,26 @@
+#!/bin/bash
+
+dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+mkdir -p ~/.local/bin/nerva
+mkdir -p ~/.local/share/applications
+
+bd=$(~/.local)
+
+dd=${bd}/share/applications/nerva-gui.desktop
+
+echo "Copying files to ~/.local/bin/nerva/"
+cp ${dir}/Contents/* ~/.local/bin/nerva/
+cp ${dir}/Resources/nerva-logo-color.png ~/.local/bin/nerva/nerva-logo-color.png
+
+echo "Creating launcher"
+echo "[Desktop Entry]" > ${dd}
+echo "Name=Nerva GUI" >> ${dd}
+echo "Exec=${bd}/bin/nerva/Nerva.Toolkit" >> ${dd}
+echo "Icon=${bd}/bin/nerva/nerva-logo-color.png" >> ${dd}
+echo "Terminal=false" >> ${dd}
+echo "Type=Application" >> ${dd}
+
+chmod +x ${dd}
+
+echo "Finished"

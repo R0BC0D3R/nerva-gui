@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 
 reset
 
@@ -26,7 +26,7 @@ function publish()
         targetFramework=${targetFramework}-windows
     fi
 
-    dotnet publish -c release -r $1 -f ${targetFramework}
+    dotnet publish -c release -r $1 -f ${targetFramework} -p:Publish=true
 
     if [ "$1" == "osx-x64" ]; then
         bundle=${ROOT_DIR}/Bin/Nerva.Toolkit.app
@@ -47,6 +47,19 @@ function publish()
 
         cd ${ROOT_DIR}/Bin
         zip -r ${ROOT_DIR}/Bin/nerva-gui-v${APP_VERSION}_$1.zip ./Nerva.Toolkit.app
+    elif [ "$1" == "linux-x64" ]; then
+        bundle=${ROOT_DIR}/Bin/Nerva.Toolkit
+        mkdir -p ${bundle}/Contents
+        mkdir -p ${bundle}/Resources
+
+        cp ${BUILDER_DIR}/logos/nerva-logo-color.png ${bundle}/Resources/nerva-logo-color.png
+        cp ${BUILDER_DIR}/logos/nerva-logo-color-2.png ${bundle}/Resources/nerva-logo-color-2.png
+
+        cp ${ROOT_DIR}/Bin/Release/${targetFramework}/linux-x64/publish/* ${bundle}/Contents/
+        cp ${BUILDER_DIR}/install ${bundle}/install
+
+        cd ${ROOT_DIR}/Bin/Nerva.Toolkit
+        zip -r ${ROOT_DIR}/Bin/nerva-gui-v${APP_VERSION}_$1.zip ./*
     else
         cd ${ROOT_DIR}/Bin
         zip -j ${ROOT_DIR}/Bin/nerva-gui-v${APP_VERSION}_$1.zip ./Release/${targetFramework}/$1/*

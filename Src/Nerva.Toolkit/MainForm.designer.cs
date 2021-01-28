@@ -2,7 +2,6 @@ using Eto.Forms;
 using Eto.Drawing;
 using System.Reflection;
 using Nerva.Toolkit.Content;
-using Nerva.Toolkit.Helpers;
 
 namespace Nerva.Toolkit
 {

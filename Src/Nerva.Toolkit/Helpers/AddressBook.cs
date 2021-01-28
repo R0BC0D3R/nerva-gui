@@ -1,9 +1,9 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
 using AngryWasp.Helpers;
 using AngryWasp.Logger;
 using AngryWasp.Serializer;
+using Nerva.Toolkit.Config;
 
 namespace Nerva.Toolkit.Helpers
 {
@@ -23,7 +23,7 @@ namespace Nerva.Toolkit.Helpers
         [SerializerInclude]
         private List<AddressBookEntry> entries;
         private static AddressBook instance;
-        private static readonly string file = Path.Combine(Environment.CurrentDirectory, "AddressBook.xml");
+        private static readonly string file = Path.Combine(Configuration.StorageDirectory, "AddressBook.xml");
 
         public List<AddressBookEntry> Entries => entries;
         public static AddressBook Instance => instance;
