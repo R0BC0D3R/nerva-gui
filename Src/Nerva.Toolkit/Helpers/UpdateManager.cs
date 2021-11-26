@@ -10,6 +10,8 @@ using System.IO.Compression;
 using Nerva.Toolkit.Config;
 using System.Linq;
 using Nerva.Toolkit.CLI;
+using System.Collections.Generic;
+using Nerva.Toolkit.Objects;
 
 #if UNIX
 using Nerva.Toolkit.Helpers.Native;
@@ -112,16 +114,43 @@ namespace Nerva.Toolkit.Helpers
         private static void GetRemoteVersion()
         {
             var client = new LookupClient();
-            var records = client.Query("update.getnerva.org", QueryType.TXT).Answers;
-            
-            foreach (var r in records)
+
+            // Define nodes to check
+            List<DnsNode> RemoteNodes = new List<DnsNode>() {                            
+                new DnsNode() { UpdateUrl = "update.nerva.one", DownloadUrl = "download.nerva.one" },
+                new DnsNode() { UpdateUrl = "update.nerva.info", DownloadUrl = "download.nerva.info" },
+                new DnsNode() { UpdateUrl = "update.nerva.tools", DownloadUrl = "download.nerva.tools" }
+             };
+        
+            IReadOnlyList<DnsClient.Protocol.DnsResourceRecord> records = new List<DnsClient.Protocol.DnsResourceRecord>();
+
+            bool foundGoodRecord = false;
+            foreach(DnsNode node in RemoteNodes)
             {
-                string txt = ((DnsClient.Protocol.TxtRecord)r).Text.ToArray()[0];
-                
-                if (txt.StartsWith("nerva-cli:"))
+                records = client.Query(node.UpdateUrl, QueryType.TXT).Answers;
+                foreach (var record in records)
                 {
-                    Log.Instance.Write($"Found DNS update record: {r}");
-                    cliUpdateInfo = UpdateInfo.Create(txt, GetDownloadLink());
+                    // Only consider TXT records
+                    if(record is DnsClient.Protocol.TxtRecord)
+                    {
+                        string txt = ((DnsClient.Protocol.TxtRecord)record).Text.ToArray()[0];
+                        
+                        if (txt.StartsWith("nerva-cli:"))
+                        {
+                            Log.Instance.Write($"Found DNS update record: {record}");
+                            cliUpdateInfo = UpdateInfo.Create(txt, GetDownloadLink(node.DownloadUrl));
+
+                            // Found good record, break inner loop
+                            foundGoodRecord = true;
+                            break;
+                        }
+                    }
+                }
+
+                if(foundGoodRecord)
+                {
+                    // Since we found good record, break outer loop
+                    break;
                 }
             }
         }
@@ -178,10 +207,11 @@ namespace Nerva.Toolkit.Helpers
             });   
         }
 
-        public static string GetDownloadLink()
+
+        public static string GetDownloadLink(string downloadRecordUrl)
         {
             var client = new LookupClient();
-            var records = client.Query("download.getnerva.org", QueryType.TXT).Answers;
+            var records = client.Query(downloadRecordUrl, QueryType.TXT).Answers;
 
             string os = OS.Type.ToString().ToLower();
             string prefix = $"{os}:";
