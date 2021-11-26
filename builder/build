@@ -62,7 +62,7 @@ function publish()
         zip -r ${ROOT_DIR}/Bin/nerva-gui-v${APP_VERSION}_$1.zip ./*
     else
         cd ${ROOT_DIR}/Bin
-        zip -j ${ROOT_DIR}/Bin/nerva-gui-v${APP_VERSION}_$1.zip ./Release/${targetFramework}/$1/*
+        zip -j ${ROOT_DIR}/Bin/nerva-gui-v${APP_VERSION}_$1.zip ./Release/${targetFramework}/$1/publish/*
     fi
 }
 
