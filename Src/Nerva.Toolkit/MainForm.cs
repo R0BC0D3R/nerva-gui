@@ -535,7 +535,7 @@ namespace Nerva.Toolkit
 
         protected void discord_Clicked(object sender, EventArgs e)
         {
-            Process.Start("https://discord.gg/jsdbEns");
+            Process.Start("https://discord.gg/ufysfvcFwe");
         }
 
         protected void twitter_Clicked(object sender, EventArgs e)
