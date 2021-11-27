@@ -23,16 +23,16 @@ namespace Nerva.Toolkit
 
 		public void ConstructLayout()
 		{
-			Title = $"NERVA Toolkit {Version.LONG_VERSION}";
+			Title = $"NERVA Desktop Wallet and One Click Miner {Version.LONG_VERSION}";
 			ClientSize = new Size(640, 480);
 			
 			//Construct About dialog
 			ad = new AboutDialog();
-			ad.ProgramName = "NERVA Unified Toolkit";
-			ad.ProgramDescription = "Unified frontend for the NERVA CLI tools";
+			ad.ProgramName = "NERVA Desktop Wallet and One Click Miner";
+			ad.ProgramDescription = "NERVA Desktop Wallet and One Click Miner";
 			string[] names = Assembly.GetExecutingAssembly().GetManifestResourceNames();
-			ad.Title = "About NERVA Toolkit";
-			ad.License = "Code: Copyright © 2018 Angry Wasp\r\nLogo design:  Copyright © 2018 ukminer";
+			ad.Title = "About NERVA Desktop Wallet and One Click Miner";
+			ad.License = "Copyright © 2021 NERVA Project";
 			ad.Logo = new Bitmap(Assembly.GetExecutingAssembly().GetManifestResourceStream("NERVA-Logo.png"));
 
 			daemonPage.ConstructLayout();
