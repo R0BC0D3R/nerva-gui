@@ -27,645 +27,863 @@ namespace Nerva.Toolkit
 
         public MainForm(bool newConfig)
         {
-            SuspendLayout();
-            ConstructLayout();
-            ResumeLayout();
+            try 
+            {
+                SuspendLayout();
+                ConstructLayout();
+                ResumeLayout();
 
-            Application.Instance.Initialized += (s, e) =>
-            {       
-                StartUpdateTaskList();
+                Application.Instance.Initialized += (s, e) =>
+                {
+                    StartUpdateTaskList();
 
-                bool needSetup = newConfig || !FileNames.DirectoryContainsCliTools(Configuration.Instance.ToolsPath);
-                if (needSetup)
-                    new SetupWizard().Run();
+                    bool needSetup = newConfig || !FileNames.DirectoryContainsCliTools(Configuration.Instance.ToolsPath);
+                    if (needSetup)
+                        new SetupWizard().Run();
 
-                Configuration.Save();
+                    Configuration.Save();
 
-                DaemonProcess.StartCrashCheck();
-                WalletProcess.StartCrashCheck();
+                    DaemonProcess.StartCrashCheck();
+                    WalletProcess.StartCrashCheck();
 
-                StartUiUpdate();
-            };
+                    StartUiUpdate();
+                };
 
-            this.Closing += (s, e) => Program.Shutdown(false);
+                this.Closing += (s, e) => Program.Shutdown(false);
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling.HandleException("MAIN.Constructor", ex, true);
+            }
         }
 
         public void StartUpdateTaskList()
         {
             AsyncTaskContainer updateTaskListTask = new AsyncTaskContainer();
 
-            updateTaskListTask.Start(async (CancellationToken token) =>
+            try
             {
-                while (true)
+                updateTaskListTask.Start(async (CancellationToken token) =>
                 {
-                    Helpers.TaskFactory.Instance.Prune();
-
-                    Application.Instance.AsyncInvoke(() =>
+                    while (true)
                     {
-                        int i = (int)lblTaskList.Tag;
-                        if (i != Helpers.TaskFactory.Instance.GetHashCode())
+                        Helpers.TaskFactory.Instance.Prune();
+
+                        Application.Instance.AsyncInvoke(() =>
                         {
-                            lblTaskList.Text = $"Tasks: {Helpers.TaskFactory.Instance.Count}";
-                            lblTaskList.ToolTip = Helpers.TaskFactory.Instance.ToString().TrimEnd();
-                            lblTaskList.Tag = Helpers.TaskFactory.Instance.GetHashCode();
-                        }
-                    });
+                            int i = (int)lblTaskList.Tag;
+                            if (i != Helpers.TaskFactory.Instance.GetHashCode())
+                            {
+                                lblTaskList.Text = $"Tasks: {Helpers.TaskFactory.Instance.Count}";
+                                lblTaskList.ToolTip = Helpers.TaskFactory.Instance.ToString().TrimEnd();
+                                lblTaskList.Tag = Helpers.TaskFactory.Instance.GetHashCode();
+                            }
+                        });
 
-                    await Task.Delay(Constants.ONE_SECOND / 2);
+                        await Task.Delay(Constants.ONE_SECOND / 2);
 
-                    if (token.IsCancellationRequested)
-                        token.ThrowIfCancellationRequested();
-                }
-            });
+                        if (token.IsCancellationRequested)
+                            token.ThrowIfCancellationRequested();
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling.HandleException("MAIN.StartUpdateTaskList", ex, false);
+            }
         }
 
         public void StartUiUpdate()
         {
-            Log.Instance.Write("UI update will begin in 5 seconds");
-            var tmr = new System.Timers.Timer(5000);
-            tmr.Elapsed += (s, e) =>
+            try
             {
-                Log.Instance.Write("Starting UI update from CLI");
-                tmr.Stop();
+                Log.Instance.Write("UI update will begin in 5 seconds");
+                var tmr = new System.Timers.Timer(5000);
+                tmr.Elapsed += (s, e) =>
+                {
+                    Log.Instance.Write("Starting UI update from CLI");
+                    tmr.Stop();
 
-                StartDaemonUiUpdate();
-                StartWalletUiUpdate();
-            };
+                    StartDaemonUiUpdate();
+                    StartWalletUiUpdate();
+                };
 
-            tmr.Start();
+                tmr.Start();
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling.HandleException("MAIN.StartUiUpdate", ex, false);
+            }
         }
 
         public void StartWalletUiUpdate()
         {
-            if (Debugger.IsAttached && updateWalletTask != null && updateWalletTask.IsRunning)
-                Debugger.Break();
-
-            updateWalletTask = new AsyncTaskContainer();
-            updateWalletTask.Start(async (CancellationToken token) =>
+            try
             {
-                while (true)
+                if (Debugger.IsAttached && updateWalletTask != null && updateWalletTask.IsRunning)
+                    Debugger.Break();
+
+                updateWalletTask = new AsyncTaskContainer();
+                updateWalletTask.Start(async (CancellationToken token) =>
                 {
-                    if (token.IsCancellationRequested)
-                        token.ThrowIfCancellationRequested();
-
-                    if (ProcessManager.GetRunningByName(FileNames.RPC_WALLET).Count == 0)
+                    while (true)
                     {
-                        await Task.Delay(Constants.ONE_SECOND);
-                        continue;
-                    }
+                        if (token.IsCancellationRequested)
+                            token.ThrowIfCancellationRequested();
 
-                    if (token.IsCancellationRequested)
-                        token.ThrowIfCancellationRequested();
-
-                    await Task.Run( () =>
-                    {
-                        WalletRpc.GetAccounts((GetAccountsResponseData ra) =>
+                        if (ProcessManager.GetRunningByName(FileNames.RPC_WALLET).Count == 0)
                         {
-                            Application.Instance.AsyncInvoke( () =>
-                            {
-                                lblWalletStatus.Text = $"Account(s): {ra.Accounts.Count}  | Balance: {Conversions.FromAtomicUnits(ra.TotalBalance)} XNV";
-                                balancesPage.Update(ra);
-                            });
-                        }, WalletUpdateFailed);
+                            await Task.Delay(Constants.ONE_SECOND);
+                            continue;
+                        }
 
-                        WalletRpc.GetTransfers(lastTxHeight, (GetTransfersResponseData rt) =>
+                        if (token.IsCancellationRequested)
+                            token.ThrowIfCancellationRequested();
+
+                        await Task.Run( () =>
                         {
-                            Application.Instance.AsyncInvoke( () =>
+                            WalletRpc.GetAccounts((GetAccountsResponseData ra) =>
                             {
-                                uint i = 0, o = 0, l = 0;
-                                lastTxHeight = 0;
+                                Application.Instance.AsyncInvoke( () =>
+                                {
+                                    lblWalletStatus.Text = $"Account(s): {ra.Accounts.Count}  | Balance: {Conversions.FromAtomicUnits(ra.TotalBalance)} XNV";
+                                    balancesPage.Update(ra);
+                                });
+                            }, WalletUpdateFailed);
 
-                                if (rt.Incoming != null && rt.Incoming.Count > 0)
-                                    i = rt.Incoming[rt.Incoming.Count - 1].Height;
+                            WalletRpc.GetTransfers(lastTxHeight, (GetTransfersResponseData rt) =>
+                            {
+                                Application.Instance.AsyncInvoke( () =>
+                                {
+                                    uint i = 0, o = 0, l = 0;
+                                    lastTxHeight = 0;
+
+                                    if (rt.Incoming != null && rt.Incoming.Count > 0)
+                                        i = rt.Incoming[rt.Incoming.Count - 1].Height;
                                         
-                                if (rt.Outgoing != null && rt.Outgoing.Count > 0)
-                                    o = rt.Outgoing[rt.Outgoing.Count - 1].Height;
+                                    if (rt.Outgoing != null && rt.Outgoing.Count > 0)
+                                        o = rt.Outgoing[rt.Outgoing.Count - 1].Height;
 
-                                l = Math.Max(i, o);
+                                    l = Math.Max(i, o);
 
-                                lastTxHeight = l;
-                                transfersPage.Update(rt);
-                            });
-                        }, WalletUpdateFailed);
-                    });
+                                    lastTxHeight = l;
+                                    transfersPage.Update(rt);
+                                });
+                            }, WalletUpdateFailed);
+                        });
                     
-                    if (token.IsCancellationRequested)
-                        token.ThrowIfCancellationRequested();
+                        if (token.IsCancellationRequested)
+                            token.ThrowIfCancellationRequested();
 
-                    await Task.Delay(Constants.ONE_SECOND);
+                        await Task.Delay(Constants.ONE_SECOND);
 
-                    if (token.IsCancellationRequested)
-                        token.ThrowIfCancellationRequested();
-                }
-            });
+                        if (token.IsCancellationRequested)
+                            token.ThrowIfCancellationRequested();
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling.HandleException("MAIN.StartWalletUiUpdate", ex, false);
+            }
         }
 
         void WalletUpdateFailed(RequestError e)
         {
-            if (e.Code != -13) //skip messages about not having a wallet open
-                Log.Instance.Write(Log_Severity.Error, $"Wallet update failed, Code {e.Code}: {e.Message}");
-            Application.Instance.AsyncInvoke(() =>
+            try
             {
-                lblWalletStatus.Text = "OFFLINE";
-                lastTxHeight = 0;
-                balancesPage.Update(null);
-                transfersPage.Update(null);
-            });
+                if (e.Code != -13) //skip messages about not having a wallet open
+                    Log.Instance.Write(Log_Severity.Error, $"Wallet update failed, Code {e.Code}: {e.Message}");
+                Application.Instance.AsyncInvoke(() =>
+                {
+                    lblWalletStatus.Text = "OFFLINE";
+                    lastTxHeight = 0;
+                    balancesPage.Update(null);
+                    transfersPage.Update(null);
+                });
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling.HandleException("MAIN.WalletUpdateFailed", ex, false);
+            }
         }
 
         public void StartDaemonUiUpdate()
         {
-            if (updateDaemonTask != null && updateDaemonTask.IsRunning)
-                Debugger.Break();
-
-            updateDaemonTask = new AsyncTaskContainer();
-            updateDaemonTask.Start(async (CancellationToken token) =>
+            try
             {
-                while (true)
+                if (updateDaemonTask != null && updateDaemonTask.IsRunning)
+                    Debugger.Break();
+
+                updateDaemonTask = new AsyncTaskContainer();
+                updateDaemonTask.Start(async (CancellationToken token) =>
                 {
-                    if (token.IsCancellationRequested)
-                        token.ThrowIfCancellationRequested();
-
-                    if (ProcessManager.GetRunningByName(FileNames.NERVAD).Count == 0)
+                    while (true)
                     {
-                        await Task.Delay(Constants.ONE_SECOND);
-                        continue;
-                    }
+                        if (token.IsCancellationRequested)
+                            token.ThrowIfCancellationRequested();
 
-                    if (token.IsCancellationRequested)
-                        token.ThrowIfCancellationRequested();
-
-                    await Task.Run( () =>
-                    {
-                        try
+                        if (ProcessManager.GetRunningByName(FileNames.NERVAD).Count == 0)
                         {
-                            DaemonRpc.GetInfo((GetInfoResponseData r) =>
-                            {
-                                Application.Instance.Invoke(() =>
-                                {
-                                    daemonPage.UpdateInfo(r);
-
-                                    lblDaemonStatus.Text = $"Height: {r.Height} | Connections: {r.OutgoingConnectionsCount}(out)+{r.IncomingConnectionsCount}(in)";
-
-                                    if (r.TargetHeight != 0 && r.Height < r.TargetHeight)
-                                        lblDaemonStatus.Text += " | Syncing";
-                                    else
-                                        lblDaemonStatus.Text += " | Sync OK";
-
-                                    lblVersion.Text = $"Version: {r.Version}";
-                                    ad.Version = $"GUI: {Version.VERSION}\r\nCLI: {r.Version}";
-                                });
-                            }, (RequestError e) =>
-                            {
-                                Application.Instance.Invoke(() =>
-                                {
-                                    lblDaemonStatus.Text = "OFFLINE";
-                                    daemonPage.UpdateInfo(null);
-                                });
-                            });
-
-                            DaemonRpc.GetConnections((List<GetConnectionsResponseData> r) =>
-                            {
-                                Application.Instance.Invoke(() =>
-                                {
-                                    daemonPage.UpdateConnections(r);
-                                });
-                            }, (RequestError e) =>
-                            {
-                                Application.Instance.Invoke(() =>
-                                {
-                                    daemonPage.UpdateConnections(null);
-                                });
-                            });
-
-                            DaemonRpc.MiningStatus((MiningStatusResponseData r) =>
-                            {
-                                Application.Instance.Invoke(() =>
-                                {
-                                    daemonPage.UpdateMinerStatus(r);
-                                });
-                            }, (RequestError e) =>
-                            {
-                                Application.Instance.Invoke(() =>
-                                {
-                                    daemonPage.UpdateMinerStatus(null);
-                                });
-                            });
+                            await Task.Delay(Constants.ONE_SECOND);
+                            continue;
                         }
-                        catch (Exception) { }
-                    });
 
-                    if (token.IsCancellationRequested)
-                        token.ThrowIfCancellationRequested();
+                        if (token.IsCancellationRequested)
+                            token.ThrowIfCancellationRequested();
 
-                    await Task.Delay(Constants.ONE_SECOND);
+                        await Task.Run( () =>
+                        {
+                            try
+                            {
+                                DaemonRpc.GetInfo((GetInfoResponseData r) =>
+                                {
+                                    Application.Instance.Invoke(() =>
+                                    {
+                                        daemonPage.UpdateInfo(r);
 
-                    if (token.IsCancellationRequested)
-                        token.ThrowIfCancellationRequested();
-                }
-            });
+                                        lblDaemonStatus.Text = $"Height: {r.Height} | Connections: {r.OutgoingConnectionsCount}(out)+{r.IncomingConnectionsCount}(in)";
+
+                                        if (r.TargetHeight != 0 && r.Height < r.TargetHeight)
+                                            lblDaemonStatus.Text += " | Syncing";
+                                        else
+                                            lblDaemonStatus.Text += " | Sync OK";
+
+                                        lblVersion.Text = $"Version: {r.Version}";
+                                        ad.Version = $"GUI: {Version.VERSION}\r\nCLI: {r.Version}";
+                                    });
+                                }, (RequestError e) =>
+                                {
+                                    Application.Instance.Invoke(() =>
+                                    {
+                                        lblDaemonStatus.Text = "OFFLINE";
+                                        daemonPage.UpdateInfo(null);
+                                    });
+                                });
+
+                                DaemonRpc.GetConnections((List<GetConnectionsResponseData> r) =>
+                                {
+                                    Application.Instance.Invoke(() =>
+                                    {
+                                        daemonPage.UpdateConnections(r);
+                                    });
+                                }, (RequestError e) =>
+                                {
+                                    Application.Instance.Invoke(() =>
+                                    {
+                                        daemonPage.UpdateConnections(null);
+                                    });
+                                });
+
+                                DaemonRpc.MiningStatus((MiningStatusResponseData r) =>
+                                {
+                                    Application.Instance.Invoke(() =>
+                                    {
+                                        daemonPage.UpdateMinerStatus(r);
+                                    });
+                                }, (RequestError e) =>
+                                {
+                                    Application.Instance.Invoke(() =>
+                                    {
+                                        daemonPage.UpdateMinerStatus(null);
+                                    });
+                                });
+                            }
+                            catch (Exception) { }
+                        });
+
+                        if (token.IsCancellationRequested)
+                            token.ThrowIfCancellationRequested();
+
+                        await Task.Delay(Constants.ONE_SECOND);
+
+                        if (token.IsCancellationRequested)
+                            token.ThrowIfCancellationRequested();
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling.HandleException("MAIN.StartDaemonUiUpdate", ex, false);
+            }
         }
 
         protected void daemon_ToggleMining_Clicked(object sender, EventArgs e)
         {
-            DaemonRpc.MiningStatus(( MiningStatusResponseData r) =>
+            try
             {
-                if (r.Active)
+                DaemonRpc.MiningStatus(( MiningStatusResponseData r) =>
                 {
-                    DaemonRpc.StopMining();
-                    Log.Instance.Write("Mining stopped");
-                }
-                else
-                    if (DaemonRpc.StartMining())
-                        Log.Instance.Write($"Mining started for @ {Conversions.WalletAddressShortForm(Configuration.Instance.Daemon.MiningAddress)} on {Configuration.Instance.Daemon.MiningThreads} threads");
+                    if (r.Active)
+                    {
+                        DaemonRpc.StopMining();
+                        Log.Instance.Write("Mining stopped");
+                    }
                     else
-                        Application.Instance.AsyncInvoke( () =>
-                        {
-                            MessageBox.Show(Application.Instance.MainForm, $"Failed to start mining.\r\nMake sure you are synced and check your mining address", "Toggle Miner",
-                            MessageBoxButtons.OK, MessageBoxType.Error, MessageBoxDefaultButton.OK);
-                        });
-            }, null);
+                        if (DaemonRpc.StartMining())
+                            Log.Instance.Write($"Mining started for @ {Conversions.WalletAddressShortForm(Configuration.Instance.Daemon.MiningAddress)} on {Configuration.Instance.Daemon.MiningThreads} threads");
+                        else
+                            Application.Instance.AsyncInvoke( () =>
+                            {
+                                MessageBox.Show(Application.Instance.MainForm, $"Failed to start mining.\r\nMake sure you are synced and check your mining address", "Toggle Miner",
+                                MessageBoxButtons.OK, MessageBoxType.Error, MessageBoxDefaultButton.OK);
+                            });
+                }, null);
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling.HandleException("MAIN.ToggleMiningClicked", ex, true);
+            }
         }
 
         protected void daemon_Restart_Clicked(object sender, EventArgs e)
         {
-            //Log the restart and kill the daemon
-            Log.Instance.Write("Restarting daemon");
-            DaemonRpc.StopDaemon();
-            DaemonProcess.ForceClose();
+            try
+            {
+                //Log the restart and kill the daemon
+                Log.Instance.Write("Restarting daemon");
+                DaemonRpc.StopDaemon();
+                DaemonProcess.ForceClose();
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling.HandleException("MAIN.DaemonRestartClicked", ex, true);
+            }
         }
 
         protected void wallet_New_Clicked(object sender, EventArgs e)
         {
-            NewWalletDialog d = new NewWalletDialog();
-            if (d.ShowModal() == DialogResult.Ok)
+            try
             {
-                Helpers.TaskFactory.Instance.RunTask("createwallet", $"Creating wallet", () =>
+                NewWalletDialog d = new NewWalletDialog();
+                if (d.ShowModal() == DialogResult.Ok)
                 {
-                    if (d.HwWallet)
+                    Helpers.TaskFactory.Instance.RunTask("createwallet", $"Creating wallet", () =>
                     {
-                        WalletRpc.CreateHwWallet(d.Name, d.Password,
-                            (CreateHwWalletResponseData result) =>
+                        if (d.HwWallet)
                         {
-                            CreateSuccess(result.Address);
-                        }, CreateError);
-                    }
-                    else
-                    {
-                        WalletRpc.CreateWallet(d.Name, d.Password,
-                            (CreateWalletResponseData result) =>
+                            WalletRpc.CreateHwWallet(d.Name, d.Password,
+                                (CreateHwWalletResponseData result) =>
+                            {
+                                CreateSuccess(result.Address);
+                            }, CreateError);
+                        }
+                        else
                         {
-                            CreateSuccess(result.Address);
-                        }, CreateError);
-                    }
+                            WalletRpc.CreateWallet(d.Name, d.Password,
+                                (CreateWalletResponseData result) =>
+                            {
+                                CreateSuccess(result.Address);
+                            }, CreateError);
+                        }
                     
-                });
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling.HandleException("MAIN.NewWalletClicked", ex, true);
             }
         }
 
         protected void wallet_Open_Clicked(object sender, EventArgs e)
         {
-            OpenWalletDialog d = new OpenWalletDialog();
-            if (d.ShowModal() == DialogResult.Ok)
-                OpenNewWallet(d.Name, d.Password);
+            try
+            {
+                OpenWalletDialog d = new OpenWalletDialog();
+                if (d.ShowModal() == DialogResult.Ok)
+                    OpenNewWallet(d.Name, d.Password);
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling.HandleException("MAIN.OpenWalletClicked", ex, true);
+            }
         }
 
         protected void wallet_Import_Clicked(object sender, EventArgs e)
         {
-            ImportWalletDialog d = new ImportWalletDialog();
-            if (d.ShowModal() == DialogResult.Ok)
+            try
             {
-                Helpers.TaskFactory.Instance.RunTask("importwallet", $"Importing wallet", () =>
+                ImportWalletDialog d = new ImportWalletDialog();
+                if (d.ShowModal() == DialogResult.Ok)
                 {
-                    switch (d.ImportType)
+                    Helpers.TaskFactory.Instance.RunTask("importwallet", $"Importing wallet", () =>
                     {
-                        case Import_Type.Key:
-                            WalletRpc.RestoreWalletFromKeys(d.Name, d.Address, d.ViewKey, d.SpendKey, d.Password, d.Language,
-                                (RestoreWalletFromKeysResponseData result) =>
-                            {
-                                CreateSuccess(result.Address);
-                            }, CreateError);
-                        break;
-                        case Import_Type.Seed:
-                            WalletRpc.RestoreWalletFromSeed(d.Name, d.Seed, d.SeedOffset, d.Password, d.Language,
-                            (RestoreWalletFromSeedResponseData result) =>
-                            {
-                                CreateSuccess(result.Address);
-                            }, CreateError);
-                        break;
-                    }
-                });
+                        switch (d.ImportType)
+                        {
+                            case Import_Type.Key:
+                                WalletRpc.RestoreWalletFromKeys(d.Name, d.Address, d.ViewKey, d.SpendKey, d.Password, d.Language,
+                                    (RestoreWalletFromKeysResponseData result) =>
+                                {
+                                    CreateSuccess(result.Address);
+                                }, CreateError);
+                            break;
+                            case Import_Type.Seed:
+                                WalletRpc.RestoreWalletFromSeed(d.Name, d.Seed, d.SeedOffset, d.Password, d.Language,
+                                (RestoreWalletFromSeedResponseData result) =>
+                                {
+                                    CreateSuccess(result.Address);
+                                }, CreateError);
+                            break;
+                        }
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling.HandleException("MAIN.ImportWalletClicked", ex, true);
             }
         }
 
         private void OpenNewWallet(string name, string password)
         {
-            Application.Instance.AsyncInvoke(() =>
+            try
             {
-                lblWalletStatus.Text = "OFFLINE";
-                lastTxHeight = 0;
-                balancesPage.Update(null);
-                transfersPage.Update(null);
-            });
-
-            WalletRpc.CloseWallet(() =>
-            {
-                Helpers.TaskFactory.Instance.RunTask("openwallet", $"Opening wallet {name}", () =>
+                Application.Instance.AsyncInvoke(() =>
                 {
-                    WalletRpc.OpenWallet(name, password, () => {
-                        Log.Instance.Write($"Opened wallet {name}");
-                    }, OpenError);
+                    lblWalletStatus.Text = "OFFLINE";
+                    lastTxHeight = 0;
+                    balancesPage.Update(null);
+                    transfersPage.Update(null);
                 });
-            }, (RequestError error) =>
-            {
-                if (error.Code != -13)
-                    Log.Instance.Write(Log_Severity.Error, $"Error closing wallet: {error.Message}");
 
-                Helpers.TaskFactory.Instance.RunTask("openwallet", $"Opening wallet {name}", () =>
+                WalletRpc.CloseWallet(() =>
                 {
-                    WalletRpc.OpenWallet(name, password, () => {
-                        Log.Instance.Write($"Opened wallet {name}");
-                    }, OpenError);
+                    Helpers.TaskFactory.Instance.RunTask("openwallet", $"Opening wallet {name}", () =>
+                    {
+                        WalletRpc.OpenWallet(name, password, () => {
+                            Log.Instance.Write($"Opened wallet {name}");
+                        }, OpenError);
+                    });
+                }, (RequestError error) =>
+                {
+                    if (error.Code != -13)
+                        Log.Instance.Write(Log_Severity.Error, $"Error closing wallet: {error.Message}");
+
+                    Helpers.TaskFactory.Instance.RunTask("openwallet", $"Opening wallet {name}", () =>
+                    {
+                        WalletRpc.OpenWallet(name, password, () => {
+                            Log.Instance.Write($"Opened wallet {name}");
+                        }, OpenError);
+                    });
                 });
-            });
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling.HandleException("MAIN.OpenNewWallet", ex, false);
+            }
         }
 
         private void CreateSuccess(string address)
         {
-            Application.Instance.AsyncInvoke( () =>
+            try
             {
-                balancesPage.Update(null);
-                transfersPage.Update(null);
-
-                if (MessageBox.Show(Application.Instance.MainForm, "Wallet creation complete.\nWould you like to use this as the mining address?", "Create Wallet",
-                    MessageBoxButtons.YesNo, MessageBoxType.Question, MessageBoxDefaultButton.Yes) == DialogResult.Yes)
-                {
-                    Configuration.Instance.Daemon.MiningAddress = address;
-                    Configuration.Save();
-                }
-            });
-        }
-
-        private void CreateError(RequestError error)
-        {
-            Application.Instance.AsyncInvoke( () =>
-            {
-                MessageBox.Show(Application.Instance.MainForm, $"Wallet creation failed.\r\nError Code: {error.Code}\r\n{error.Message}", "Create Wallet",
-                MessageBoxButtons.OK, MessageBoxType.Error, MessageBoxDefaultButton.OK);
-            });
-        }
-
-        private void OpenError(RequestError error)
-        {
-            Application.Instance.AsyncInvoke( () =>
-            {
-                if (error.Code != -1)
-                    MessageBox.Show(Application.Instance.MainForm, $"Failed to open the wallet.\r\nError Code: {error.Code}\r\n{error.Message}", "Open Wallet",
-                        MessageBoxButtons.OK, MessageBoxType.Error, MessageBoxDefaultButton.OK);
-                else
-                    MessageBox.Show(Application.Instance.MainForm, $"Failed to open the wallet.\r\nPlease check your password and make sure the network type is correct", "Open Wallet",
-                        MessageBoxButtons.OK, MessageBoxType.Error, MessageBoxDefaultButton.OK);
-            });
-        }
-
-        protected void wallet_Store_Clicked(object sender, EventArgs e)
-        {
-			Helpers.TaskFactory.Instance.RunTask("store", $"Saving wallet information", () =>
-           	{
-               	Log.Instance.Write("Saving wallet");
-            	WalletRpc.Store();
-
-               	Application.Instance.AsyncInvoke(() =>
-               	{
-                   	MessageBox.Show(this, "Wallet Save Complete", "NERVA Wallet", MessageBoxButtons.OK,
-                		MessageBoxType.Information, MessageBoxDefaultButton.OK);
-               	});
-           	});
-        }
-
-        protected void wallet_Stop_Clicked(object sender, EventArgs e)
-        {
-            Helpers.TaskFactory.Instance.RunTask("closewallet", "Closing the wallet", () => 
-            {
-                Log.Instance.Write("Closing wallet");
-                lastTxHeight = 0;
-
-                WalletRpc.CloseWallet(null, null);
-
                 Application.Instance.AsyncInvoke( () =>
                 {
                     balancesPage.Update(null);
                     transfersPage.Update(null);
-                    lblWalletStatus.Text = "OFFLINE";
+
+                    if (MessageBox.Show(Application.Instance.MainForm, "Wallet creation complete.\nWould you like to use this as the mining address?", "Create Wallet",
+                        MessageBoxButtons.YesNo, MessageBoxType.Question, MessageBoxDefaultButton.Yes) == DialogResult.Yes)
+                    {
+                        Configuration.Instance.Daemon.MiningAddress = address;
+                        Configuration.Save();
+                    }
                 });
-            });
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling.HandleException("MAIN.CreateSuccess", ex, false);
+            }
+        }
+
+        private void CreateError(RequestError error)
+        {
+            try
+            {
+                Application.Instance.AsyncInvoke( () =>
+                {
+                    MessageBox.Show(Application.Instance.MainForm, $"Wallet creation failed.\r\nError Code: {error.Code}\r\n{error.Message}", "Create Wallet",
+                    MessageBoxButtons.OK, MessageBoxType.Error, MessageBoxDefaultButton.OK);
+                });
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling.HandleException("MAIN.CreateError", ex, false);
+            }
+        }
+
+        private void OpenError(RequestError error)
+        {
+            try
+            {
+                Application.Instance.AsyncInvoke( () =>
+                {
+                    if (error.Code != -1)
+                        MessageBox.Show(Application.Instance.MainForm, $"Failed to open the wallet.\r\nError Code: {error.Code}\r\n{error.Message}", "Open Wallet",
+                            MessageBoxButtons.OK, MessageBoxType.Error, MessageBoxDefaultButton.OK);
+                    else
+                        MessageBox.Show(Application.Instance.MainForm, $"Failed to open the wallet.\r\nPlease check your password and make sure the network type is correct", "Open Wallet",
+                            MessageBoxButtons.OK, MessageBoxType.Error, MessageBoxDefaultButton.OK);
+                });
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling.HandleException("MAIN.OpenError", ex, false);
+            }
+        }
+
+        protected void wallet_Store_Clicked(object sender, EventArgs e)
+        {
+            try
+            {
+                Helpers.TaskFactory.Instance.RunTask("store", $"Saving wallet information", () =>
+                {
+                    Log.Instance.Write("Saving wallet");
+                    WalletRpc.Store();
+
+                    Application.Instance.AsyncInvoke(() =>
+                    {
+                        MessageBox.Show(this, "Wallet Save Complete", "NERVA Wallet", MessageBoxButtons.OK,
+                            MessageBoxType.Information, MessageBoxDefaultButton.OK);
+                    });
+                });
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling.HandleException("MAIN.WalletStoreClicked", ex, true);
+            }
+        }
+
+        protected void wallet_Stop_Clicked(object sender, EventArgs e)
+        {
+            try
+            {
+                Helpers.TaskFactory.Instance.RunTask("closewallet", "Closing the wallet", () => 
+                {
+                    Log.Instance.Write("Closing wallet");
+                    lastTxHeight = 0;
+
+                    WalletRpc.CloseWallet(null, null);
+
+                    Application.Instance.AsyncInvoke( () =>
+                    {
+                        balancesPage.Update(null);
+                        transfersPage.Update(null);
+                        lblWalletStatus.Text = "OFFLINE";
+                    });
+                });
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling.HandleException("MAIN.WalletStopClicked", ex, true);
+            }
         }
 
         protected void wallet_RescanSpent_Clicked(object sender, EventArgs e)
         {
-            Helpers.TaskFactory.Instance.RunTask("rescanspent", $"Rescanning spent outputs", () =>
-           	{
-               	Log.Instance.Write("Rescanning spent outputs");
-               	if (!WalletRpc.RescanSpent())
-                   	Log.Instance.Write("Rescanning spent outputs failed");
-               	else
-                   	Log.Instance.Write("Rescanning spent outputs success");
+            try
+            {
+                Helpers.TaskFactory.Instance.RunTask("rescanspent", $"Rescanning spent outputs", () =>
+                {
+                    Log.Instance.Write("Rescanning spent outputs");
+                    if (!WalletRpc.RescanSpent())
+                        Log.Instance.Write("Rescanning spent outputs failed");
+                    else
+                        Log.Instance.Write("Rescanning spent outputs success");
 
-               	Application.Instance.AsyncInvoke(() =>
-               	{
-                   	MessageBox.Show(this, "Rescanning spent outputs complete", "Rescan Spent",
-                    	MessageBoxButtons.OK, MessageBoxType.Information, MessageBoxDefaultButton.OK);
-               	});
-           	});
+                    Application.Instance.AsyncInvoke(() =>
+                    {
+                        MessageBox.Show(this, "Rescanning spent outputs complete", "Rescan Spent",
+                            MessageBoxButtons.OK, MessageBoxType.Information, MessageBoxDefaultButton.OK);
+                    });
+                });
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling.HandleException("MAIN.WalletRescanSpentClicked", ex, true);
+            }
         }
 
         protected void wallet_RescanBlockchain_Clicked(object sender, EventArgs e)
         {
-            Helpers.TaskFactory.Instance.RunTask("rescanchain", $"Rescanning the blockchain", () =>
-        	{
-               	Log.Instance.Write("Rescanning blockchain");
-               	if (!WalletRpc.RescanBlockchain())
-            		Log.Instance.Write("Rescanning blockchain failed");
-            	else
-                	Log.Instance.Write("Rescanning blockchain success");
+            try
+            {
+                Helpers.TaskFactory.Instance.RunTask("rescanchain", $"Rescanning the blockchain", () =>
+                {
+                    Log.Instance.Write("Rescanning blockchain");
+                    if (!WalletRpc.RescanBlockchain())
+                        Log.Instance.Write("Rescanning blockchain failed");
+                    else
+                        Log.Instance.Write("Rescanning blockchain success");
 
-            	Application.Instance.AsyncInvoke(() =>
-            	{
-                	MessageBox.Show(this, "Rescanning blockchain complete", "Rescan Blockchain",
-                    	MessageBoxButtons.OK, MessageBoxType.Information, MessageBoxDefaultButton.OK);
-               	});
-        	});
+                    Application.Instance.AsyncInvoke(() =>
+                    {
+                        MessageBox.Show(this, "Rescanning blockchain complete", "Rescan Blockchain",
+                            MessageBoxButtons.OK, MessageBoxType.Information, MessageBoxDefaultButton.OK);
+                    });
+                });
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling.HandleException("MAIN.WalletRescanBlockchainClicked", ex, true);
+            }
         }
 
         protected void wallet_Keys_View_Clicked(object sender, EventArgs e)
         {
-            new DisplayKeysDialog().ShowModal();
+            try
+            {
+                new DisplayKeysDialog().ShowModal();
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling.HandleException("MAIN.WalletKeysViewClicked", ex, true);
+            }
         }
 
         protected void wallet_Account_Create_Clicked(object sender, EventArgs e)
         {
-            TextDialog d = new TextDialog("Enter Account Name", false);
-            if (d.ShowModal() == DialogResult.Ok)
+            try
             {
-                Helpers.TaskFactory.Instance.RunTask("createwallet", "Creating new wallet", () =>
-            	{
-                	WalletRpc.CreateAccount(d.Text, (CreateAccountResponseData r) =>
+                TextDialog d = new TextDialog("Enter Account Name", false);
+                if (d.ShowModal() == DialogResult.Ok)
+                {
+                    Helpers.TaskFactory.Instance.RunTask("createwallet", "Creating new wallet", () =>
                     {
-                        Application.Instance.AsyncInvoke(() =>
-                    	{
-                        	MessageBox.Show(this, $"New account {d.Text} created", "Create Account",
-                        		MessageBoxButtons.OK, MessageBoxType.Error, MessageBoxDefaultButton.OK);
-                    	});
-                    }, (RequestError err) =>
-                    {
-                        Application.Instance.AsyncInvoke(() =>
-                    	{
-                        	MessageBox.Show(this, "Failed to create new account", "Create Account",
-                        		MessageBoxButtons.OK, MessageBoxType.Error, MessageBoxDefaultButton.OK);
-                    	});
+                        WalletRpc.CreateAccount(d.Text, (CreateAccountResponseData r) =>
+                        {
+                            Application.Instance.AsyncInvoke(() =>
+                            {
+                                MessageBox.Show(this, $"New account {d.Text} created", "Create Account",
+                                    MessageBoxButtons.OK, MessageBoxType.Error, MessageBoxDefaultButton.OK);
+                            });
+                        }, (RequestError err) =>
+                        {
+                            Application.Instance.AsyncInvoke(() =>
+                            {
+                                MessageBox.Show(this, "Failed to create new account", "Create Account",
+                                    MessageBoxButtons.OK, MessageBoxType.Error, MessageBoxDefaultButton.OK);
+                            });
+                        });
                     });
-            	});
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling.HandleException("MAIN.WalletAccountCreateClicked", ex, true);
             }
         }
 
         protected void about_Clicked(object sender, EventArgs e)
         {
-            ad.ShowDialog(this);
+            try
+            {
+                ad.ShowDialog(this);
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling.HandleException("MAIN.AboutClicked", ex, true);
+            }
         }
 
         protected void discord_Clicked(object sender, EventArgs e)
         {
-            Process.Start("https://discord.gg/ufysfvcFwe");
+            try
+            {
+                ProcessStartInfo psi = new ProcessStartInfo
+                {
+                    FileName = "https://discord.gg/ufysfvcFwe",
+                    UseShellExecute = true
+                };
+                Process.Start(psi);
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling.HandleException("MAIN.DiscordClicked", ex, true);
+            }
         }
 
         protected void twitter_Clicked(object sender, EventArgs e)
         {
-            Process.Start("https://twitter.com/nervacurrency");
+            try
+            {
+                ProcessStartInfo psi = new ProcessStartInfo
+                {
+                    FileName = "https://twitter.com/nervacurrency",
+                    UseShellExecute = true
+                };
+                Process.Start(psi);
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling.HandleException("MAIN.TwitterClicked", ex, true);
+            }
         }
 
         protected void reddit_Clicked(object sender, EventArgs e)
         {
-            Process.Start("https://www.reddit.com/r/Nerva/");
+            try
+            {
+                ProcessStartInfo psi = new ProcessStartInfo
+                {
+                    FileName = "https://www.reddit.com/r/Nerva/",
+                    UseShellExecute = true
+                };
+                Process.Start(psi);
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling.HandleException("MAIN.RedditClicked", ex, true);
+            }
         }
 
         protected void file_Preferences_Clicked(object sender, EventArgs e)
         {
-            PreferencesDialog d = new PreferencesDialog();
-            if (d.ShowModal() == DialogResult.Ok)
+            try
             {
-                Configuration.Save();
-
-                if (d.RestartCliRequired)
+                PreferencesDialog d = new PreferencesDialog();
+                if (d.ShowModal() == DialogResult.Ok)
                 {
-                    //if thge daemon has to be restarted, there is a good chance the wallet has to be restarted, so just do it
-                    MessageBox.Show(this, "The NERVA CLI backend will now restart to apply your changes", "NERVA Preferences",
-                        MessageBoxButtons.OK, MessageBoxType.Information, MessageBoxDefaultButton.OK);
+                    Configuration.Save();
 
-                    Log.Instance.Write("Restarting CLI");
-
-                    Helpers.TaskFactory.Instance.RunTask("restartcli", "Restarting the CLI", () =>
+                    if (d.RestartCliRequired)
                     {
-                        updateWalletTask.Stop();
-                        updateDaemonTask.Stop();
+                        //if thge daemon has to be restarted, there is a good chance the wallet has to be restarted, so just do it
+                        MessageBox.Show(this, "The NERVA CLI backend will now restart to apply your changes", "NERVA Preferences",
+                            MessageBoxButtons.OK, MessageBoxType.Information, MessageBoxDefaultButton.OK);
 
-                        Task.Delay(Constants.ONE_SECOND).Wait();
+                        Log.Instance.Write("Restarting CLI");
 
-                        DaemonProcess.ForceClose();
-                        WalletProcess.ForceClose();
-
-                        Application.Instance.AsyncInvoke( () =>
+                        Helpers.TaskFactory.Instance.RunTask("restartcli", "Restarting the CLI", () =>
                         {
-                            daemonPage.UpdateInfo(null);
-                            daemonPage.UpdateConnections(null);
-                            daemonPage.UpdateMinerStatus(null);
-                            balancesPage.Update(null);
-                            transfersPage.Update(null);
+                            updateWalletTask.Stop();
+                            updateDaemonTask.Stop();
+
+                            Task.Delay(Constants.ONE_SECOND).Wait();
+
+                            DaemonProcess.ForceClose();
+                            WalletProcess.ForceClose();
+
+                            Application.Instance.AsyncInvoke( () =>
+                            {
+                                daemonPage.UpdateInfo(null);
+                                daemonPage.UpdateConnections(null);
+                                daemonPage.UpdateMinerStatus(null);
+                                balancesPage.Update(null);
+                                transfersPage.Update(null);
+                            });
+
+                            StartUiUpdate();
                         });
-                        
-                        StartUiUpdate();
-                    });
-                }
-                else
-                {
-                    if (d.RestartMinerRequired)
+                    }
+                    else
                     {
-                        DaemonRpc.StopMining();
-                        DaemonRpc.StartMining();
+                        if (d.RestartMinerRequired)
+                        {
+                            DaemonRpc.StopMining();
+                            DaemonRpc.StartMining();
+                        }
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling.HandleException("MAIN.FilePreferencesClicked", ex, true);
             }
         }
 
         protected void file_UpdateCheck_Clicked(object sender, EventArgs e)
         {
-            Helpers.TaskFactory.Instance.RunTask("updatecheck", "Checking for updates", () =>
+            try
             {
-                UpdateManager.CheckUpdate();
-
-                string cliMsg = "CLI: ";
-
-                bool updateRequired = false;
-
-                if (UpdateManager.CliUpdateInfo.UpdateStatus == Update_Status_Code.NewVersionAvailable)
+                Helpers.TaskFactory.Instance.RunTask("updatecheck", "Checking for updates", () =>
                 {
-                    cliMsg += $"{UpdateManager.CliUpdateInfo.ToString()}";
-                    updateRequired = true;
-                }
-                else
-                    cliMsg += "Up to date";
+                    UpdateManager.CheckUpdate();
 
-                Application.Instance.AsyncInvoke(() =>
-				{
-                    if (updateRequired)
+                    string cliMsg = "CLI: ";
+
+                    bool updateRequired = false;
+
+                    if (UpdateManager.CliUpdateInfo.UpdateStatus == Update_Status_Code.NewVersionAvailable)
                     {
-                        if (MessageBox.Show(Application.Instance.MainForm, $"{cliMsg}\r\nWould you like to download the available updates?", "NERVA Updater", 
-                            MessageBoxButtons.YesNo, MessageBoxType.Question, MessageBoxDefaultButton.No) == DialogResult.Yes)
-                        {
-
-                            if (UpdateManager.CliUpdateInfo != null && UpdateManager.CliUpdateInfo.UpdateStatus == Update_Status_Code.NewVersionAvailable)
-                                Helpers.TaskFactory.Instance.RunTask("dlcliupdate", $"Downloading CLI update", () =>
-                                {
-                                    UpdateManager.DownloadUpdate(Update_Type.CLI, UpdateManager.CliUpdateInfo.DownloadLink, null, (b, s) =>
-                                    {
-                                        DisplayUpdateResult(b, s);
-                                    });
-                                });
-                        }
+                        cliMsg += $"{UpdateManager.CliUpdateInfo.ToString()}";
+                        updateRequired = true;
                     }
                     else
-                        MessageBox.Show(Application.Instance.MainForm, $"You are up to date", "NERVA Updater", 
-                            MessageBoxButtons.OK, MessageBoxType.Information);
-				});
+                        cliMsg += "Up to date";
+
+                    Application.Instance.AsyncInvoke(() =>
+                    {
+                        if (updateRequired)
+                        {
+                            if (MessageBox.Show(Application.Instance.MainForm, $"{cliMsg}\r\nWould you like to download the available updates?", "NERVA Updater", 
+                                MessageBoxButtons.YesNo, MessageBoxType.Question, MessageBoxDefaultButton.No) == DialogResult.Yes)
+                            {
+
+                                if (UpdateManager.CliUpdateInfo != null && UpdateManager.CliUpdateInfo.UpdateStatus == Update_Status_Code.NewVersionAvailable)
+                                    Helpers.TaskFactory.Instance.RunTask("dlcliupdate", $"Downloading CLI update", () =>
+                                    {
+                                        UpdateManager.DownloadUpdate(Update_Type.CLI, UpdateManager.CliUpdateInfo.DownloadLink, null, (b, s) =>
+                                        {
+                                            DisplayUpdateResult(b, s);
+                                        });
+                                    });
+                            }
+                        }
+                        else
+                            MessageBox.Show(Application.Instance.MainForm, $"You are up to date", "NERVA Updater", 
+                                MessageBoxButtons.OK, MessageBoxType.Information);
+                    });
                     
-            });
+                });
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling.HandleException("MAIN.FileUpdateCheckClicked", ex, true);
+            }
         }
 
         private void DisplayUpdateResult(bool ok, string file)
         {
-            if (ok)
+            try
             {
-                Application.Instance.AsyncInvoke(() =>
+                if (ok)
                 {
-                    MessageBox.Show(Application.Instance.MainForm, $"Update downloaded to {file}", "NERVA Updater", 
-                        MessageBoxButtons.OK, MessageBoxType.Information);
-                });
-            }
-            else
-            {
-                if (File.Exists(file))
-                    File.Delete(file);
+                    Application.Instance.AsyncInvoke(() =>
+                    {
+                        MessageBox.Show(Application.Instance.MainForm, $"Update downloaded to {file}", "NERVA Updater", 
+                            MessageBoxButtons.OK, MessageBoxType.Information);
+                    });
+                }
+                else
+                {
+                    if (File.Exists(file))
+                        File.Delete(file);
                                                 
-                Application.Instance.AsyncInvoke(() =>
-                {
-                    MessageBox.Show(Application.Instance.MainForm, $"An error occurred during the update", "NERVA Updater", 
-                        MessageBoxButtons.OK, MessageBoxType.Error);
-                });
+                    Application.Instance.AsyncInvoke(() =>
+                    {
+                        MessageBox.Show(Application.Instance.MainForm, $"An error occurred during the update", "NERVA Updater", 
+                            MessageBoxButtons.OK, MessageBoxType.Error);
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling.HandleException("MAIN.DisplayUpdateResult", ex, false);
             }
         }
 
         protected void quit_Clicked(object sender, EventArgs e)
         {
-            Application.Instance.Quit();
+            try
+            {
+                Application.Instance.Quit();
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling.HandleException("MAIN.QuickClicked", ex, true);
+            }
         }
     }
 }
