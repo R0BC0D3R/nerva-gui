@@ -34,6 +34,8 @@ namespace Nerva.Toolkit.Content
 		private Label lblMiningHashrate = new Label() { Text = "." };
 		private Label lblTimeToBlock = new Label() { Text = "." };
 
+		public Button btnStartStopMining = new Button { Text = "Start Mining" };
+
         #endregion
 
         public DaemonPage() { }
@@ -86,31 +88,38 @@ namespace Nerva.Toolkit.Content
 						{
 							new TableRow (
 								new TableCell(new Label { Text = "Daemon" }),
+								new TableCell(null),
 								new TableCell(null, true),
 								new TableCell(lblMinerStatus),
-								new TableCell(null, true)),
+								new TableCell(btnStartStopMining),
+								new TableCell(null)),
 							new TableRow(
 								new TableCell(new Label { Text = "Height:" }),
 								new TableCell(lblHeight),
+								new TableCell(null, true),
 								new TableCell(new Label { Text = "Address:" }),
-								new TableCell(lblMiningAddress)),
+								new TableCell(lblMiningAddress),
+								new TableCell(null)),
 							new TableRow(
 								new TableCell(new Label { Text = "Run Time:" }),
 								new TableCell(lblRunTime),
+								new TableCell(null, true),
 								new TableCell(new Label { Text = "Threads:" }),
-								new TableCell(lblMiningThreads)),
+								new TableCell(lblMiningThreads),
+								new TableCell(null)),
 							new TableRow(
 								new TableCell(new Label { Text = "Net Hash:" }),
 								new TableCell(lblNetHash),
+								new TableCell(null, true),
 								new TableCell(new Label { Text = "Hash Rate:" }),
-								new TableCell(lblMiningHashrate)),
+								new TableCell(lblMiningHashrate),
+								new TableCell(null)),
 							new TableRow(
 								new TableCell(new Label { Text = "Network:" }),
 								new TableCell(lblNetwork),
+								new TableCell(null, true),
 								new TableCell(new Label { Text = "Time to Block:" }),
-								new TableCell(lblTimeToBlock)),
-							new TableRow(
-								new TableCell(null),
+								new TableCell(lblTimeToBlock),
 								new TableCell(null))
 						}
 					}, false),
@@ -120,6 +129,11 @@ namespace Nerva.Toolkit.Content
 					}, true)
 				}
 			};
+
+			btnStartStopMining.Click += (s, e) =>
+            {
+                GlobalMethods.StartStopMining();
+            };
         }
 
 		public void UpdateInfo(GetInfoResponseData info)
@@ -182,6 +196,7 @@ namespace Nerva.Toolkit.Content
 				if (mStatus != null && mStatus.Active)
 				{
 					lblMinerStatus.Text = "Miner (Active)";
+					btnStartStopMining.Text = "Stop Mining";
 					lblMiningAddress.Text = Conversions.WalletAddressShortForm(mStatus.Address);
 					lblMiningThreads.Text = mStatus.ThreadCount.ToString();
 
@@ -204,6 +219,7 @@ namespace Nerva.Toolkit.Content
 				else
 				{
 					lblMinerStatus.Text = "Miner (Inactive)";
+					btnStartStopMining.Text = "Start Mining";
 					lblMiningAddress.Text = "-";
 					lblMiningThreads.Text = "-";
 					lblMiningHashrate.Text = "-";

@@ -14,7 +14,7 @@ namespace Nerva.Toolkit.Helpers
             if (string.IsNullOrEmpty(a))
                 return null;
 
-            return $"{a.Substring(0, 6)}...{a.Substring(a.Length - 6, 6)}";
+            return $"{a.Substring(0, 10)}...{a.Substring(a.Length - 10, 10)}";
         }
 
         public static uint VersionStringToInt(string vs)
