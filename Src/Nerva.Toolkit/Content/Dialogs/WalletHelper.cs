@@ -1,6 +1,7 @@
 using System.IO;
 using Eto.Drawing;
 using Eto.Forms;
+using Nerva.Toolkit.Helpers;
 using Configuration = Nerva.Toolkit.Config.Configuration;
 
 namespace Nerva.Toolkit.Content.Dialogs
@@ -13,6 +14,13 @@ namespace Nerva.Toolkit.Content.Dialogs
         public DialogBase(string title)
         {
             this.Title = title;
+
+            // Set Icon but only if found. Otherwise, app will not work correctly
+			string iconFile = GlobalMethods.GetAppIcon();
+			if(!string.IsNullOrEmpty(iconFile))
+			{				
+				Icon = new Icon(iconFile);
+			}
 
 #if UNIX
                 this.Width = 400;

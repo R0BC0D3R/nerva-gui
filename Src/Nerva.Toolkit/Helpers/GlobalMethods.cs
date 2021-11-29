@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using Eto.Forms;
 using Nerva.Rpc.Daemon;
 using Nerva.Toolkit.CLI;
@@ -42,6 +43,27 @@ namespace Nerva.Toolkit.Helpers
             {
                 ErrorHandling.HandleException("GM.StartStopMining", ex, false);
             }
+        }
+
+        public static string GetAppIcon()
+        {
+            string iconFile = string.Empty;
+
+            try
+            {
+                string icon = "nerva.ico";
+
+                if(File.Exists(icon))
+                {
+                    iconFile = icon;
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling.HandleException("GM.GetAppIcon", ex, false);
+            }
+
+            return iconFile;
         }
     }
 }

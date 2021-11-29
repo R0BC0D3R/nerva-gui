@@ -1,6 +1,7 @@
 using Eto.Forms;
 using Eto.Drawing;
 using Nerva.Toolkit.Content;
+using Nerva.Toolkit.Helpers;
 
 namespace Nerva.Toolkit
 {
@@ -8,8 +9,8 @@ namespace Nerva.Toolkit
 	{	
 		#region Status Bar controls
 		
-		Label lblDaemonStatus = new Label { Text = "Height: 0 | Connections: 0/0 | Not Synced" };
-		Label lblWalletStatus = new Label { Text = "OFFLINE" };
+		Label lblDaemonStatus = new Label { Text = "Daemon Offline" };
+		Label lblWalletStatus = new Label { Text = "Wallet Offline" };
 		Label lblVersion = new Label { Text = "Version: 0.0.0.0" };
 		Label lblTaskList = new Label { Text = "Tasks: 0", Tag = -1 };
 
@@ -21,8 +22,15 @@ namespace Nerva.Toolkit
 
 		public void ConstructLayout()
 		{
-			Title = $"NERVA Desktop Wallet and One Click Miner {Version.LONG_VERSION}";
+			Title = $"NERVA Desktop Wallet and Miner {Version.LONG_VERSION}";
 			ClientSize = new Size(640, 480);
+
+			// Set Icon but only if found. Otherwise, app will not work correctly
+			string iconFile = GlobalMethods.GetAppIcon();
+			if(!string.IsNullOrEmpty(iconFile))
+			{				
+				Icon = new Icon(iconFile);
+			}
 
 			daemonPage.ConstructLayout();
 			balancesPage.ConstructLayout();
