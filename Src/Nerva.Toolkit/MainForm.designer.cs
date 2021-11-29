@@ -68,32 +68,40 @@ namespace Nerva.Toolkit
 				}
 			};
 
+			// File
 			var file_Preferences = new Command { MenuText = "Preferences", ToolBarText = "Preferences" };	
 			file_Preferences.Executed += file_Preferences_Clicked;
 
-			var file_UpdateCheck = new Command { MenuText = "Check for Updates", ToolBarText = "Check for Updates" };	
-			file_UpdateCheck.Executed += file_UpdateCheck_Clicked;
+			var quitCommand = new Command { MenuText = "Quit", Shortcut = Application.Instance.CommonModifier | Keys.Q };
+			quitCommand.Executed += quit_Clicked;
 
+
+			// Daemon
 			var daemon_ToggleMining = new Command { MenuText = "Toggle Miner", ToolBarText = "Toggle Miner" };			
 			daemon_ToggleMining.Executed += daemon_ToggleMining_Clicked;
 
 			var daemon_Restart = new Command { MenuText = "Restart", ToolBarText = "Restart" };
 			daemon_Restart.Executed += daemon_Restart_Clicked;
 
+
+			// Wallet
+			var wallet_New = new Command { MenuText = "New", ToolBarText = "New" };
+			wallet_New.Executed += wallet_New_Clicked;
+
 			var wallet_Open = new Command { MenuText = "Open", ToolBarText = "Open" };
 			wallet_Open.Executed += wallet_Open_Clicked;
 
-			var wallet_New = new Command { MenuText = "New", ToolBarText = "New" };
-			wallet_New.Executed += wallet_New_Clicked;
+			var wallet_Stop = new Command { MenuText = "Close", ToolBarText = "Close wallet" };
+			wallet_Stop.Executed += wallet_Stop_Clicked;
 
 			var wallet_Import = new Command { MenuText = "Import", ToolBarText = "Import" };
 			wallet_Import.Executed += wallet_Import_Clicked;
 
 			var wallet_Store = new Command { MenuText = "Save", ToolBarText = "Save" };
 			wallet_Store.Executed += wallet_Store_Clicked;
-
-			var wallet_Stop = new Command { MenuText = "Close", ToolBarText = "Close wallet" };
-			wallet_Stop.Executed += wallet_Stop_Clicked;
+			
+			var wallet_Account_Create = new Command { MenuText = "Create Account", ToolBarText = "Create Account" };
+			wallet_Account_Create.Executed += wallet_Account_Create_Clicked;
 
 			var wallet_RescanSpent = new Command { MenuText = "Spent Outputs", ToolBarText = "Spent Outputs" };
 			wallet_RescanSpent.Executed += wallet_RescanSpent_Clicked;
@@ -104,14 +112,13 @@ namespace Nerva.Toolkit
 			var wallet_Keys_View = new Command { MenuText = "View Keys", ToolBarText = "View Keys" };
 			wallet_Keys_View.Executed += wallet_Keys_View_Clicked;
 
-			var wallet_Account_Create = new Command { MenuText = "Create Account", ToolBarText = "Create Account" };
-			wallet_Account_Create.Executed += wallet_Account_Create_Clicked;
 
-			var quitCommand = new Command { MenuText = "Quit", Shortcut = Application.Instance.CommonModifier | Keys.Q };
-			quitCommand.Executed += quit_Clicked;
+			// Help
+			var debugFolderCommand = new Command { MenuText = "Debug Folder" };
+			debugFolderCommand.Executed += debugFolderCommand_Clicked;
 
-			var aboutCommand = new Command { MenuText = "About..." };
-			aboutCommand.Executed += about_Clicked;
+			var file_UpdateCheck = new Command { MenuText = "Check for Updates", ToolBarText = "Check for Updates" };	
+			file_UpdateCheck.Executed += file_UpdateCheck_Clicked;
 
 			var discordCommand = new Command { MenuText = "Discord" };
 			discordCommand.Executed += discord_Clicked;
@@ -121,6 +128,9 @@ namespace Nerva.Toolkit
 
 			var redditCommand = new Command { MenuText = "Reddit" };
 			redditCommand.Executed += reddit_Clicked;
+
+			var aboutCommand = new Command { MenuText = "About..." };
+			aboutCommand.Executed += about_Clicked;
 
 			// create menu
 			Menu = new MenuBar
@@ -174,10 +184,12 @@ namespace Nerva.Toolkit
 						Text = "&Help",
 						Items =
 						{
+							debugFolderCommand,
+							file_UpdateCheck,
+							new SeparatorMenuItem(),
 							discordCommand,
 							redditCommand,
-							twitterCommand,
-							file_UpdateCheck
+							twitterCommand
 						}
 					}
 				},

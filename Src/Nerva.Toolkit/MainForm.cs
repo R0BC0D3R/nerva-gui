@@ -756,6 +756,23 @@ namespace Nerva.Toolkit
             }
         }
 
+        protected void debugFolderCommand_Clicked(object sender, EventArgs e)
+        {
+            try
+            {
+                ProcessStartInfo psi = new ProcessStartInfo
+                {
+                    FileName = Configuration.StorageDirectory,
+                    UseShellExecute = true
+                };
+                Process.Start(psi);
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling.HandleException("MAIN.DebugFolderClicked", ex, true);
+            }
+        }
+
         protected void discord_Clicked(object sender, EventArgs e)
         {
             try
