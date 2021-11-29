@@ -17,7 +17,7 @@ namespace Nerva.Toolkit.Content.Dialogs
         public NewWalletDialog(string title = "Create New Wallet") : base(title)
         {
             //the RPC wallet needs to be open to create a new wallet
-            WalletProcess.ResumeCrashCheck();
+            //WalletProcess.ResumeCrashCheck();
         }
 
         protected override void OnOk()

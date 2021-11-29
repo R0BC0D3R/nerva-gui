@@ -50,10 +50,10 @@ namespace Nerva.Toolkit.Content
 				GridLines = GridLines.Horizontal,
 				Columns = 
 				{
-					new GridColumn { DataCell = new TextBoxCell { Binding = Binding.Property<GetConnectionsResponseData, string>(r => r.Address)}, HeaderText = "Address" },
-					new GridColumn { DataCell = new TextBoxCell { Binding = Binding.Property<GetConnectionsResponseData, string>(r => r.Height.ToString())}, HeaderText = "Height" },
-					new GridColumn { DataCell = new TextBoxCell { Binding = Binding.Property<GetConnectionsResponseData, string>(r => TimeSpan.FromSeconds(r.LiveTime).ToString(@"hh\:mm\:ss"))}, HeaderText = "Live Time" },
-					new GridColumn { DataCell = new TextBoxCell { Binding = Binding.Property<GetConnectionsResponseData, string>(r => r.State)}, HeaderText = "State" }
+					new GridColumn { DataCell = new TextBoxCell { Binding = Binding.Property<GetConnectionsResponseData, string>(r => r.Address)}, HeaderText = "Address", Width = 200 },
+					new GridColumn { DataCell = new TextBoxCell { Binding = Binding.Property<GetConnectionsResponseData, string>(r => r.Height.ToString())}, HeaderText = "Height", Width = 100 },
+					new GridColumn { DataCell = new TextBoxCell { Binding = Binding.Property<GetConnectionsResponseData, string>(r => TimeSpan.FromSeconds(r.LiveTime).ToString(@"hh\:mm\:ss"))}, HeaderText = "Live Time", Width = 100 },
+					new GridColumn { DataCell = new TextBoxCell { Binding = Binding.Property<GetConnectionsResponseData, string>(r => r.State)}, HeaderText = "State", Expand = true }
 				}
 			};
 
@@ -87,41 +87,46 @@ namespace Nerva.Toolkit.Content
 						Spacing = new Eto.Drawing.Size(10, 10),
 						Rows =
 						{
-							new TableRow (
+							new TableRow(
 								new TableCell(new Label { Text = "Daemon" }),
 								new TableCell(null),
 								new TableCell(null, true),
 								new TableCell(lblMinerStatus),
 								new TableCell(btnStartStopMining),
-								new TableCell(null)),
+								new TableCell(null)
+							),
 							new TableRow(
 								new TableCell(new Label { Text = "Height:" }),
 								new TableCell(lblHeight),
 								new TableCell(null, true),
 								new TableCell(new Label { Text = "Address:" }),
 								new TableCell(lblMiningAddress),
-								new TableCell(null)),
+								new TableCell(null)
+							),
 							new TableRow(
 								new TableCell(new Label { Text = "Run Time:" }),
 								new TableCell(lblRunTime),
 								new TableCell(null, true),
 								new TableCell(new Label { Text = "Threads:" }),
 								new TableCell(lblMiningThreads),
-								new TableCell(null)),
+								new TableCell(null)
+							),
 							new TableRow(
 								new TableCell(new Label { Text = "Net Hash:" }),
 								new TableCell(lblNetHash),
 								new TableCell(null, true),
 								new TableCell(new Label { Text = "Hash Rate:" }),
 								new TableCell(lblMiningHashrate),
-								new TableCell(null)),
+								new TableCell(null)
+							),
 							new TableRow(
 								new TableCell(new Label { Text = "Network:" }),
 								new TableCell(lblNetwork),
 								new TableCell(null, true),
 								new TableCell(new Label { Text = "Time to Block:" }),
 								new TableCell(lblTimeToBlock),
-								new TableCell(null))
+								new TableCell(null)
+							)
 						}
 					}, false),
 					new StackLayoutItem(new Scrollable

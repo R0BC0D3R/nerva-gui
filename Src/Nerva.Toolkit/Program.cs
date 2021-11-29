@@ -102,12 +102,10 @@ namespace Nerva.Toolkit
 			//Prevent the daemon restarting automatically before telling it to stop
 			if (Configuration.Instance.Daemon.StopOnExit || forceDaemonShutdown)
 			{
-				DaemonProcess.StopCrashCheck();
 				DaemonRpc.StopDaemon();
 				DaemonProcess.ForceClose();
 			}
 
-			WalletProcess.StopCrashCheck();
 			WalletProcess.ForceClose();
 
 			Configuration.Save();

@@ -121,8 +121,8 @@ namespace Nerva.Toolkit.Content.Wizard
 
         public override void OnNext()
         {
-            DaemonProcess.StartCrashCheck();
-            WalletProcess.StartCrashCheck();
+            //DaemonProcess.StartCrashCheck();
+            //WalletProcess.StartCrashCheck();
         }
 
         private void HandleDownloadClick(string link)

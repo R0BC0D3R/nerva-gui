@@ -22,7 +22,8 @@ namespace Nerva.Toolkit
 {
     public partial class MainForm : Form
     {
-        System.Timers.Timer uiUpdateTimer = null;
+        public System.Timers.Timer masterTimer = null;
+        public bool killMasterProcess = false;
 
         ulong lastTxHeight = 0;
         private bool isInitialDaemonConnectionSuccess = false;
@@ -45,17 +46,29 @@ namespace Nerva.Toolkit
 
                     Configuration.Save();
 
-                    DaemonProcess.StartCrashCheck();
-                    WalletProcess.StartCrashCheck();
-
-                    StartUiUpdate();
+                    StartMasterUpdateProcess();
                 };
 
-                this.Closing += (s, e) => Program.Shutdown(false);
+                this.Closing += (s, e) => MainFormClosing();
             }
             catch (Exception ex)
             {
                 ErrorHandling.HandleException("MAIN.Constructor", ex, true);
+            }
+        }
+
+        private void MainFormClosing()
+        {
+            try
+            {
+                killMasterProcess = true;
+                masterTimer.Stop();
+
+                Program.Shutdown(false);
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling.HandleException("MAIN.MainFormClosing", ex, false);
             }
         }
 
@@ -95,63 +108,125 @@ namespace Nerva.Toolkit
             }
         }
 
-        public void StartUiUpdate()
+        public void StartMasterUpdateProcess()
         {
             try
             {
-                Log.Instance.Write("Entering StartUiUpdate");
+                Log.Instance.Write("Entering StartMasterUpdateProcess");
 
-                if(uiUpdateTimer == null)
+                if(masterTimer == null)
                 {
-                    uiUpdateTimer = new System.Timers.Timer();
-                    uiUpdateTimer.Interval = 5000;
-                    uiUpdateTimer.Elapsed += (s, e) => UpdateTimerProcess();
-                    uiUpdateTimer.Start();
+                    masterTimer = new System.Timers.Timer();
+                    masterTimer.Interval = 5000;
+                    masterTimer.Elapsed += (s, e) => MasterUpdateProcess();
+                    masterTimer.Start();
 
-                    Log.Instance.Write("UI update will begin in 5 seconds");
+                    Log.Instance.Write("Master timer will start in 5 seconds");
                 }
             }
             catch (Exception ex)
             {
-                ErrorHandling.HandleException("MAIN.StartUiUpdate", ex, false);
+                ErrorHandling.HandleException("MAIN.StartMasterUpdateProcess", ex, false);
             }
         }
 
-        private void UpdateTimerProcess()
+        private void MasterUpdateProcess()
         {
             try
             {
-                if (uiUpdateTimer != null)
+                if (masterTimer != null)
                 {
-                    uiUpdateTimer.Stop();
+                    masterTimer.Stop();
                 }
 
-                StartDaemonUiUpdate();
+                // If kill master timer is issued at any point, skip everything else and do not restrt master timer
 
-                if(isInitialDaemonConnectionSuccess)
+                // Keep processer running
+                if(!killMasterProcess)
                 {
-                    StartWalletUiUpdate();
+                    KeepDaemonRunning();
+                }
+
+                if(!killMasterProcess)
+                {
+                    KeepWalletProcessRunning();
+                }
+
+
+                // Update UI
+                if(!killMasterProcess)
+                {
+                    DaemonUiUpdate();
+                }
+
+                if(!killMasterProcess && isInitialDaemonConnectionSuccess)
+                {
+                    WalletUiUpdate();
                 }
             }
             catch (Exception ex)
             {
-                ErrorHandling.HandleException("MAIN.UpdateTimerProcess", ex, false);
+                ErrorHandling.HandleException("MAIN.MasterUpdateProcess", ex, false);
             }
             finally
             {
                 // Restart timer
-                if (uiUpdateTimer == null)
+                if (masterTimer == null)
                 {
-                    Log.Instance.Write("MAIN.UpdateTimerProcess. Timer is NULL. Recreating. Why?");
-                    uiUpdateTimer = new System.Timers.Timer();
-                    uiUpdateTimer.Interval = 5000;
-                    uiUpdateTimer.Elapsed += (s, e) => UpdateTimerProcess();
+                    Log.Instance.Write("MAIN.MasterUpdateProcess. Timer is NULL. Recreating. Why?");
+                    masterTimer = new System.Timers.Timer();
+                    masterTimer.Interval = 5000;
+                    masterTimer.Elapsed += (s, e) => MasterUpdateProcess();
                 }
-                uiUpdateTimer.Start();
+
+                if(!killMasterProcess)
+                {
+                    masterTimer.Start();
+                }
             }
         }
 
-        public void StartWalletUiUpdate()
+        private void KeepDaemonRunning()
+        {
+            try
+            {
+                Process p = null;
+
+                if (!ProcessManager.IsRunning(FileNames.NERVAD, out p))
+                {
+                    DaemonProcess.ForceClose();
+                    Log.Instance.Write("Starting daemon process");
+                    ProcessManager.StartExternalProcess(FileNames.DaemonPath, DaemonProcess.GenerateCommandLine());
+                    Thread.Sleep(Constants.ONE_SECOND * 5);
+                    isInitialDaemonConnectionSuccess = false;
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling.HandleException("MAIN.KeepDaemonRunning", ex, false);
+            }
+        }
+
+        private void KeepWalletProcessRunning()
+        {
+            try
+            {
+                Process p = null;
+
+                if (!ProcessManager.IsRunning(FileNames.RPC_WALLET, out p))
+                {
+                    WalletProcess.ForceClose();
+                    Log.Instance.Write("Starting wallet process");
+                    ProcessManager.StartExternalProcess(FileNames.RpcWalletPath, WalletProcess.GenerateCommandLine());
+                    Thread.Sleep(Constants.ONE_SECOND * 5);
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling.HandleException("MAIN.KeepDaemonRunning", ex, false);
+            }
+        }
+        public void WalletUiUpdate()
         {
             try
             {
@@ -191,7 +266,7 @@ namespace Nerva.Toolkit
             }
             catch (Exception ex)
             {
-                ErrorHandling.HandleException("MAIN.StartWalletUiUpdate", ex, false);
+                ErrorHandling.HandleException("MAIN.WalletUiUpdate", ex, false);
             }
         }
 
@@ -200,10 +275,13 @@ namespace Nerva.Toolkit
             try
             {
                 if (e.Code != -13) //skip messages about not having a wallet open
+                {
                     Log.Instance.Write(Log_Severity.Error, $"Wallet update failed, Code {e.Code}: {e.Message}");
+                }
+
                 Application.Instance.AsyncInvoke(() =>
                 {
-                    lblWalletStatus.Text = "OFFLINE";
+                    lblWalletStatus.Text = "Wallet Offline. To open existing wallet go to: Wallet > Open";
                     lastTxHeight = 0;
                     balancesPage.Update(null);
                     transfersPage.Update(null);
@@ -215,7 +293,7 @@ namespace Nerva.Toolkit
             }
         }
 
-        public void StartDaemonUiUpdate()
+        public void DaemonUiUpdate()
         {
             try
             {
@@ -248,7 +326,7 @@ namespace Nerva.Toolkit
 
                         daemonPage.UpdateInfo(r);
 
-                        lblDaemonStatus.Text = $"Height: {r.Height} | Connections: {r.OutgoingConnectionsCount}(out)+{r.IncomingConnectionsCount}(in)";
+                        lblDaemonStatus.Text = $"Height: {r.Height} | Connections: {r.OutgoingConnectionsCount}(out)+{r.IncomingConnectionsCount}(in)";                        
 
                         if (r.TargetHeight != 0 && r.Height < r.TargetHeight)
                             lblDaemonStatus.Text += " | Syncing";
@@ -299,7 +377,7 @@ namespace Nerva.Toolkit
             }
             catch (Exception ex)
             {
-                ErrorHandling.HandleException("MAIN.StartDaemonUiUpdate", ex, false);
+                ErrorHandling.HandleException("MAIN.DaemonUiUpdate", ex, false);
             }
         }
 
@@ -420,7 +498,7 @@ namespace Nerva.Toolkit
             {
                 Application.Instance.AsyncInvoke(() =>
                 {
-                    lblWalletStatus.Text = "OFFLINE";
+                    lblWalletStatus.Text = "Wallet Offline";
                     lastTxHeight = 0;
                     balancesPage.Update(null);
                     transfersPage.Update(null);
@@ -549,7 +627,7 @@ namespace Nerva.Toolkit
                     {
                         balancesPage.Update(null);
                         transfersPage.Update(null);
-                        lblWalletStatus.Text = "OFFLINE";
+                        lblWalletStatus.Text = "Wallet Offline";
                     });
                 });
             }
@@ -660,14 +738,16 @@ namespace Nerva.Toolkit
             {
                 AboutDialog ad = new AboutDialog();
 
-                ad.ProgramName = "NERVA Desktop Wallet and One Click Miner";
-                ad.ProgramDescription = "NERVA Desktop Wallet and One Click Miner";
+                ad.ProgramName = "NERVA Desktop Wallet and Miner";
+                ad.ProgramDescription = "NERVA Desktop Wallet and Miner is a one-step solution for all your NERVA needs.\r\n\r\nManage your NERVA funds - create/open wallet, check your balance, transfer funds and check history.\r\n\r\nMine on NERVA network - mine new coins and help protect NERVA network with your spare resources.\r\n\r\n1 CPU = 1 VOTE";
                 string[] names = Assembly.GetExecutingAssembly().GetManifestResourceNames();
-                ad.Title = "About NERVA Desktop Wallet and One Click Miner";
+                ad.Title = "About NERVA Desktop Wallet and Miner";
                 ad.License = "Copyright © 2017 - 2021 NERVA Project";
                 ad.Version = $"GUI: {Version.VERSION}\r\nCLI: {daemonPage.version}";
                 ad.Logo = new Bitmap(Assembly.GetExecutingAssembly().GetManifestResourceStream("NERVA-Logo.png"));
-
+                ad.Website = new Uri("https://nerva.one");
+                ad.WebsiteLabel = "https://nerva.one";
+                
                 ad.ShowDialog(this);
             }
             catch (Exception ex)
@@ -757,8 +837,6 @@ namespace Nerva.Toolkit
                                 balancesPage.Update(null);
                                 transfersPage.Update(null);
                             });
-
-                            StartUiUpdate();
                         });
                     }
                     else
