@@ -61,7 +61,7 @@ namespace Nerva.Toolkit.Content.Dialogs
             });
 
             //reuse ok and cancel buttons but give a more meaningful label
-            btnOk.Text = "Save";
+            btnOk.Visible = false;
             btnCancel.Text = "Close";
 
             this.DefaultButton = btnCancel;
@@ -108,7 +108,8 @@ namespace Nerva.Toolkit.Content.Dialogs
 
         protected override void OnOk()
         {
-            Log.Instance.Write("Saving keys not implemented");
+            // Saving keys does not apply and button is invisible. This should never log
+            Log.Instance.Write("Saving keys disabled.  Why are you here?");
             this.Close(DialogResult.Ok);
         }
 

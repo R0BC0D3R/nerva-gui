@@ -2,6 +2,7 @@ using AngryWasp.Helpers;
 using Eto.Forms;
 using Nerva.Rpc.Wallet;
 using Nerva.Toolkit.Helpers;
+using Log = AngryWasp.Logger.Log;
 
 namespace Nerva.Toolkit.Content.Dialogs
 {
@@ -11,7 +12,7 @@ namespace Nerva.Toolkit.Content.Dialogs
 		private TextBox lblAddress = new TextBox { ReadOnly = true };
 		private TextBox lblTxId = new TextBox { ReadOnly = true };
 		private TextBox lblPaymentId = new TextBox { ReadOnly = true };
-		private TextBox lblNote = new TextBox();
+		private TextBox lblNote = new TextBox() { ReadOnly = true };
 		private Label lblType = new Label();
 		private Label lblTime = new Label();
 		private Label lblAmount = new Label();
@@ -37,7 +38,7 @@ namespace Nerva.Toolkit.Content.Dialogs
 			lblIndex.Text = $"{tx.SubAddressIndex.Major}.{tx.SubAddressIndex.Minor}";
 			lblDoubleSpend.Text = tx.DoubleSpendSeen.ToString();
 
-			btnOk.Text = "Save";
+			btnOk.Visible = false;
 			btnCancel.Text = "Close";
 
 			if (tx.Destinations.Count > 0)
@@ -57,9 +58,8 @@ namespace Nerva.Toolkit.Content.Dialogs
 
 		protected override void OnOk()
 		{
-			//todo: save TX details
-			MessageBox.Show(this, "Not implemented", "Save Tx",
-                MessageBoxButtons.OK, MessageBoxType.Information, MessageBoxDefaultButton.OK);
+			// Saving transactions does not apply so button is invisible. This should never log
+			Log.Instance.Write("Saving transactions disabled.  Why are you here?");
 			Close(DialogResult.Ok);
 		}
 

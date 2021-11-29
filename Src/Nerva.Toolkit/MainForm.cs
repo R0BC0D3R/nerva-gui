@@ -21,11 +21,11 @@ using Log = AngryWasp.Logger.Log;
 namespace Nerva.Toolkit
 {
     public partial class MainForm : Form
-    {    
-        AsyncTaskContainer updateWalletTask;
-        AsyncTaskContainer updateDaemonTask;
+    {
+        System.Timers.Timer uiUpdateTimer = null;
 
         ulong lastTxHeight = 0;
+        private bool isInitialDaemonConnectionSuccess = false;
 
         public MainForm(bool newConfig)
         {
@@ -99,18 +99,17 @@ namespace Nerva.Toolkit
         {
             try
             {
-                Log.Instance.Write("UI update will begin in 5 seconds");
-                var tmr = new System.Timers.Timer(5000);
-                tmr.Elapsed += (s, e) =>
+                Log.Instance.Write("Entering StartUiUpdate");
+
+                if(uiUpdateTimer == null)
                 {
-                    Log.Instance.Write("Starting UI update from CLI");
-                    tmr.Stop();
+                    uiUpdateTimer = new System.Timers.Timer();
+                    uiUpdateTimer.Interval = 5000;
+                    uiUpdateTimer.Elapsed += (s, e) => UpdateTimerProcess();
+                    uiUpdateTimer.Start();
 
-                    StartDaemonUiUpdate();
-                    StartWalletUiUpdate();
-                };
-
-                tmr.Start();
+                    Log.Instance.Write("UI update will begin in 5 seconds");
+                }
             }
             catch (Exception ex)
             {
@@ -118,71 +117,77 @@ namespace Nerva.Toolkit
             }
         }
 
+        private void UpdateTimerProcess()
+        {
+            try
+            {
+                if (uiUpdateTimer != null)
+                {
+                    uiUpdateTimer.Stop();
+                }
+
+                StartDaemonUiUpdate();
+
+                if(isInitialDaemonConnectionSuccess)
+                {
+                    StartWalletUiUpdate();
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling.HandleException("MAIN.UpdateTimerProcess", ex, false);
+            }
+            finally
+            {
+                // Restart timer
+                if (uiUpdateTimer == null)
+                {
+                    Log.Instance.Write("MAIN.UpdateTimerProcess. Timer is NULL. Recreating. Why?");
+                    uiUpdateTimer = new System.Timers.Timer();
+                    uiUpdateTimer.Interval = 5000;
+                    uiUpdateTimer.Elapsed += (s, e) => UpdateTimerProcess();
+                }
+                uiUpdateTimer.Start();
+            }
+        }
+
         public void StartWalletUiUpdate()
         {
             try
             {
-                if (Debugger.IsAttached && updateWalletTask != null && updateWalletTask.IsRunning)
-                    Debugger.Break();
-
-                updateWalletTask = new AsyncTaskContainer();
-                updateWalletTask.Start(async (CancellationToken token) =>
+                if (ProcessManager.GetRunningByName(FileNames.RPC_WALLET).Count == 0)
                 {
-                    while (true)
+                    Thread.Sleep(Constants.ONE_SECOND);
+                }
+
+                WalletRpc.GetAccounts((GetAccountsResponseData ra) =>
+                {
+                    Application.Instance.AsyncInvoke( () =>
                     {
-                        if (token.IsCancellationRequested)
-                            token.ThrowIfCancellationRequested();
+                        lblWalletStatus.Text = $"Account(s): {ra.Accounts.Count}  | Balance: {Conversions.FromAtomicUnits(ra.TotalBalance)} XNV";
+                        balancesPage.Update(ra);
+                    });
+                }, WalletUpdateFailed);
 
-                        if (ProcessManager.GetRunningByName(FileNames.RPC_WALLET).Count == 0)
-                        {
-                            await Task.Delay(Constants.ONE_SECOND);
-                            continue;
-                        }
+                WalletRpc.GetTransfers(lastTxHeight, (GetTransfersResponseData rt) =>
+                {
+                    Application.Instance.AsyncInvoke( () =>
+                    {
+                        uint i = 0, o = 0, l = 0;
+                        lastTxHeight = 0;
 
-                        if (token.IsCancellationRequested)
-                            token.ThrowIfCancellationRequested();
+                        if (rt.Incoming != null && rt.Incoming.Count > 0)
+                            i = rt.Incoming[rt.Incoming.Count - 1].Height;
+                            
+                        if (rt.Outgoing != null && rt.Outgoing.Count > 0)
+                            o = rt.Outgoing[rt.Outgoing.Count - 1].Height;
 
-                        await Task.Run( () =>
-                        {
-                            WalletRpc.GetAccounts((GetAccountsResponseData ra) =>
-                            {
-                                Application.Instance.AsyncInvoke( () =>
-                                {
-                                    lblWalletStatus.Text = $"Account(s): {ra.Accounts.Count}  | Balance: {Conversions.FromAtomicUnits(ra.TotalBalance)} XNV";
-                                    balancesPage.Update(ra);
-                                });
-                            }, WalletUpdateFailed);
+                        l = Math.Max(i, o);
 
-                            WalletRpc.GetTransfers(lastTxHeight, (GetTransfersResponseData rt) =>
-                            {
-                                Application.Instance.AsyncInvoke( () =>
-                                {
-                                    uint i = 0, o = 0, l = 0;
-                                    lastTxHeight = 0;
-
-                                    if (rt.Incoming != null && rt.Incoming.Count > 0)
-                                        i = rt.Incoming[rt.Incoming.Count - 1].Height;
-                                        
-                                    if (rt.Outgoing != null && rt.Outgoing.Count > 0)
-                                        o = rt.Outgoing[rt.Outgoing.Count - 1].Height;
-
-                                    l = Math.Max(i, o);
-
-                                    lastTxHeight = l;
-                                    transfersPage.Update(rt);
-                                });
-                            }, WalletUpdateFailed);
-                        });
-                    
-                        if (token.IsCancellationRequested)
-                            token.ThrowIfCancellationRequested();
-
-                        await Task.Delay(Constants.ONE_SECOND);
-
-                        if (token.IsCancellationRequested)
-                            token.ThrowIfCancellationRequested();
-                    }
-                });
+                        lastTxHeight = l;
+                        transfersPage.Update(rt);
+                    });
+                }, WalletUpdateFailed);
             }
             catch (Exception ex)
             {
@@ -214,94 +219,83 @@ namespace Nerva.Toolkit
         {
             try
             {
-                if (updateDaemonTask != null && updateDaemonTask.IsRunning)
-                    Debugger.Break();
-
-                updateDaemonTask = new AsyncTaskContainer();
-                updateDaemonTask.Start(async (CancellationToken token) =>
+                if (ProcessManager.GetRunningByName(FileNames.NERVAD).Count == 0)
                 {
-                    while (true)
-                    {
-                        if (token.IsCancellationRequested)
-                            token.ThrowIfCancellationRequested();
+                    Thread.Sleep(Constants.ONE_SECOND);
+                }
 
-                        if (ProcessManager.GetRunningByName(FileNames.NERVAD).Count == 0)
+                if(!isInitialDaemonConnectionSuccess)
+                {
+                    Application.Instance.Invoke(() =>
+                    {
+                        lblDaemonStatus.Text = "Trying to establish connection with daemon...";                                    
+                        daemonPage.UpdateInfo(null);
+                    });                    
+                }
+
+                bool isGetInfoSuccessful = false;
+                DaemonRpc.GetInfo((GetInfoResponseData r) =>
+                {
+                    Application.Instance.Invoke(() =>
+                    {
+                        if(isInitialDaemonConnectionSuccess == false)
                         {
-                            await Task.Delay(Constants.ONE_SECOND);
-                            continue;
+                            // This will be used to get rid of establishing connection message and to StartWalletUiUpdate 
+                            isInitialDaemonConnectionSuccess = true;
                         }
 
-                        if (token.IsCancellationRequested)
-                            token.ThrowIfCancellationRequested();
+                        isGetInfoSuccessful = true;
 
-                        await Task.Run( () =>
-                        {
-                            try
-                            {
-                                DaemonRpc.GetInfo((GetInfoResponseData r) =>
-                                {
-                                    Application.Instance.Invoke(() =>
-                                    {
-                                        daemonPage.UpdateInfo(r);
+                        daemonPage.UpdateInfo(r);
 
-                                        lblDaemonStatus.Text = $"Height: {r.Height} | Connections: {r.OutgoingConnectionsCount}(out)+{r.IncomingConnectionsCount}(in)";
+                        lblDaemonStatus.Text = $"Height: {r.Height} | Connections: {r.OutgoingConnectionsCount}(out)+{r.IncomingConnectionsCount}(in)";
 
-                                        if (r.TargetHeight != 0 && r.Height < r.TargetHeight)
-                                            lblDaemonStatus.Text += " | Syncing";
-                                        else
-                                            lblDaemonStatus.Text += " | Sync OK";
+                        if (r.TargetHeight != 0 && r.Height < r.TargetHeight)
+                            lblDaemonStatus.Text += " | Syncing";
+                        else
+                            lblDaemonStatus.Text += " | Sync OK";
 
-                                        lblVersion.Text = $"Version: {r.Version}";
-                                    });
-                                }, (RequestError e) =>
-                                {
-                                    Application.Instance.Invoke(() =>
-                                    {
-                                        lblDaemonStatus.Text = "OFFLINE";
-                                        daemonPage.UpdateInfo(null);
-                                    });
-                                });
-
-                                DaemonRpc.GetConnections((List<GetConnectionsResponseData> r) =>
-                                {
-                                    Application.Instance.Invoke(() =>
-                                    {
-                                        daemonPage.UpdateConnections(r);
-                                    });
-                                }, (RequestError e) =>
-                                {
-                                    Application.Instance.Invoke(() =>
-                                    {
-                                        daemonPage.UpdateConnections(null);
-                                    });
-                                });
-
-                                DaemonRpc.MiningStatus((MiningStatusResponseData r) =>
-                                {
-                                    Application.Instance.Invoke(() =>
-                                    {
-                                        daemonPage.UpdateMinerStatus(r);
-                                    });
-                                }, (RequestError e) =>
-                                {
-                                    Application.Instance.Invoke(() =>
-                                    {
-                                        daemonPage.UpdateMinerStatus(null);
-                                    });
-                                });
-                            }
-                            catch (Exception) { }
-                        });
-
-                        if (token.IsCancellationRequested)
-                            token.ThrowIfCancellationRequested();
-
-                        await Task.Delay(Constants.ONE_SECOND);
-
-                        if (token.IsCancellationRequested)
-                            token.ThrowIfCancellationRequested();
-                    }
+                        lblVersion.Text = $"Version: {r.Version}";
+                    });
+                }, (RequestError e) =>
+                {
+                    Application.Instance.Invoke(() =>
+                    {
+                        lblDaemonStatus.Text = "Daemon not responding";
+                        daemonPage.UpdateInfo(null);
+                    });
                 });
+
+                if (isGetInfoSuccessful)
+                {
+                    DaemonRpc.GetConnections((List<GetConnectionsResponseData> r) =>
+                    {
+                        Application.Instance.Invoke(() =>
+                        {
+                            daemonPage.UpdateConnections(r);
+                        });
+                    }, (RequestError e) =>
+                    {
+                        Application.Instance.Invoke(() =>
+                        {
+                            daemonPage.UpdateConnections(null);
+                        });
+                    });
+
+                    DaemonRpc.MiningStatus((MiningStatusResponseData r) =>
+                    {
+                        Application.Instance.Invoke(() =>
+                        {
+                            daemonPage.UpdateMinerStatus(r);
+                        });
+                    }, (RequestError e) =>
+                    {
+                        Application.Instance.Invoke(() =>
+                        {
+                            daemonPage.UpdateMinerStatus(null);
+                        });
+                    });
+                }
             }
             catch (Exception ex)
             {
@@ -752,11 +746,6 @@ namespace Nerva.Toolkit
 
                         Helpers.TaskFactory.Instance.RunTask("restartcli", "Restarting the CLI", () =>
                         {
-                            updateWalletTask.Stop();
-                            updateDaemonTask.Stop();
-
-                            Task.Delay(Constants.ONE_SECOND).Wait();
-
                             DaemonProcess.ForceClose();
                             WalletProcess.ForceClose();
 
