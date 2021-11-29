@@ -20,6 +20,7 @@ namespace Nerva.Toolkit.Content
 
         private StackLayout mainControl;
         public StackLayout MainControl => mainControl;
+		public string version;
 
 		GridView grid;
 	
@@ -148,6 +149,8 @@ namespace Nerva.Toolkit.Content
 					lblNetHash.Text = nethash.ToString() + " kH/s";
 					lblRunTime.Text = (DateTime.Now - DateTimeHelper.UnixTimestampToDateTime((ulong)info.StartTime)).ToString(@"hh\:mm");
 
+					version = info.Version;
+
 					lastReportedDiff = info.Difficulty;
 
 					if (info.Mainnet)
@@ -163,6 +166,7 @@ namespace Nerva.Toolkit.Content
 					lblHeight.Text = "-";
 					lblNetHash.Text = "-";
 					lblRunTime.Text = "-";
+					version = "-";
 					lastReportedDiff = 0;
 				}
 			}

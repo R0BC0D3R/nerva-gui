@@ -2,10 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using AngryWasp.Logger;
 using Eto.Forms;
+using Eto.Drawing;
 using Nerva.Rpc;
 using Nerva.Rpc.Daemon;
 using Nerva.Rpc.Wallet;
@@ -250,7 +252,6 @@ namespace Nerva.Toolkit
                                             lblDaemonStatus.Text += " | Sync OK";
 
                                         lblVersion.Text = $"Version: {r.Version}";
-                                        ad.Version = $"GUI: {Version.VERSION}\r\nCLI: {r.Version}";
                                     });
                                 }, (RequestError e) =>
                                 {
@@ -663,6 +664,16 @@ namespace Nerva.Toolkit
         {
             try
             {
+                AboutDialog ad = new AboutDialog();
+
+                ad.ProgramName = "NERVA Desktop Wallet and One Click Miner";
+                ad.ProgramDescription = "NERVA Desktop Wallet and One Click Miner";
+                string[] names = Assembly.GetExecutingAssembly().GetManifestResourceNames();
+                ad.Title = "About NERVA Desktop Wallet and One Click Miner";
+                ad.License = "Copyright © 2017 - 2021 NERVA Project";
+                ad.Version = $"GUI: {Version.VERSION}\r\nCLI: {daemonPage.version}";
+                ad.Logo = new Bitmap(Assembly.GetExecutingAssembly().GetManifestResourceStream("NERVA-Logo.png"));
+
                 ad.ShowDialog(this);
             }
             catch (Exception ex)

@@ -1,6 +1,5 @@
 using Eto.Forms;
 using Eto.Drawing;
-using System.Reflection;
 using Nerva.Toolkit.Content;
 
 namespace Nerva.Toolkit
@@ -9,7 +8,6 @@ namespace Nerva.Toolkit
 	{	
 		#region Status Bar controls
 		
-		AboutDialog ad;
 		Label lblDaemonStatus = new Label { Text = "Height: 0 | Connections: 0/0 | Not Synced" };
 		Label lblWalletStatus = new Label { Text = "OFFLINE" };
 		Label lblVersion = new Label { Text = "Version: 0.0.0.0" };
@@ -25,15 +23,6 @@ namespace Nerva.Toolkit
 		{
 			Title = $"NERVA Desktop Wallet and One Click Miner {Version.LONG_VERSION}";
 			ClientSize = new Size(640, 480);
-			
-			//Construct About dialog
-			ad = new AboutDialog();
-			ad.ProgramName = "NERVA Desktop Wallet and One Click Miner";
-			ad.ProgramDescription = "NERVA Desktop Wallet and One Click Miner";
-			string[] names = Assembly.GetExecutingAssembly().GetManifestResourceNames();
-			ad.Title = "About NERVA Desktop Wallet and One Click Miner";
-			ad.License = "Copyright © 2021 NERVA Project";
-			ad.Logo = new Bitmap(Assembly.GetExecutingAssembly().GetManifestResourceStream("NERVA-Logo.png"));
 
 			daemonPage.ConstructLayout();
 			balancesPage.ConstructLayout();
