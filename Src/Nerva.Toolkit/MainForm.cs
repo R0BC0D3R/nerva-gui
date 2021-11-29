@@ -320,6 +320,7 @@ namespace Nerva.Toolkit
                         {
                             // This will be used to get rid of establishing connection message and to StartWalletUiUpdate 
                             isInitialDaemonConnectionSuccess = true;
+                            daemonPage.btnStartStopMining.Enabled = true;
                         }
 
                         isGetInfoSuccessful = true;

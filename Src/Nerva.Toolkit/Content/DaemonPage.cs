@@ -35,7 +35,7 @@ namespace Nerva.Toolkit.Content
 		private Label lblMiningHashrate = new Label() { Text = "." };
 		private Label lblTimeToBlock = new Label() { Text = "." };
 
-		public Button btnStartStopMining = new Button { Text = "Start Mining" };
+		public Button btnStartStopMining = new Button { Text = "Start Mining", Enabled = false };
 
         #endregion
 
@@ -152,7 +152,7 @@ namespace Nerva.Toolkit.Content
 					//Update the daemon info
 					lblHeight.Text = info.Height.ToString();
 					lblNetHash.Text = nethash.ToString() + " kH/s";
-					lblRunTime.Text = (DateTime.Now - DateTimeHelper.UnixTimestampToDateTime((ulong)info.StartTime)).ToString(@"hh\:mm");
+					lblRunTime.Text = (DateTime.Now.ToUniversalTime() - DateTimeHelper.UnixTimestampToDateTime((ulong)info.StartTime)).ToString(@"hh\:mm\:ss");
 
 					version = info.Version;
 
