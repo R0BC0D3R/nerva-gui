@@ -15,12 +15,11 @@ namespace Nerva.Desktop.Content.Wizard
     {
         private Control content;
 
-        public override string Title => "Set up your account";
+        public override string Title => "Set up your wallet";
 
-        Button btnCreateAccount = new Button { Text = "Create" };
-        Button btnImportAccount = new Button { Text = "Import" };
-        Label lblImport = new Label { Text = "Importing an old wallet can take time" };
-        Label lblImport2 = new Label { Text = "Now might be a good time for coffee" };
+        Button btnCreateWallet = new Button { Text = "Create" };
+        Button btnImportWallet = new Button { Text = "Import" };
+        Label lblImport = new Label { Text = "" };
         public override Control Content
         {
             get
@@ -34,10 +33,10 @@ namespace Nerva.Desktop.Content.Wizard
 
         public override Control CreateContent()
         {
-            btnCreateAccount.Click += (s, e) =>
+            btnCreateWallet.Click += (s, e) =>
             {
                 Parent.EnableNextButton(false);
-                lblImport.Visible = lblImport2.Visible = false;
+                lblImport.Visible = false;
                 NewWalletDialog d = new NewWalletDialog();
                 if (d.ShowModal() == DialogResult.Ok)
                 {
@@ -65,10 +64,10 @@ namespace Nerva.Desktop.Content.Wizard
                     Parent.EnableNextButton(true); 
             };
 
-            btnImportAccount.Click += (s, e) =>
+            btnImportWallet.Click += (s, e) =>
             {
                 Parent.EnableNextButton(false);
-                lblImport.Visible = lblImport2.Visible = false;
+                lblImport.Visible = false;
                 ImportWalletDialog d = new ImportWalletDialog();
                 if (d.ShowModal() == DialogResult.Ok)
                 {
@@ -102,15 +101,13 @@ namespace Nerva.Desktop.Content.Wizard
                 VerticalContentAlignment = VerticalAlignment.Stretch,
                 Items = 
                 {
-                    new Label { Text = "Create your account" },
+                    new Label { Text = "NERVA Wallet" },
                     new Label { Text = "   " },
-                    new Label { Text = "You must create an account in order" },
-                    new Label { Text = "to mine, send or receive NERVA" },
-                    new Label { Text = "You can create a new account, or" },
-                    new Label { Text = "import an existing one" },
+                    new Label { Text = "You need a wallet in order to mine, send or receive NERVA. You can create a new wallet or import an existing one." },
+                    new Label { Text = "   " },
+                    new Label { Text = "If you already have a wallet, click 'Next' to skip this step." },
                     new Label { Text = "   " },
                     lblImport,
-                    lblImport2,
                     new StackLayoutItem(null, true),
                     new StackLayoutItem(new StackLayout
                     {
@@ -122,8 +119,8 @@ namespace Nerva.Desktop.Content.Wizard
                         Items =
                         {
                             new StackLayoutItem(null, true),
-                            new StackLayoutItem(btnCreateAccount, false),
-                            new StackLayoutItem(btnImportAccount, false)
+                            new StackLayoutItem(btnCreateWallet, false),
+                            new StackLayoutItem(btnImportWallet, false)
                         }   
                     }, false), 
                 }
@@ -135,11 +132,10 @@ namespace Nerva.Desktop.Content.Wizard
             
             Application.Instance.Invoke( () =>
             {
-                lblImport.Text = "Wallet creation complete";
-                lblImport2.Text = "Press 'Next' to continue";
-                lblImport.Visible = lblImport2.Visible = true;
+                lblImport.Text = "Wallet creation complete\r\nPress 'Next' to continue";                
+                lblImport.Visible = true;
                 Parent.EnableNextButton(true);  
-                Configuration.Instance.Daemon.MiningAddress = address;                                    
+                Configuration.Instance.Daemon.MiningAddress = address;
             });
             
             WalletRpc.CloseWallet(null, null);
@@ -150,9 +146,8 @@ namespace Nerva.Desktop.Content.Wizard
             WalletRpc.CloseWallet(null, null);
             Application.Instance.Invoke( () =>
             {
-                lblImport.Text = "Wallet creation failed";
-                lblImport2.Text = $"Error {error.Code}: {error.Message}";
-                lblImport.Visible = lblImport2.Visible = true;
+                lblImport.Text = "Wallet creation failed\r\nError {error.Code}: {error.Message}";
+                lblImport.Visible = true;
                 Parent.EnableNextButton(true);     
             });
         }

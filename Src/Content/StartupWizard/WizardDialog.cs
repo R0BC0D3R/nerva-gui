@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Reflection;
 using Eto.Drawing;
 using Eto.Forms;
+using Nerva.Desktop.Helpers;
 
 namespace Nerva.Desktop.Content.Wizard
 {
@@ -45,6 +46,13 @@ namespace Nerva.Desktop.Content.Wizard
         public void ConstructContent()
         {
             Title = pages[currentPage].Title;
+
+            // Set Icon but only if found. Otherwise, app will not work correctly
+			string iconFile = GlobalMethods.GetAppIcon();
+			if(!string.IsNullOrEmpty(iconFile))
+			{				
+				Icon = new Icon(iconFile);
+			}
 
             Content = new StackLayout
             {
@@ -106,7 +114,7 @@ namespace Nerva.Desktop.Content.Wizard
 
         protected virtual void OnCancel()
         {
-            if (MessageBox.Show(Application.Instance.MainForm, "The NERVA Desktop cannot start until the startup wizard is complete.\r\nAre you sure you wait to quit.", "Wizard Incomplete",
+            if (MessageBox.Show(Application.Instance.MainForm, "The NERVA Desktop cannot start until the startup wizard is complete.\r\n\r\nAre you sure you wait to quit?", "Wizard Incomplete",
                 MessageBoxButtons.YesNo, MessageBoxType.Warning, MessageBoxDefaultButton.No) == DialogResult.Yes)
                 Environment.Exit(0);
         }

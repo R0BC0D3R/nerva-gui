@@ -28,11 +28,11 @@ namespace Nerva.Desktop.Content.Wizard
                 VerticalContentAlignment = VerticalAlignment.Stretch,
                 Items =
                 {
-                    new Label { Text = $"You are now set and ready to go." },
-                    new Label { Text = "Additional settings can be found in" },
-                    new Label { Text = "File->Preferences. If you require any" },
-                    new Label { Text = "help, please check the help menu for" },
-                    new Label { Text = "some useful links." },
+                    new Label { Text = $"You are now ready to go. Additional settings can be found under: File > Preferences." },
+                    new Label { Text = "   " },
+                    new Label { Text = "If you require help, please check the help menu for some useful links." },
+                    new Label { Text = "   " },
+                    new Label { Text = "Press 'Finish' to start using NERVA Desktop." },
                     new Label { Text = "   " },
                     new StackLayoutItem(null, true),
                 }

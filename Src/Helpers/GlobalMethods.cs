@@ -31,7 +31,7 @@ namespace Nerva.Desktop.Helpers
                         {
                             Application.Instance.AsyncInvoke( () =>
                             {
-                                MessageBox.Show(Application.Instance.MainForm, $"Failed to start mining.\r\nMake sure you are synced and check your mining address", "Toggle Miner",
+                                MessageBox.Show(Application.Instance.MainForm, $"Failed to start mining.\r\nMake sure you are synced and check your mining address", "Start/Stop Miner",
                                 MessageBoxButtons.OK, MessageBoxType.Error, MessageBoxDefaultButton.OK);
                             });
                         }

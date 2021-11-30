@@ -40,13 +40,13 @@ namespace Nerva.Desktop
                 {
                     StartUpdateTaskList();
 
+                    StartMasterUpdateProcess();
+
                     bool needSetup = newConfig || !FileNames.DirectoryContainsCliTools(Configuration.Instance.ToolsPath);
                     if (needSetup)
                         new SetupWizard().Run();
 
-                    Configuration.Save();
-
-                    StartMasterUpdateProcess();
+                    Configuration.Save();                    
                 };
 
                 this.Closing += (s, e) => MainFormClosing();
@@ -450,7 +450,9 @@ namespace Nerva.Desktop
             {
                 OpenWalletDialog d = new OpenWalletDialog();
                 if (d.ShowModal() == DialogResult.Ok)
+                {
                     OpenNewWallet(d.Name, d.Password);
+                }
             }
             catch (Exception ex)
             {

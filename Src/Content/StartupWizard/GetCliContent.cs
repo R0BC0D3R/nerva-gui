@@ -56,8 +56,8 @@ namespace Nerva.Desktop.Content.Wizard
                     VerticalContentAlignment = VerticalAlignment.Stretch,
                     Items =
                     {
-                        new Label { Text = $"It appears you already have the" },
-                        new Label { Text = $"{OS.Type} CLI tools installed." },
+                        new Label { Text = $"It appears you already have the {OS.Type} CLI tools installed." },
+                        new Label { Text = "   " },
                         new Label { Text = $"Press 'Next' to continue." },
                         new Label { Text = "   " },
                         new StackLayoutItem(null, true),
@@ -73,7 +73,8 @@ namespace Nerva.Desktop.Content.Wizard
                 Items =
                 {
                     new Label { Text = $"It appears you are running {OS.Type}" },
-                    new Label { Text = "Click download to get the CLI tools" },
+                    new Label { Text = "   " },
+                    new Label { Text = "Click 'Download' to get the CLI tools" },
                     new Label { Text = "   " },
                     new StackLayoutItem(null, true),
                     new StackLayout
