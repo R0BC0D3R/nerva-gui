@@ -149,26 +149,22 @@ namespace Nerva.Desktop
                     KeepDaemonRunning();
                 }
 
-                if(isInitialDaemonConnectionSuccess)
+
+                if(!killMasterProcess)
                 {
-                    // If Daemon is not running, no reason to check for anything else
-
-                    if(!killMasterProcess)
-                    {
-                        KeepWalletProcessRunning();
-                    }
+                    KeepWalletProcessRunning();
+                }
 
 
-                    // Update UI
-                    if(!killMasterProcess)
-                    {
-                        DaemonUiUpdate();
-                    }
+                // Update UI
+                if(!killMasterProcess)
+                {
+                    DaemonUiUpdate();
+                }
 
-                    if(!killMasterProcess)
-                    {
-                        WalletUiUpdate();
-                    }
+                if(!killMasterProcess && isInitialDaemonConnectionSuccess)
+                {
+                    WalletUiUpdate();
                 }
             }
             catch (Exception ex)
@@ -229,10 +225,17 @@ namespace Nerva.Desktop
 
                 if (!ProcessManager.IsRunning(FileNames.RPC_WALLET, out p))
                 {
-                    WalletProcess.ForceClose();
-                    Log.Instance.Write("Starting wallet process");
-                    ProcessManager.StartExternalProcess(FileNames.RpcWalletPath, WalletProcess.GenerateCommandLine());
-                    Thread.Sleep(Constants.ONE_SECOND * 10);
+                    if(FileNames.DirectoryContainsCliTools(Configuration.Instance.ToolsPath))
+                    {
+                        WalletProcess.ForceClose();
+                        Log.Instance.Write("MAIN.KeepDaemonRunning: Starting wallet process");
+                        ProcessManager.StartExternalProcess(FileNames.RpcWalletPath, WalletProcess.GenerateCommandLine());
+                        Thread.Sleep(Constants.ONE_SECOND * 10);
+                    }
+                    else 
+                    {
+                        Log.Instance.Write("MAIN.KeepWalletProcessRunning: CLI tools not found");
+                    }
                 }
             }
             catch (Exception ex)
