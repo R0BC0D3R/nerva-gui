@@ -16,7 +16,7 @@ cp ${dir}/Resources/nerva-logo-color.png ~/.local/bin/nerva/nerva-logo-color.png
 echo "Creating launcher"
 echo "[Desktop Entry]" > ${dd}
 echo "Name=Nerva GUI" >> ${dd}
-echo "Exec=${bd}/bin/nerva/Nerva.Toolkit" >> ${dd}
+echo "Exec=${bd}/bin/nerva/Nerva.Desktop" >> ${dd}
 echo "Icon=${bd}/bin/nerva/nerva-logo-color.png" >> ${dd}
 echo "Terminal=false" >> ${dd}
 echo "Type=Application" >> ${dd}

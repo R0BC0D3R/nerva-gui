@@ -1,3 +1,3 @@
-# nerva-unified-toolkit
+# nerva-desktop
 
-Unified toolkit for NERVA mining and wallet management, written in C#
+Nerva Desktop application mining and wallet management, written in C#

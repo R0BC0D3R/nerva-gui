@@ -7,8 +7,8 @@ ROOT_DIR=$(dirname $BUILDER_DIR)
 
 function detect_version()
 {
-    ver=$(awk '/public const string VERSION = /{ print $6 }' < ${ROOT_DIR}/Src/Nerva.Toolkit/Version.cs)
-	name=$(awk '/public const string CODE_NAME = /{ print $6 }' < ${ROOT_DIR}/Src/Nerva.Toolkit/Version.cs)
+    ver=$(awk '/public const string VERSION = /{ print $6 }' < ${ROOT_DIR}/Src/Version.cs)
+	name=$(awk '/public const string CODE_NAME = /{ print $6 }' < ${ROOT_DIR}/Src/Version.cs)
     export APP_VERSION=$(echo ${ver} | tr -d '";')
 	export APP_CODENAME=$(echo ${name} | tr -d '";')
     echo App version detected as ${APP_VERSION}: ${APP_CODENAME}
@@ -29,7 +29,7 @@ function publish()
     dotnet publish -c release -r $1 -f ${targetFramework}
 
     if [ "$1" == "osx-x64" ]; then
-        bundle=${ROOT_DIR}/Bin/Nerva.Toolkit.app
+        bundle=${ROOT_DIR}/Bin/Nerva.Desktop.app
         mkdir -p ${bundle}/Contents
         mkdir -p ${bundle}/Contents/MacOS
         mkdir -p ${bundle}/Contents/Resources
@@ -46,9 +46,9 @@ function publish()
         cp ${ROOT_DIR}/Bin/Release/${targetFramework}/osx-x64/* ${bundle}/Contents/MacOS/
 
         cd ${ROOT_DIR}/Bin
-        zip -r ${ROOT_DIR}/Bin/nerva-gui-v${APP_VERSION}_$1.zip ./Nerva.Toolkit.app
+        zip -r ${ROOT_DIR}/Bin/nerva-gui-v${APP_VERSION}_$1.zip ./Nerva.Desktop.app
     elif [ "$1" == "linux-x64" ]; then
-        bundle=${ROOT_DIR}/Bin/Nerva.Toolkit
+        bundle=${ROOT_DIR}/Bin/Nerva.Desktop
         mkdir -p ${bundle}/Contents
         mkdir -p ${bundle}/Resources
 
@@ -58,7 +58,7 @@ function publish()
         cp ${ROOT_DIR}/Bin/Release/${targetFramework}/linux-x64/* ${bundle}/Contents/
         cp ${BUILDER_DIR}/install ${bundle}/install
 
-        cd ${ROOT_DIR}/Bin/Nerva.Toolkit
+        cd ${ROOT_DIR}/Bin/Nerva.Desktop
         zip -r ${ROOT_DIR}/Bin/nerva-gui-v${APP_VERSION}_$1.zip ./*
     else
         cd ${ROOT_DIR}/Bin

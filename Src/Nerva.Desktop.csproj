@@ -1,0 +1,101 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <Import Project="../External/AngryWasp.Build/AngryWasp.Build.Application.targets"/>
+    <PropertyGroup>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <AssemblyName>Nerva.Desktop</AssemblyName>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="Eto.Forms" Version="*"/>
+        <PackageReference Include="System.IO.Compression" Version="*"/>
+        <PackageReference Include="Newtonsoft.Json" Version="*"/>
+        <PackageReference Include="DnsClient" Version="*"/>
+        <PackageReference Include="AngryWasp.Logger" Version="*"/>
+        <PackageReference Include="AngryWasp.Helpers" Version="*"/>
+        <PackageReference Include="AngryWasp.Serializer" Version="*"/>
+        <PackageReference Include="AngryWasp.Cli" Version="*"/>
+        <PackageReference Include="Nerva.Rpc.CSharp" Version="*"/>
+    </ItemGroup>
+    <!-- Uncomment below direct references for easy debugging -->
+    <!--
+    <ItemGroup>
+        <Reference Include="Eto.dll">
+            <HintPath>..\Dlls\Eto.dll</HintPath>
+        </Reference>
+        <Reference Include="Eto.Wpf.dll">
+            <HintPath>..\Dlls\Eto.Wpf.dll</HintPath>
+        </Reference>
+        <Reference Include="Newtonsoft.Json.dll">
+            <HintPath>..\Dlls\Newtonsoft.Json.dll</HintPath>
+        </Reference>
+        <Reference Include="Nerva.Rpc.dll">
+            <HintPath>..\Dlls\Nerva.Rpc.dll</HintPath>
+        </Reference>
+        <Reference Include="DnsClient.dll">
+            <HintPath>..\Dlls\DnsClient.dll</HintPath>
+        </Reference>
+        <Reference Include="AngryWasp.Cli.dll">
+            <HintPath>..\Dlls\AngryWasp.Cli.dll</HintPath>
+        </Reference>
+        <Reference Include="AngryWasp.Helpers.dll">
+            <HintPath>..\Dlls\AngryWasp.Helpers.dll</HintPath>
+        </Reference>
+        <Reference Include="AngryWasp.Logger.dll">
+            <HintPath>..\Dlls\AngryWasp.Logger.dll</HintPath>
+        </Reference>
+        <Reference Include="AngryWasp.Serializer.dll">
+            <HintPath>..\Dlls\AngryWasp.Serializer.dll</HintPath>
+        </Reference>
+    </ItemGroup>
+    -->
+    <ItemGroup>
+        <EmbeddedResource Include="../Content/NERVA-Logo.png">
+            <LogicalName>NERVA-Logo.png</LogicalName>
+        </EmbeddedResource>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Content Include="../nerva.ico">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
+
+    <ItemGroup Condition=" '$(RuntimeIdentifier)' == 'linux-x64' OR '$(RuntimeIdentifier)' == 'osx-x64'">
+        <EmbeddedResource Include="../Content/Scripts/FindProcesses.sh">
+            <LogicalName>FindProcesses.sh</LogicalName>
+        </EmbeddedResource>
+    </ItemGroup>
+
+    <PropertyGroup Condition=" '$(RuntimeIdentifier)' == 'linux-x64' ">
+        <RuntimeIdentifiers>linux-x64</RuntimeIdentifiers>
+        <PublishSingleFile>true</PublishSingleFile>
+        <DefineConstants>$(DefineConstants);UNIX;LINUX;</DefineConstants>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(RuntimeIdentifier)' == 'osx-x64' ">
+        <RuntimeIdentifiers>osx-x64</RuntimeIdentifiers>
+        <PublishSingleFile>true</PublishSingleFile>
+        <DefineConstants>$(DefineConstants);UNIX;OSX;</DefineConstants>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(RuntimeIdentifier)' == 'win-x64' ">
+        <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
+        <PublishSingleFile>true</PublishSingleFile>
+        <TargetFrameworks>net5.0-windows</TargetFrameworks>
+        <OutputType>WinExe</OutputType>
+        <DefineConstants>$(DefineConstants);WINDOWS;</DefineConstants>
+    </PropertyGroup>
+
+    <ItemGroup Condition=" '$(RuntimeIdentifier)' == 'linux-x64' ">
+        <PackageReference Include="Eto.Platform.Gtk" Version="*" />
+        <PackageReference Include="Mono.Posix.NETStandard" Version="*" />
+    </ItemGroup>
+
+    <ItemGroup Condition=" '$(RuntimeIdentifier)' == 'osx-x64' ">
+        <PackageReference Include="Eto.Platform.Mac64" Version="*" />
+        <PackageReference Include="Mono.Posix.NETStandard" Version="*" />
+    </ItemGroup>
+
+    <ItemGroup Condition=" '$(RuntimeIdentifier)' == 'win-x64' ">
+        <PackageReference Include="Eto.Platform.Wpf" Version="*" />
+    </ItemGroup>
+</Project>

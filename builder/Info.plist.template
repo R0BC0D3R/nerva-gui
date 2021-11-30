@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleIdentifier</key>
-	<string>org.getnerva.toolkit</string>
+	<string>org.nerva.desktop</string>
 	<key>NSHumanReadableCopyright</key>
 	<string>Copyright © 2017-2021 Angry Wasp</string>
 	<key>CFBundleShortVersionString</key>
@@ -25,6 +25,6 @@
     <key>CFBundleName</key>
     <string>Nerva GUI - {DISPLAY_NAME}</string>
     <key>CFBundleExecutable</key>
-    <string>Nerva.Toolkit</string>
+    <string>Nerva.Desktop</string>
 </dict>
 </plist>
