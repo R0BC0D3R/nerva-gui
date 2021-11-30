@@ -45,7 +45,9 @@ namespace Nerva.Desktop
                     bool needSetup = newConfig || !FileNames.DirectoryContainsCliTools(Configuration.Instance.ToolsPath);
 
                     if (needSetup)
+                    {
                         new SetupWizard().Run();
+                    }
 
                     Configuration.Save();                    
                 };
@@ -140,29 +142,33 @@ namespace Nerva.Desktop
                     masterTimer.Stop();
                 }
 
-                // If kill master timer is issued at any point, skip everything else and do not restrt master timer
+                // If kill master process is issued at any point, skip everything else and do not restrt master timer
 
-                // Keep processer running
                 if(!killMasterProcess)
                 {
                     KeepDaemonRunning();
                 }
 
-                if(!killMasterProcess)
+                if(isInitialDaemonConnectionSuccess)
                 {
-                    KeepWalletProcessRunning();
-                }
+                    // If Daemon is not running, no reason to check for anything else
+
+                    if(!killMasterProcess)
+                    {
+                        KeepWalletProcessRunning();
+                    }
 
 
-                // Update UI
-                if(!killMasterProcess)
-                {
-                    DaemonUiUpdate();
-                }
+                    // Update UI
+                    if(!killMasterProcess)
+                    {
+                        DaemonUiUpdate();
+                    }
 
-                if(!killMasterProcess && isInitialDaemonConnectionSuccess)
-                {
-                    WalletUiUpdate();
+                    if(!killMasterProcess)
+                    {
+                        WalletUiUpdate();
+                    }
                 }
             }
             catch (Exception ex)
@@ -195,11 +201,18 @@ namespace Nerva.Desktop
 
                 if (!ProcessManager.IsRunning(FileNames.NERVAD, out p))
                 {
-                    DaemonProcess.ForceClose();
-                    Log.Instance.Write("Starting daemon process");
-                    ProcessManager.StartExternalProcess(FileNames.DaemonPath, DaemonProcess.GenerateCommandLine());
-                    Thread.Sleep(Constants.ONE_SECOND * 20);
-                    isInitialDaemonConnectionSuccess = false;
+                    if(FileNames.DirectoryContainsCliTools(Configuration.Instance.ToolsPath))
+                    {
+                        DaemonProcess.ForceClose();
+                        Log.Instance.Write("MAIN.KeepDaemonRunning: Starting daemon process");
+                        ProcessManager.StartExternalProcess(FileNames.DaemonPath, DaemonProcess.GenerateCommandLine());
+                        Thread.Sleep(Constants.ONE_SECOND * 20);
+                        isInitialDaemonConnectionSuccess = false;
+                    }
+                    else 
+                    {
+                        Log.Instance.Write("MAIN.KeepDaemonRunning: CLI tools not found");
+                    }
                 }
             }
             catch (Exception ex)
@@ -224,7 +237,7 @@ namespace Nerva.Desktop
             }
             catch (Exception ex)
             {
-                ErrorHandling.HandleException("MAIN.KeepDaemonRunning", ex, false);
+                ErrorHandling.HandleException("MAIN.KeepWalletProcessRunning", ex, false);
             }
         }
         public void WalletUiUpdate()
