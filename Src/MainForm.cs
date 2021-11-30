@@ -298,7 +298,7 @@ namespace Nerva.Desktop
 
                 Application.Instance.AsyncInvoke(() =>
                 {
-                    lblWalletStatus.Text = "Wallet Offline. To open existing wallet go to: Wallet > Open";
+                    lblWalletStatus.Text = "Wallet Offline - see Wallet menu";
                     lastTxHeight = 0;
                     balancesPage.Update(null);
                     transfersPage.Update(null);

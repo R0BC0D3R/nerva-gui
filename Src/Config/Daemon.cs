@@ -20,7 +20,7 @@ namespace Nerva.Desktop.Config
         {
             return new Daemon
             {
-                StopOnExit = false,
+                StopOnExit = true,
                 AutoStartMining = false,
                 MiningAddress = string.Empty,
                 MiningThreads = 2,

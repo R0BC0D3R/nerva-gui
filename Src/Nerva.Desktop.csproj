@@ -53,12 +53,6 @@
         </EmbeddedResource>
     </ItemGroup>
 
-    <ItemGroup>
-        <Content Include="../nerva.ico">
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </Content>
-    </ItemGroup>
-
     <ItemGroup Condition=" '$(RuntimeIdentifier)' == 'linux-x64' OR '$(RuntimeIdentifier)' == 'osx-x64'">
         <EmbeddedResource Include="../Content/Scripts/FindProcesses.sh">
             <LogicalName>FindProcesses.sh</LogicalName>
@@ -88,14 +82,23 @@
     <ItemGroup Condition=" '$(RuntimeIdentifier)' == 'linux-x64' ">
         <PackageReference Include="Eto.Platform.Gtk" Version="*" />
         <PackageReference Include="Mono.Posix.NETStandard" Version="*" />
+        <Content Include="../Content/linux/nerva.ico">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
     </ItemGroup>
 
     <ItemGroup Condition=" '$(RuntimeIdentifier)' == 'osx-x64' ">
         <PackageReference Include="Eto.Platform.Mac64" Version="*" />
         <PackageReference Include="Mono.Posix.NETStandard" Version="*" />
+        <Content Include="../Content/macos/nerva.ico">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
     </ItemGroup>
 
     <ItemGroup Condition=" '$(RuntimeIdentifier)' == 'win-x64' ">
         <PackageReference Include="Eto.Platform.Wpf" Version="*" />
+        <Content Include="../Content/windows/nerva.ico">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
     </ItemGroup>
 </Project>

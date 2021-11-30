@@ -29,7 +29,6 @@ namespace Nerva.Desktop.Content.Wizard
             {
                 new IntroContent(),
                 new GetCliContent(),
-                new WalletSetupContent(),
                 new FinishedContent()
             };
 
