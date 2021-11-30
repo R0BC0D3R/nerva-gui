@@ -7,6 +7,7 @@ using Nerva.Rpc;
 using Nerva.Rpc.Wallet;
 using Nerva.Desktop.CLI;
 using Nerva.Desktop.Content.Dialogs;
+using Nerva.Desktop.Helpers;
 using Configuration = Nerva.Desktop.Config.Configuration;
 
 namespace Nerva.Desktop.Content.Wizard
@@ -15,7 +16,7 @@ namespace Nerva.Desktop.Content.Wizard
     {
         private Control content;
 
-        public override string Title => "Set up your wallet";
+        public override string Title => "NERVA Desktop Setup Wizard - Wallet";
 
         Button btnCreateWallet = new Button { Text = "Create" };
         Button btnImportWallet = new Button { Text = "Import" };
@@ -33,98 +34,109 @@ namespace Nerva.Desktop.Content.Wizard
 
         public override Control CreateContent()
         {
-            btnCreateWallet.Click += (s, e) =>
-            {
-                Parent.EnableNextButton(false);
-                lblImport.Visible = false;
-                NewWalletDialog d = new NewWalletDialog();
-                if (d.ShowModal() == DialogResult.Ok)
-                {
-                    Helpers.TaskFactory.Instance.RunTask("createwallet", "Creating wallet", () =>
-                    {
-                        if (d.HwWallet)
-                        {
-                            WalletRpc.CreateHwWallet(d.Name, d.Password,
-                                (CreateHwWalletResponseData result) =>
-                            {
-                                CreateSuccess(d.Name, d.Password, result.Address);
-                            }, CreateError);
-                        }
-                        else
-                        {
-                            WalletRpc.CreateWallet(d.Name, d.Password, 
-                                (CreateWalletResponseData result) =>
-                            {
-                                CreateSuccess(d.Name, d.Password, result.Address);
-                            }, CreateError);
-                        }
-                    });
-                }
-                else
-                    Parent.EnableNextButton(true); 
-            };
+            StackLayout layout = null;
 
-            btnImportWallet.Click += (s, e) =>
-            {
-                Parent.EnableNextButton(false);
-                lblImport.Visible = false;
-                ImportWalletDialog d = new ImportWalletDialog();
-                if (d.ShowModal() == DialogResult.Ok)
+            try
+            {                
+                btnCreateWallet.Click += (s, e) =>
                 {
-                    Helpers.TaskFactory.Instance.RunTask("importwallet", "Importing wallet", () =>
+                    Parent.EnableNextButton(false);
+                    lblImport.Visible = false;
+                    NewWalletDialog d = new NewWalletDialog();
+                    if (d.ShowModal() == DialogResult.Ok)
                     {
-                        switch (d.ImportType)
+                        Helpers.TaskFactory.Instance.RunTask("createwallet", "Creating wallet", () =>
                         {
-                            case Import_Type.Key:
-                                WalletRpc.RestoreWalletFromKeys(d.Name, d.Address, d.ViewKey, d.SpendKey, d.Password, d.Language,
-                                (RestoreWalletFromKeysResponseData result) => {
+                            if (d.HwWallet)
+                            {
+                                WalletRpc.CreateHwWallet(d.Name, d.Password,
+                                    (CreateHwWalletResponseData result) =>
+                                {
                                     CreateSuccess(d.Name, d.Password, result.Address);
                                 }, CreateError);
-                            break;
-                            case Import_Type.Seed:
-                                WalletRpc.RestoreWalletFromSeed(d.Name, d.Seed, d.SeedOffset, d.Password, d.Language,
-                                (RestoreWalletFromSeedResponseData result) => {
+                            }
+                            else
+                            {
+                                WalletRpc.CreateWallet(d.Name, d.Password, 
+                                    (CreateWalletResponseData result) =>
+                                {
                                     CreateSuccess(d.Name, d.Password, result.Address);
                                 }, CreateError);
-                            break;
-                        } 
-                    });
-                }
-                else
-                    Parent.EnableNextButton(true); 
-            };
+                            }
+                        });
+                    }
+                    else
+                        Parent.EnableNextButton(true); 
+                };
 
-            return new StackLayout
-            {
-                Orientation = Orientation.Vertical,
-                HorizontalContentAlignment = HorizontalAlignment.Stretch,
-                VerticalContentAlignment = VerticalAlignment.Stretch,
-                Items = 
+                btnImportWallet.Click += (s, e) =>
                 {
-                    new Label { Text = "NERVA Wallet" },
-                    new Label { Text = "   " },
-                    new Label { Text = "You need a wallet in order to mine, send or receive NERVA. You can create a new wallet or import an existing one." },
-                    new Label { Text = "   " },
-                    new Label { Text = "If you already have a wallet, click 'Next' to skip this step." },
-                    new Label { Text = "   " },
-                    lblImport,
-                    new StackLayoutItem(null, true),
-                    new StackLayoutItem(new StackLayout
+                    Parent.EnableNextButton(false);
+                    lblImport.Visible = false;
+                    ImportWalletDialog d = new ImportWalletDialog();
+                    if (d.ShowModal() == DialogResult.Ok)
                     {
-                        Orientation = Orientation.Horizontal,
-                        HorizontalContentAlignment = HorizontalAlignment.Stretch,
-                        VerticalContentAlignment = VerticalAlignment.Stretch,
-                        Padding = new Padding(10, 10, 0, 0),
-                        Spacing = 10,
-                        Items =
+                        Helpers.TaskFactory.Instance.RunTask("importwallet", "Importing wallet", () =>
                         {
-                            new StackLayoutItem(null, true),
-                            new StackLayoutItem(btnCreateWallet, false),
-                            new StackLayoutItem(btnImportWallet, false)
-                        }   
-                    }, false), 
-                }
-            };
+                            switch (d.ImportType)
+                            {
+                                case Import_Type.Key:
+                                    WalletRpc.RestoreWalletFromKeys(d.Name, d.Address, d.ViewKey, d.SpendKey, d.Password, d.Language,
+                                    (RestoreWalletFromKeysResponseData result) => {
+                                        CreateSuccess(d.Name, d.Password, result.Address);
+                                    }, CreateError);
+                                break;
+                                case Import_Type.Seed:
+                                    WalletRpc.RestoreWalletFromSeed(d.Name, d.Seed, d.SeedOffset, d.Password, d.Language,
+                                    (RestoreWalletFromSeedResponseData result) => {
+                                        CreateSuccess(d.Name, d.Password, result.Address);
+                                    }, CreateError);
+                                break;
+                            } 
+                        });
+                    }
+                    else
+                        Parent.EnableNextButton(true); 
+                };
+
+                layout = new StackLayout
+                {
+                    Orientation = Orientation.Vertical,
+                    HorizontalContentAlignment = HorizontalAlignment.Stretch,
+                    VerticalContentAlignment = VerticalAlignment.Stretch,
+                    Items = 
+                    {
+                        new Label { Text = "NERVA Wallet" },
+                        new Label { Text = "   " },
+                        new Label { Text = "You need a wallet in order to mine, send or receive NERVA. You can create a new wallet or import an existing one." },
+                        new Label { Text = "   " },
+                        new Label { Text = "If you already have a wallet, click 'Next' to skip this step." },
+                        new Label { Text = "   " },
+                        lblImport,
+                        new StackLayoutItem(null, true),
+                        new StackLayoutItem(new StackLayout
+                        {
+                            Orientation = Orientation.Horizontal,
+                            HorizontalContentAlignment = HorizontalAlignment.Stretch,
+                            VerticalContentAlignment = VerticalAlignment.Stretch,
+                            Padding = new Padding(10, 10, 0, 0),
+                            Spacing = 10,
+                            Items =
+                            {
+                                new StackLayoutItem(null, true),
+                                new StackLayoutItem(btnCreateWallet, false),
+                                new StackLayoutItem(btnImportWallet, false)
+                            }   
+                        }, false), 
+                    }
+                };
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling.HandleException("WalletSetupContent.CreateContent", ex, true);
+            }
+
+            return layout;
         }
 
         private void CreateSuccess(string name, string password, string address)

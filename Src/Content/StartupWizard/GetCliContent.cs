@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Net;
 using AngryWasp.Logger;
@@ -13,7 +14,7 @@ namespace Nerva.Desktop.Content.Wizard
     {
         private Control content;
 
-        public override string Title => "Download NERVA";
+        public override string Title => "NERVA Desktop Setup Wizard - Download";
 
         public override Control Content
         {
@@ -42,58 +43,73 @@ namespace Nerva.Desktop.Content.Wizard
 
         private Control CreateContent(string link)
         {
-            btnDownload.Click += (s, e) =>
-            {
-                HandleDownloadClick(link);
-            };
+            StackLayout layout = null;
 
-            if (FileNames.DirectoryContainsCliTools(Configuration.Instance.ToolsPath))
+            try
             {
-                return new StackLayout
+                btnDownload.Click += (s, e) =>
                 {
-                    Orientation = Orientation.Vertical,
-                    HorizontalContentAlignment = HorizontalAlignment.Stretch,
-                    VerticalContentAlignment = VerticalAlignment.Stretch,
-                    Items =
-                    {
-                        new Label { Text = $"It appears you already have the {OS.Type} CLI tools installed." },
-                        new Label { Text = "   " },
-                        new Label { Text = $"Press 'Next' to continue." },
-                        new Label { Text = "   " },
-                        new StackLayoutItem(null, true),
-                    }
+                    HandleDownloadClick(link);
                 };
-            }
 
-            return new StackLayout
-            {
-                Orientation = Orientation.Vertical,
-                HorizontalContentAlignment = HorizontalAlignment.Stretch,
-                VerticalContentAlignment = VerticalAlignment.Stretch,
-                Items =
+                if (FileNames.DirectoryContainsCliTools(Configuration.Instance.ToolsPath))
                 {
-                    new Label { Text = $"It appears you are running {OS.Type}" },
-                    new Label { Text = "   " },
-                    new Label { Text = "Click 'Download' to get the CLI tools" },
-                    new Label { Text = "   " },
-                    new StackLayoutItem(null, true),
-                    new StackLayout
+                    layout = new StackLayout
                     {
-                        Orientation = Orientation.Horizontal,
+                        Orientation = Orientation.Vertical,
                         HorizontalContentAlignment = HorizontalAlignment.Stretch,
                         VerticalContentAlignment = VerticalAlignment.Stretch,
-                        Padding = new Padding(10, 0, 0, 0),
-                        Spacing = 10,
                         Items =
                         {
+                            new Label { Text = $"It appears you already have the {OS.Type} CLI tools installed." },
+                            new Label { Text = "   " },
+                            new Label { Text = $"Press 'Next' to continue." },
+                            new Label { Text = "   " },
                             new StackLayoutItem(null, true),
-                            new StackLayoutItem(btnDownload, false)
                         }
-                    },
-                    new Label { Text = "   " },
-                    pbDownload
+                    };
                 }
-            };
+                else
+                {
+                    layout = new StackLayout
+                    {
+                        Orientation = Orientation.Vertical,
+                        HorizontalContentAlignment = HorizontalAlignment.Stretch,
+                        VerticalContentAlignment = VerticalAlignment.Stretch,
+                        Items =
+                        {
+                            new Label { Text = $"It appears you are running {OS.Type}" },
+                            new Label { Text = "   " },
+                            new Label { Text = "Click 'Download' to get the CLI tools" },
+                            new Label { Text = "   " },
+                            new Label { Text = "After download is complete, click 'Next' to continue" },
+                            new Label { Text = "   " },
+                            new StackLayoutItem(null, true),
+                            new StackLayout
+                            {
+                                Orientation = Orientation.Horizontal,
+                                HorizontalContentAlignment = HorizontalAlignment.Stretch,
+                                VerticalContentAlignment = VerticalAlignment.Stretch,
+                                Padding = new Padding(10, 0, 0, 0),
+                                Spacing = 10,
+                                Items =
+                                {
+                                    new StackLayoutItem(null, true),
+                                    new StackLayoutItem(btnDownload, false)
+                                }
+                            },
+                            new Label { Text = "   " },
+                            pbDownload
+                        }
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling.HandleException("GetCliContent.CreateContent", ex, true);
+            }
+
+            return layout;
         }
 
         private Control CreateNotSupportedContent()
@@ -128,38 +144,45 @@ namespace Nerva.Desktop.Content.Wizard
 
         private void HandleDownloadClick(string link)
         {
-            btnDownload.Enabled = false;
-
-            UpdateManager.DownloadCLI(link, (DownloadProgressChangedEventArgs ea) =>
+            try
             {
-                Application.Instance.AsyncInvoke(() =>
-                {
-                    btnDownload.Enabled = false;
-                    pbDownload.MaxValue = (int)ea.TotalBytesToReceive;
-                    pbDownload.Value = (int)ea.BytesReceived;
-                });
+                btnDownload.Enabled = false;
 
-            }, (bool success, string dest) =>
-            {
-                Application.Instance.AsyncInvoke(() =>
+                UpdateManager.DownloadCLI(link, (DownloadProgressChangedEventArgs ea) =>
                 {
-                    btnDownload.Enabled = true;
-
-                    if (success)
-                    { 
-                        Parent.EnableNextButton(true);
-                        Configuration.Instance.ToolsPath = dest;
-                        Log.Instance.Write($"Setting Config.ToolsPath: {dest}");
-                    }
-                    else
+                    Application.Instance.AsyncInvoke(() =>
                     {
-                        if (File.Exists(dest))
-                            File.Delete(dest);
-                        MessageBox.Show(Application.Instance.MainForm, "An error occured while downloading/extracting the NERVA CLI tools.\r\n" +
-                        "Please refer to the log file and try again later", "Request Failed", MessageBoxButtons.OK, MessageBoxType.Error, MessageBoxDefaultButton.OK);
-                    }
+                        btnDownload.Enabled = false;
+                        pbDownload.MaxValue = (int)ea.TotalBytesToReceive;
+                        pbDownload.Value = (int)ea.BytesReceived;
+                    });
+
+                }, (bool success, string dest) =>
+                {
+                    Application.Instance.AsyncInvoke(() =>
+                    {
+                        btnDownload.Enabled = true;
+
+                        if (success)
+                        { 
+                            Parent.EnableNextButton(true);
+                            Configuration.Instance.ToolsPath = dest;
+                            Log.Instance.Write($"Setting Config.ToolsPath: {dest}");
+                        }
+                        else
+                        {
+                            if (File.Exists(dest))
+                                File.Delete(dest);
+                            MessageBox.Show(Application.Instance.MainForm, "An error occured while downloading/extracting the NERVA CLI tools.\r\n" +
+                            "Please refer to the log file and try again later", "Request Failed", MessageBoxButtons.OK, MessageBoxType.Error, MessageBoxDefaultButton.OK);
+                        }
+                    });
                 });
-            });
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling.HandleException("GetCliContent.HandleDownloadClick", ex, true);
+            }
         }
     }
 }

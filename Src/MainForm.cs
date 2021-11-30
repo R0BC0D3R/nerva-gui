@@ -43,6 +43,7 @@ namespace Nerva.Desktop
                     StartMasterUpdateProcess();
 
                     bool needSetup = newConfig || !FileNames.DirectoryContainsCliTools(Configuration.Instance.ToolsPath);
+
                     if (needSetup)
                         new SetupWizard().Run();
 
@@ -57,7 +58,7 @@ namespace Nerva.Desktop
             }
         }
 
-        private void MainFormClosing()
+        public void MainFormClosing()
         {
             try
             {
@@ -197,7 +198,7 @@ namespace Nerva.Desktop
                     DaemonProcess.ForceClose();
                     Log.Instance.Write("Starting daemon process");
                     ProcessManager.StartExternalProcess(FileNames.DaemonPath, DaemonProcess.GenerateCommandLine());
-                    Thread.Sleep(Constants.ONE_SECOND * 5);
+                    Thread.Sleep(Constants.ONE_SECOND * 20);
                     isInitialDaemonConnectionSuccess = false;
                 }
             }
@@ -218,7 +219,7 @@ namespace Nerva.Desktop
                     WalletProcess.ForceClose();
                     Log.Instance.Write("Starting wallet process");
                     ProcessManager.StartExternalProcess(FileNames.RpcWalletPath, WalletProcess.GenerateCommandLine());
-                    Thread.Sleep(Constants.ONE_SECOND * 5);
+                    Thread.Sleep(Constants.ONE_SECOND * 10);
                 }
             }
             catch (Exception ex)
@@ -839,7 +840,7 @@ namespace Nerva.Desktop
                     if (d.RestartCliRequired)
                     {
                         //if thge daemon has to be restarted, there is a good chance the wallet has to be restarted, so just do it
-                        MessageBox.Show(this, "The NERVA CLI backend will now restart to apply your changes", "NERVA Preferences",
+                        MessageBox.Show(this, "NERVA backend will now restart to apply your changes", "NERVA Preferences",
                             MessageBoxButtons.OK, MessageBoxType.Information, MessageBoxDefaultButton.OK);
 
                         Log.Instance.Write("Restarting CLI");

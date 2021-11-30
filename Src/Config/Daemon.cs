@@ -24,6 +24,7 @@ namespace Nerva.Desktop.Config
                 AutoStartMining = false,
                 MiningAddress = string.Empty,
                 MiningThreads = 2,
+                AdditionalArguments = string.Empty,
 
                 Rpc = RpcDetails.New(testnet ? Constants.NERVAD_RPC_PORT_TESTNET : Constants.NERVAD_RPC_PORT_MAINNET)
             };

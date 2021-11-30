@@ -45,57 +45,64 @@ namespace Nerva.Desktop.Content.Wizard
 
         public void ConstructContent()
         {
-            Title = pages[currentPage].Title;
-
-            // Set Icon but only if found. Otherwise, app will not work correctly
-			string iconFile = GlobalMethods.GetAppIcon();
-			if(!string.IsNullOrEmpty(iconFile))
-			{				
-				Icon = new Icon(iconFile);
-			}
-
-            Content = new StackLayout
+            try
             {
-                Orientation = Orientation.Vertical,
-                HorizontalContentAlignment = HorizontalAlignment.Stretch,
-                VerticalContentAlignment = VerticalAlignment.Stretch,
-                Items =
-                {
-                    new StackLayoutItem(new StackLayout
-                    {
-                        Orientation = Orientation.Horizontal,
-                        HorizontalContentAlignment = HorizontalAlignment.Stretch,
-                        VerticalContentAlignment = VerticalAlignment.Stretch,
-                        Padding = 10,
-                        Spacing = 10,
-                        Items = 
-                        {
-                            new StackLayoutItem(new ImageView
-                            {
-                                Image = Bitmap.FromResource("NERVA-Logo.png", Assembly.GetExecutingAssembly())
-                            }, false),
-                            new StackLayoutItem(pages[currentPage].Content, true),
-                        }
-                    }, true),
-                    new StackLayoutItem(new StackLayout
-                    {
-                        Orientation = Orientation.Horizontal,
-                        HorizontalContentAlignment = HorizontalAlignment.Right,
-                        VerticalContentAlignment = VerticalAlignment.Center,
-                        Padding = 10,
-                        Spacing = 10,
-                        Items =
-                        {
-                            new StackLayoutItem(null, true),
-                            btnCancel,
-                            btnBack,
-                            btnNext
-                        }
-                    })
-                }
-            };
+                Title = pages[currentPage].Title;
 
-            OnAssignContent();
+                // Set Icon but only if found. Otherwise, app will not work correctly
+                string iconFile = GlobalMethods.GetAppIcon();
+                if(!string.IsNullOrEmpty(iconFile))
+                {				
+                    Icon = new Icon(iconFile);
+                }
+
+                Content = new StackLayout
+                {
+                    Orientation = Orientation.Vertical,
+                    HorizontalContentAlignment = HorizontalAlignment.Stretch,
+                    VerticalContentAlignment = VerticalAlignment.Stretch,
+                    Items =
+                    {
+                        new StackLayoutItem(new StackLayout
+                        {
+                            Orientation = Orientation.Horizontal,
+                            HorizontalContentAlignment = HorizontalAlignment.Stretch,
+                            VerticalContentAlignment = VerticalAlignment.Stretch,
+                            Padding = 10,
+                            Spacing = 10,
+                            Items = 
+                            {
+                                new StackLayoutItem(new ImageView
+                                {
+                                    Image = Bitmap.FromResource("NERVA-Logo.png", Assembly.GetExecutingAssembly())
+                                }, false),
+                                new StackLayoutItem(pages[currentPage].Content, true),
+                            }
+                        }, true),
+                        new StackLayoutItem(new StackLayout
+                        {
+                            Orientation = Orientation.Horizontal,
+                            HorizontalContentAlignment = HorizontalAlignment.Right,
+                            VerticalContentAlignment = VerticalAlignment.Center,
+                            Padding = 10,
+                            Spacing = 10,
+                            Items =
+                            {
+                                new StackLayoutItem(null, true),
+                                btnCancel,
+                                btnBack,
+                                btnNext
+                            }
+                        })
+                    }
+                };
+
+                OnAssignContent();
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling.HandleException("WizardDialog.ConstructContent", ex, true);
+            }
         }
 
         protected virtual void OnAssignContent()
@@ -114,9 +121,12 @@ namespace Nerva.Desktop.Content.Wizard
 
         protected virtual void OnCancel()
         {
-            if (MessageBox.Show(Application.Instance.MainForm, "The NERVA Desktop cannot start until the startup wizard is complete.\r\n\r\nAre you sure you wait to quit?", "Wizard Incomplete",
+            if (MessageBox.Show(Application.Instance.MainForm, 
+                "NERVA Desktop cannot start until startup wizard is complete.\r\n\r\nAre you sure you wait to quit?", "Wizard Incomplete",
                 MessageBoxButtons.YesNo, MessageBoxType.Warning, MessageBoxDefaultButton.No) == DialogResult.Yes)
-                Environment.Exit(0);
+            {
+                Program.Shutdown(true);
+            }
         }
 
         protected virtual void OnBack()

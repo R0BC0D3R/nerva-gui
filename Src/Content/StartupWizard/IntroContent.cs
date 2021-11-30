@@ -1,4 +1,6 @@
+using System;
 using Eto.Forms;
+using Nerva.Desktop.Helpers;
 
 namespace Nerva.Desktop.Content.Wizard
 {
@@ -6,7 +8,7 @@ namespace Nerva.Desktop.Content.Wizard
     {
         private Control content;
 
-        public override string Title => "NERVA Desktop Wizard";
+        public override string Title => "NERVA Desktop Setup Wizard";
 
         public override Control Content
         {
@@ -21,21 +23,34 @@ namespace Nerva.Desktop.Content.Wizard
 
         public override Control CreateContent()
         {
-            return new StackLayout
+            StackLayout layout = null;
+
+            try
             {
-                Orientation = Orientation.Vertical,
-                HorizontalContentAlignment = HorizontalAlignment.Stretch,
-                VerticalContentAlignment = VerticalAlignment.Stretch,
-                Items = 
+                layout = new StackLayout
                 {
-                    new Label { Text = "Welcome to NERVA" },
-                    new Label { Text = "   " },
-                    new Label { Text = "This wizard will guide you through all the steps required to get up and running." },
-                    new Label { Text = "   " },
-                    new Label { Text = "Click 'Next' to continue" },
-                    new Label { Text = "   " },
-                }
-            };
+                    Orientation = Orientation.Vertical,
+                    HorizontalContentAlignment = HorizontalAlignment.Stretch,
+                    VerticalContentAlignment = VerticalAlignment.Stretch,
+                    Items = 
+                    {
+                        new Label { Text = "Welcome to NERVA" },
+                        new Label { Text = "   " },
+                        new Label { Text = "This wizard will guide you through all the steps required to get up and running." },
+                        new Label { Text = "   " },
+                        new Label { Text = "Click 'Next' to continue" },
+                        new Label { Text = "   " },
+                    }
+                };
+
+                
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling.HandleException("IntroContent.CreateContent", ex, true);
+            }
+
+            return layout;
         }
     }
 }

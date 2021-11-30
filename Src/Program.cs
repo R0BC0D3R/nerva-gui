@@ -122,7 +122,7 @@ namespace Nerva.Desktop
 
 			//Crash the program if not 64-bit
 			if (!Environment.Is64BitOperatingSystem)
-				Log.Instance.Write(Log_Severity.Fatal, "The NERVA Desktop is only available for 64-bit platforms");
+				Log.Instance.Write(Log_Severity.Fatal, "NERVA Desktop is only available for 64-bit platforms");
 
 			Log.Instance.Write(Log_Severity.None, "System Information:");
 			Log.Instance.Write(Log_Severity.None, $"OS: {Environment.OSVersion.Platform} {Environment.OSVersion.Version}");
