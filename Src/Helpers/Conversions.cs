@@ -17,28 +17,25 @@ namespace Nerva.Desktop.Helpers
             return $"{a.Substring(0, 10)}...{a.Substring(a.Length - 10, 10)}";
         }
 
-        public static uint VersionStringToInt(string vs)
+        public static int VersionStringToInt(string vs)
         {
-            string[] split = vs.Split(new char[] { '.' }, StringSplitOptions.RemoveEmptyEntries);
-            ushort[] converted = new ushort[split.Length];
+            int version = 0;
 
-            for (int i = 0; i < split.Length; i++)
-                if (!ushort.TryParse(split[i], out converted[i]))
-                {
-                    Log.Instance.Write(Log_Severity.Error, "Attempt to parse poorly formatted version string");
-                    return 0;
-                }
-            
-            switch (split.Length)
+            try
             {
-                case 3:
-                    return (uint)((converted[0] << 24) + (converted[1] << 16) + converted[2]);
-                case 4:
-                    return (uint)((converted[0] << 24) + (converted[1] << 16) + (converted[1] << 8) + converted[2]);
-                default:
-                    Log.Instance.Write(Log_Severity.Error, $"Attempt to convert version string with {split.Length} values");
-                    return 0;
+                string versionNoPeriods = vs.Replace(".", "").Replace(" ", "").Trim();
+                bool isNumber = int.TryParse(versionNoPeriods, out int versionNumeric);
+                if(isNumber)
+                {
+                    version = versionNumeric;
+                }
             }
+            catch (Exception ex)
+            {
+                ErrorHandling.HandleException("Conversions.VersionStringToInt", ex, false);
+            }
+
+            return version;
         }
     }
 }

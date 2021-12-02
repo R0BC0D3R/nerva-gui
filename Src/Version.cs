@@ -5,8 +5,8 @@ namespace Nerva.Desktop
 {	
 	public static class Version
 	{
-        public const string VERSION = "0.3.0.7";
-        public const string CODE_NAME = "Preview";        
+        public const string VERSION = "0.3.1.0";
+        public const string CODE_NAME = "";
         public static readonly string LONG_VERSION = VERSION + (string.IsNullOrEmpty(CODE_NAME) ? "" : ": " + CODE_NAME);
 
 
@@ -25,7 +25,9 @@ namespace Nerva.Desktop
         };
 
         // Default values to use when TXT records are missing or cannot be retrieved
-        public const string DEFAULT_CLI_VERSION = "0.7.1.4";
-        public const string DEFAULT_CLI_DOWNLOAD_URL = "https://github.com/nerva-project/nerva/releases/download/v0.1.7.4/nerva-v0.1.7.4_windows_minimal.zip";
+        public const string DEFAULT_CLI_VERSION = "0.7.1.5";
+        public const string DEFAULT_CLI_DOWNLOAD_URL_WINDOWS = "https://github.com/nerva-project/nerva/releases/download/v0.1.7.5/nerva-v0.1.7.5_windows_minimal.zip";
+        public const string DEFAULT_CLI_DOWNLOAD_URL_LINUX = "https://github.com/nerva-project/nerva/releases/download/v0.1.7.5/nerva-v0.1.7.5_linux_minimal.zip";
+        public const string DEFAULT_CLI_DOWNLOAD_URL_OSX = "https://github.com/nerva-project/nerva/releases/download/v0.1.7.5/nerva-v0.1.7.5_osx_minimal.zip";
     }
 }

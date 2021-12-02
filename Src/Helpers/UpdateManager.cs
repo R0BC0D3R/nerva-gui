@@ -63,12 +63,28 @@ namespace Nerva.Desktop.Helpers
 
         public static UpdateInfo CreateDefault()
         {
+            string cliDownloadUrl;
+
+            switch(OS.Type)
+            {
+                case OS_Type.Linux:
+                    cliDownloadUrl = Nerva.Desktop.Version.DEFAULT_CLI_DOWNLOAD_URL_LINUX;
+                    break;
+                case OS_Type.Osx:
+                    cliDownloadUrl = Nerva.Desktop.Version.DEFAULT_CLI_DOWNLOAD_URL_OSX;
+                    break;
+                default:
+                    // Default to Windows
+                    cliDownloadUrl = Nerva.Desktop.Version.DEFAULT_CLI_DOWNLOAD_URL_WINDOWS;
+                    break;
+            }
+
             UpdateInfo ui = new UpdateInfo
             {
                 version = Nerva.Desktop.Version.DEFAULT_CLI_VERSION,
                 codeName = string.Empty,
                 notice = string.Empty,
-                downloadLink = Nerva.Desktop.Version.DEFAULT_CLI_DOWNLOAD_URL
+                downloadLink = cliDownloadUrl
             };
 
             return ui;
@@ -107,13 +123,17 @@ namespace Nerva.Desktop.Helpers
             GetLocalVersion();
             GetRemoteVersion();
 
-            uint localCliInt = Conversions.VersionStringToInt(localCliVersion);
-            uint remoteCliInt = Conversions.VersionStringToInt(cliUpdateInfo.Version);
+            int localCliInt = Conversions.VersionStringToInt(localCliVersion);
+            int remoteCliInt = Conversions.VersionStringToInt(cliUpdateInfo.Version);
 
             if (remoteCliInt > localCliInt)
+            {
                 cliUpdateInfo.UpdateStatus = Update_Status_Code.NewVersionAvailable;
+            }
             else
+            {
                 cliUpdateInfo.UpdateStatus = Update_Status_Code.UpToDate;
+            }
         }
 
         private static void GetLocalVersion()
@@ -157,9 +177,12 @@ namespace Nerva.Desktop.Helpers
                                 Log.Instance.Write("UM.GetRemoteVersion: Found DNS update record: " + record);
                                 cliUpdateInfo = UpdateInfo.Create(txt, GetDownloadLink(node.DownloadUrl));
 
-                                // Found good record, break inner loop
-                                foundGoodRecord = true;
-                                break;
+                                if(cliUpdateInfo != null)
+                                {
+                                    // Found good record, break inner loop
+                                    foundGoodRecord = true;
+                                    break;
+                                }
                             }
                         }
                     }

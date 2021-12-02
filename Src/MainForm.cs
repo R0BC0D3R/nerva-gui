@@ -292,7 +292,7 @@ namespace Nerva.Desktop
 
                 Application.Instance.AsyncInvoke(() =>
                 {
-                    lblWalletStatus.Text = "Wallet Offline - see Wallet menu";
+                    lblWalletStatus.Text = "Wallet Offline - See Wallet Menu";
                     lastTxHeight = 0;
                     balancesPage.Update(null);
                     transfersPage.Update(null);
@@ -905,10 +905,11 @@ namespace Nerva.Desktop
                     {
                         if (updateRequired)
                         {
-                            if (MessageBox.Show(Application.Instance.MainForm, $"{cliMsg}\r\nWould you like to download the available updates?", "NERVA Updater", 
-                                MessageBoxButtons.YesNo, MessageBoxType.Question, MessageBoxDefaultButton.No) == DialogResult.Yes)
+                            if (MessageBox.Show(Application.Instance.MainForm, "New version is available:\n\r\n\r" + cliMsg, "NERVA Updater", 
+                                MessageBoxButtons.OK, MessageBoxType.Information, MessageBoxDefaultButton.OK) == DialogResult.Yes)
                             {
-
+                                // TODO: Doesn't work. Disable for now
+                                /*
                                 if (UpdateManager.CliUpdateInfo != null && UpdateManager.CliUpdateInfo.UpdateStatus == Update_Status_Code.NewVersionAvailable)
                                     Helpers.TaskFactory.Instance.RunTask("dlcliupdate", $"Downloading CLI update", () =>
                                     {
@@ -917,6 +918,7 @@ namespace Nerva.Desktop
                                             DisplayUpdateResult(b, s);
                                         });
                                     });
+                                */
                             }
                         }
                         else
