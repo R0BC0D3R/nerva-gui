@@ -175,7 +175,11 @@ namespace Nerva.Desktop.Helpers
                             if (txt.StartsWith("nerva-cli:"))
                             {
                                 Log.Instance.Write("UM.GetRemoteVersion: Found DNS update record: " + record);
-                                cliUpdateInfo = UpdateInfo.Create(txt, GetDownloadLink(node.DownloadUrl));
+                                string downloadLink = GetDownloadLink(node.DownloadUrl);
+                                if(!string.IsNullOrEmpty(downloadLink))
+                                {
+                                    cliUpdateInfo = UpdateInfo.Create(txt, downloadLink);
+                                }
 
                                 if(cliUpdateInfo != null)
                                 {
