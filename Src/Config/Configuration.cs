@@ -1,4 +1,3 @@
-using System;
 using System.IO;
 using AngryWasp.Helpers;
 using AngryWasp.Logger;
@@ -48,6 +47,41 @@ namespace Nerva.Desktop.Config
         public static Configuration Instance => instance;
 
         public static string StorageDirectory => storageDirectory;
+
+        public static void SetMissingElements()
+        {
+            if(instance == null)
+            {
+                instance = Configuration.New();
+                Log.Instance.Write("Config.SetMissingElements: Instance was null. Created new one");
+            }
+            else 
+            {
+                if(string.IsNullOrEmpty(instance.ToolsPath))
+                {
+                    instance.ToolsPath = Path.Combine(storageDirectory, "cli");
+                    Log.Instance.Write("Config.SetMissingElements: ToolsPath was null. Set to: " + instance.ToolsPath);
+                }
+
+                if(string.IsNullOrEmpty(instance.AddressBookPath))
+                {
+                    instance.AddressBookPath = Path.Combine(storageDirectory, "address-book.xml");
+                    Log.Instance.Write("Config.SetMissingElements: AddressBookPath was null. Set to: " + instance.AddressBookPath);
+                }
+
+                if(instance.Daemon == null)
+                {
+                    instance.Daemon = Daemon.New(false);
+                    Log.Instance.Write("Config.SetMissingElements: Daemon was null. Created new one");
+                }
+
+                if(instance.Wallet == null)
+                {
+                    instance.Wallet = Wallet.New();
+                    Log.Instance.Write("Config.SetMissingElements: Wallet was null. Created new one");
+                }
+            }            
+        }
 
         public static void Load(string file, out bool newFile)
         {

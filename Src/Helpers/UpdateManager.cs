@@ -61,6 +61,19 @@ namespace Nerva.Desktop.Helpers
             return ui;
         }
 
+        public static UpdateInfo CreateDefault()
+        {
+            UpdateInfo ui = new UpdateInfo
+            {
+                version = Nerva.Desktop.Version.DEFAULT_CLI_VERSION,
+                codeName = string.Empty,
+                notice = string.Empty,
+                downloadLink = Nerva.Desktop.Version.DEFAULT_CLI_DOWNLOAD_URL
+            };
+
+            return ui;
+        }
+
         public override string ToString()
         {
             return $"{version}:{codeName}\r\n{downloadLink}\r\n{notice}";
@@ -77,15 +90,19 @@ namespace Nerva.Desktop.Helpers
             get
             {
                 if (cliUpdateInfo == null)
+                {
+                    Log.Instance.Write("UM.UpdateInfo: cliUpdateInfo is null");
                     GetRemoteVersion();
+                }
                 
+                Log.Instance.Write("UM.UpdateInfo: Returning download link: " + cliUpdateInfo.DownloadLink);
                 return cliUpdateInfo;
             }
         }
 
         public static void CheckUpdate()
         {
-            Log.Instance.Write("Checking for updates...");
+            Log.Instance.Write("UM.CheckUpdate: Checking for updates...");
 
             GetLocalVersion();
             GetRemoteVersion();
@@ -113,45 +130,57 @@ namespace Nerva.Desktop.Helpers
 
         private static void GetRemoteVersion()
         {
-            var client = new LookupClient();
-
-            // Define nodes to check
-            List<DnsNode> RemoteNodes = new List<DnsNode>() {                            
-                new DnsNode() { UpdateUrl = "update.nerva.one", DownloadUrl = "download.nerva.one" },
-                new DnsNode() { UpdateUrl = "update.nerva.info", DownloadUrl = "download.nerva.info" },
-                new DnsNode() { UpdateUrl = "update.nerva.tools", DownloadUrl = "download.nerva.tools" }
-             };
-        
-            IReadOnlyList<DnsClient.Protocol.DnsResourceRecord> records = new List<DnsClient.Protocol.DnsResourceRecord>();
-
-            bool foundGoodRecord = false;
-            foreach(DnsNode node in RemoteNodes)
+            try
             {
-                records = client.Query(node.UpdateUrl, QueryType.TXT).Answers;
-                foreach (var record in records)
-                {
-                    // Only consider TXT records
-                    if(record is DnsClient.Protocol.TxtRecord)
-                    {
-                        string txt = ((DnsClient.Protocol.TxtRecord)record).Text.ToArray()[0];
-                        
-                        if (txt.StartsWith("nerva-cli:"))
-                        {
-                            Log.Instance.Write($"Found DNS update record: {record}");
-                            cliUpdateInfo = UpdateInfo.Create(txt, GetDownloadLink(node.DownloadUrl));
+                var client = new LookupClient();
 
-                            // Found good record, break inner loop
-                            foundGoodRecord = true;
-                            break;
+                IReadOnlyList<DnsClient.Protocol.DnsResourceRecord> records = new List<DnsClient.Protocol.DnsResourceRecord>();
+
+                bool foundGoodRecord = false;
+                foreach(DnsNode node in Version.REMOTE_NODES)
+                {
+                    records = client.Query(node.UpdateUrl, QueryType.TXT).Answers;
+                    
+                    foreach (var record in records)
+                    {
+                        Log.Instance.Write("UM.GetRemoteVersion: Node: " + node.UpdateUrl);
+
+                        // Only consider TXT records
+                        if(record is DnsClient.Protocol.TxtRecord)
+                        {
+                            string txt = ((DnsClient.Protocol.TxtRecord)record).Text.ToArray()[0];
+
+                            Log.Instance.Write("UM.GetRemoteVersion: TXT: " + txt);
+
+                            if (txt.StartsWith("nerva-cli:"))
+                            {
+                                Log.Instance.Write("UM.GetRemoteVersion: Found DNS update record: " + record);
+                                cliUpdateInfo = UpdateInfo.Create(txt, GetDownloadLink(node.DownloadUrl));
+
+                                // Found good record, break inner loop
+                                foundGoodRecord = true;
+                                break;
+                            }
                         }
+                    }
+
+                    if(foundGoodRecord)
+                    {
+                        // Since we found good record, break outer loop
+                        break;
                     }
                 }
 
-                if(foundGoodRecord)
+                // If DNS records could not be retrieved for some reason, use defaults
+                if(cliUpdateInfo == null || string.IsNullOrEmpty(cliUpdateInfo.DownloadLink))
                 {
-                    // Since we found good record, break outer loop
-                    break;
+                    Log.Instance.Write("UM.GetRemoteVersion: Update Info or Download link NULL. Creating from DEFAULTS");
+                    cliUpdateInfo = UpdateInfo.CreateDefault();
                 }
+            }
+            catch (Exception ex)
+            {
+                ErrorHandling.HandleException("UM.GetRemoteVersion", ex, false);
             }
         }
         
