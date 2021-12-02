@@ -16,11 +16,11 @@ namespace Nerva.Desktop.Helpers
             {
                 if (string.IsNullOrEmpty(message))
                 {
-                    Log.Instance.Write(Log_Severity.Error, origin + ":" + exception.Message);
+                    Log.Instance.Write(Log_Severity.Error, origin + ": Message: " + exception.Message + " | Trace: " + exception.StackTrace);
                 }
                 else
                 {
-                    Log.Instance.Write(Log_Severity.Error, origin + ":" + message + ", " + exception.Message);
+                    Log.Instance.Write(Log_Severity.Error, origin + ":" + message + ", Message: " + exception.Message + " | Trace: " + exception.StackTrace);
                 }
             }
             catch (Exception ex)

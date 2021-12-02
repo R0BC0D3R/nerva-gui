@@ -4,7 +4,6 @@ using System.Net;
 using AngryWasp.Logger;
 using Eto.Drawing;
 using Eto.Forms;
-using Nerva.Desktop.CLI;
 using Nerva.Desktop.Config;
 using Nerva.Desktop.Helpers;
 
@@ -32,12 +31,17 @@ namespace Nerva.Desktop.Content.Wizard
 
         public override Control CreateContent()
         {
+            Log.Instance.Write("GCC.CreateContent: OS Type: " + OS.Type);
             switch (OS.Type)
             {
                 case OS_Type.Unsupported:
+                {
                     return CreateNotSupportedContent();
+                }
                 default:
+                {
                     return CreateContent(UpdateManager.CliUpdateInfo.DownloadLink);
+                }
             }
         }
 
@@ -106,7 +110,7 @@ namespace Nerva.Desktop.Content.Wizard
             }
             catch (Exception ex)
             {
-                ErrorHandling.HandleException("GetCliContent.CreateContent", ex, true);
+                ErrorHandling.HandleException("GCC.CreateContent", ex, true);
             }
 
             return layout;
@@ -132,6 +136,8 @@ namespace Nerva.Desktop.Content.Wizard
 
         public override void OnAssignContent()
         {
+            Log.Instance.Write("GCC.OnAssignContent: OS Type: " + OS.Type);
+            Log.Instance.Write("GCC.OnAssignContent: Daemon Path: " + FileNames.DaemonPath);
             btnDownload.Enabled = OS.Type != OS_Type.Unsupported;
             Parent.EnableNextButton(File.Exists(FileNames.DaemonPath));
         }

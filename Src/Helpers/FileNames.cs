@@ -18,7 +18,15 @@ namespace Nerva.Desktop.Helpers
         {
             get {
                 if (string.IsNullOrEmpty(Configuration.Instance.ToolsPath))
-                    Log.Instance.Write(Log_Severity.Fatal, "ToolPath is null");
+                {
+                    Log.Instance.Write(Log_Severity.Warning, "ToolPath is null. Trying to use default...");
+                    Configuration.SetMissingElements();
+
+                    if(string.IsNullOrEmpty(Configuration.Instance.ToolsPath))
+                    {
+                        Log.Instance.Write(Log_Severity.Warning, "ToolPath is null. Could not recover");
+                    }
+                }
 
                 if (string.IsNullOrEmpty(NERVAD))
                     Log.Instance.Write(Log_Severity.Fatal, "NERVAD is null");

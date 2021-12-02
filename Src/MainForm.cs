@@ -42,6 +42,7 @@ namespace Nerva.Desktop
 
                     StartMasterUpdateProcess();
 
+                    Configuration.SetMissingElements();
                     bool needSetup = newConfig || !FileNames.DirectoryContainsCliTools(Configuration.Instance.ToolsPath);
 
                     if (needSetup)
@@ -202,7 +203,6 @@ namespace Nerva.Desktop
                         DaemonProcess.ForceClose();
                         Log.Instance.Write("MAIN.KeepDaemonRunning: Starting daemon process");
                         ProcessManager.StartExternalProcess(FileNames.DaemonPath, DaemonProcess.GenerateCommandLine());
-                        Thread.Sleep(Constants.ONE_SECOND * 20);
                         isInitialDaemonConnectionSuccess = false;
                     }
                     else 
@@ -230,7 +230,6 @@ namespace Nerva.Desktop
                         WalletProcess.ForceClose();
                         Log.Instance.Write("MAIN.KeepDaemonRunning: Starting wallet process");
                         ProcessManager.StartExternalProcess(FileNames.RpcWalletPath, WalletProcess.GenerateCommandLine());
-                        Thread.Sleep(Constants.ONE_SECOND * 10);
                     }
                     else 
                     {
@@ -247,11 +246,6 @@ namespace Nerva.Desktop
         {
             try
             {
-                if (ProcessManager.GetRunningByName(FileNames.RPC_WALLET).Count == 0)
-                {
-                    Thread.Sleep(Constants.ONE_SECOND);
-                }
-
                 WalletRpc.GetAccounts((GetAccountsResponseData ra) =>
                 {
                     Application.Instance.AsyncInvoke( () =>
@@ -314,11 +308,6 @@ namespace Nerva.Desktop
         {
             try
             {
-                if (ProcessManager.GetRunningByName(FileNames.NERVAD).Count == 0)
-                {
-                    Thread.Sleep(Constants.ONE_SECOND);
-                }
-
                 if(!isInitialDaemonConnectionSuccess)
                 {
                     Application.Instance.Invoke(() =>

@@ -5,6 +5,7 @@ using AngryWasp.Cli.Args;
 using AngryWasp.Logger;
 using AngryWasp.Serializer;
 using Eto;
+using Eto.Forms;
 using Nerva.Desktop.CLI;
 using Nerva.Desktop.Config;
 using Nerva.Desktop.Helpers;
@@ -31,7 +32,17 @@ namespace Nerva.Desktop
 #endif
 
 			if (!Directory.Exists(Configuration.StorageDirectory))
-                Directory.CreateDirectory(Configuration.StorageDirectory);
+			{
+				try
+				{
+					 Directory.CreateDirectory(Configuration.StorageDirectory);
+				}
+				catch (Exception exDir)
+				{
+					MessageBox.Show(Application.Instance.MainForm, "Storage DIR could not be created:\r\n" + Configuration.StorageDirectory + "\r\n" + exDir.Message, 
+							MessageBoxButtons.OK, MessageBoxType.Error, MessageBoxDefaultButton.OK);
+				}                
+			}
 
 			string logFile = ProcessManager.CycleLogFile(Path.Combine(Configuration.StorageDirectory, "nerva-gui"));
 			string configFile = Path.Combine(Configuration.StorageDirectory, "app.config");
