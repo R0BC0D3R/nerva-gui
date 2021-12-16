@@ -6,6 +6,7 @@ using Eto.Forms;
 using Nerva.Desktop.CLI;
 using AngryWasp.Helpers;
 using Nerva.Rpc.Daemon;
+using Nerva.Desktop.Config;
 
 namespace Nerva.Desktop.Content
 {
@@ -36,12 +37,16 @@ namespace Nerva.Desktop.Content
 
 		public Button btnStartStopMining = new Button { Text = "Start Mining", Enabled = false };
 
+		public Button btnChangeMiningThreads = new Button { Text = "Go!", Enabled = false, Size = new Eto.Drawing.Size(50, 22)  };
+		public NumericStepper nsMiningThreads = new NumericStepper { MinValue = 1, MaxValue = Environment.ProcessorCount, DecimalPlaces = 0, MaximumDecimalPlaces = 0, Enabled = false, Size = new Eto.Drawing.Size(50, 22), ToolTip = "Number of CPU threads to use for mining",  };
+
         #endregion
 
         public DaemonPage() { }
 
         public void ConstructLayout()
         {
+			nsMiningThreads.Value = Configuration.Instance.Daemon.MiningThreads;
 			var peersCtx_Ban = new Command { MenuText = "Ban Peer" };
 
 			grid = new GridView
@@ -98,16 +103,30 @@ namespace Nerva.Desktop.Content
 								new TableCell(new Label { Text = "Height:" }),
 								new TableCell(lblHeight),
 								new TableCell(null, true),
-								new TableCell(new Label { Text = "Address:" }),
-								new TableCell(lblMiningAddress),
+								new TableCell(new Label { Text = "Threads:" }),
+								new TableCell(
+									new StackLayout
+									{
+										Orientation = Orientation.Horizontal,
+										HorizontalContentAlignment = HorizontalAlignment.Right,
+										VerticalContentAlignment = VerticalAlignment.Center,
+										Spacing = 15,
+										Items =
+										{
+											lblMiningThreads,
+											nsMiningThreads,
+											btnChangeMiningThreads
+										}
+									}
+								),
 								new TableCell(null)
 							),
 							new TableRow(
 								new TableCell(new Label { Text = "Run Time:" }),
 								new TableCell(lblRunTime),
 								new TableCell(null, true),
-								new TableCell(new Label { Text = "Threads:" }),
-								new TableCell(lblMiningThreads),
+								new TableCell(new Label { Text = "Address:" }),
+								new TableCell(lblMiningAddress),								
 								new TableCell(null)
 							),
 							new TableRow(
@@ -139,6 +158,19 @@ namespace Nerva.Desktop.Content
             {
                 GlobalMethods.StartStopMining();
             };
+
+			btnChangeMiningThreads.Click += (s, e) =>
+			{
+				if(nsMiningThreads.Value != Configuration.Instance.Daemon.MiningThreads)
+				{
+					Configuration.Instance.Daemon.MiningThreads = (int)nsMiningThreads.Value;
+
+					Configuration.Save();
+
+					DaemonRpc.StopMining();
+					DaemonRpc.StartMining();
+				}
+			};
         }
 
 		public void UpdateInfo(GetInfoResponseData info)

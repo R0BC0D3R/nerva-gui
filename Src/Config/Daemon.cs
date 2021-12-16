@@ -1,3 +1,4 @@
+using System;
 using Nerva.Desktop.Helpers;
 
 namespace Nerva.Desktop.Config
@@ -23,7 +24,8 @@ namespace Nerva.Desktop.Config
                 StopOnExit = true,
                 AutoStartMining = false,
                 MiningAddress = string.Empty,
-                MiningThreads = 2,
+                // By default, set mining threads to 50% of processors
+                MiningThreads = Environment.ProcessorCount > 1 ? Convert.ToInt32(Math.Floor(Environment.ProcessorCount / 2.00)) : 1,
                 AdditionalArguments = string.Empty,
 
                 Rpc = RpcDetails.New(testnet ? Constants.NERVAD_RPC_PORT_TESTNET : Constants.NERVAD_RPC_PORT_MAINNET)

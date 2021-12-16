@@ -134,7 +134,18 @@ namespace Nerva.Desktop.Content.Dialogs
                                 chkAutoStartMining,
                                 new Label { Text = "Additional Daemon Arguments" },
                                 txtAdditionalArguments,
-                                new Label { Text = "Mining Address" },
+                                new StackLayout
+                                {
+                                    Orientation = Orientation.Horizontal,
+                                    HorizontalContentAlignment = HorizontalAlignment.Right,
+                                    VerticalContentAlignment = VerticalAlignment.Center,
+                                    Spacing = 10,
+                                    Items =
+                                    {
+                                        new StackLayoutItem(new Label { Text = "Mining Address" }, true),
+                                        new Label { Text = "Threads       " }
+                                    }
+                                },                                                            
                                 new StackLayout
                                 {
                                     Orientation = Orientation.Horizontal,
@@ -227,11 +238,15 @@ namespace Nerva.Desktop.Content.Dialogs
                 nsWalletPort.Value != Configuration.Instance.Wallet.Rpc.Port ||
                 txtWalletPath.Text != Configuration.Instance.Wallet.WalletDir || // wallet port changed
                 txtAdditionalArguments.Text != Configuration.Instance.Daemon.AdditionalArguments) 
+            {
                 restartCliRequired = true;
+            }
 
             //Miner details have changed. Only restart miner
             if (txtMiningAddress.Text != Configuration.Instance.Daemon.MiningAddress || nsMiningThreads.Value != Configuration.Instance.Daemon.MiningThreads)
+            {
                 restartMinerRequired = true;
+            }
                 
             Configuration.Instance.ToolsPath = txtToolsPath.Text;
             Configuration.Instance.Testnet = chkTestnet.Checked.Value;

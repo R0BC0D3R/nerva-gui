@@ -325,6 +325,8 @@ namespace Nerva.Desktop
                             // This will be used to get rid of establishing connection message and to StartWalletUiUpdate 
                             isInitialDaemonConnectionSuccess = true;
                             daemonPage.btnStartStopMining.Enabled = true;
+                            daemonPage.nsMiningThreads.Enabled = true;
+                            daemonPage.btnChangeMiningThreads.Enabled = true;
                         }
 
                         isGetInfoSuccessful = true;
