@@ -880,7 +880,9 @@ namespace Nerva.Desktop
                         if (d.RestartMinerRequired)
                         {
                             DaemonRpc.StopMining();
+                            Logger.LogDebug("MF.FPC", "Mining stopped");
                             DaemonRpc.StartMining();
+                            Logger.LogDebug("MF.FPC", "Mining started");
                         }
                     }
                 }

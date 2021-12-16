@@ -46,131 +46,147 @@ namespace Nerva.Desktop.Content
 
         public void ConstructLayout()
         {
-			nsMiningThreads.Value = Configuration.Instance.Daemon.MiningThreads;
-			var peersCtx_Ban = new Command { MenuText = "Ban Peer" };
+			try
+			{				
+				nsMiningThreads.Value = Configuration.Instance.Daemon.MiningThreads;
+				var peersCtx_Ban = new Command { MenuText = "Ban Peer" };
 
-			grid = new GridView
-			{
-				GridLines = GridLines.Horizontal,
-				Columns = 
+				grid = new GridView
 				{
-					new GridColumn { DataCell = new TextBoxCell { Binding = Binding.Property<GetConnectionsResponseData, string>(r => r.Address)}, HeaderText = "Address", Width = 200 },
-					new GridColumn { DataCell = new TextBoxCell { Binding = Binding.Property<GetConnectionsResponseData, string>(r => r.Height.ToString())}, HeaderText = "Height", Width = 100 },
-					new GridColumn { DataCell = new TextBoxCell { Binding = Binding.Property<GetConnectionsResponseData, string>(r => TimeSpan.FromSeconds(r.LiveTime).ToString(@"hh\:mm\:ss"))}, HeaderText = "Live Time", Width = 100 },
-					new GridColumn { DataCell = new TextBoxCell { Binding = Binding.Property<GetConnectionsResponseData, string>(r => r.State)}, HeaderText = "State", Expand = true }
-				}
-			};
-
-			grid.ContextMenu = new ContextMenu
-			{
-				Items = 
-				{
-					peersCtx_Ban
-				}
-			};
-
-			peersCtx_Ban.Executed += (s, e) =>
-			{
-				if (grid.SelectedRow == -1)
-					return;
-
-				GetConnectionsResponseData c = (GetConnectionsResponseData)grid.DataStore.ElementAt(grid.SelectedRow);
-				DaemonRpc.BanPeer(c.IP);
-			};
-
-			mainControl = new StackLayout
-			{
-				Orientation = Orientation.Vertical,
-				HorizontalContentAlignment = HorizontalAlignment.Stretch,
-				VerticalContentAlignment = VerticalAlignment.Stretch,
-				Items = 
-				{
-					new StackLayoutItem(new TableLayout
+					GridLines = GridLines.Horizontal,
+					Columns =
 					{
-						Padding = 10,
-						Spacing = new Eto.Drawing.Size(10, 10),
-						Rows =
+						new GridColumn { DataCell = new TextBoxCell { Binding = Binding.Property<GetConnectionsResponseData, string>(r => r.Address)}, HeaderText = "Address", Width = 200 },
+						new GridColumn { DataCell = new TextBoxCell { Binding = Binding.Property<GetConnectionsResponseData, string>(r => r.Height.ToString())}, HeaderText = "Height", Width = 100 },
+						new GridColumn { DataCell = new TextBoxCell { Binding = Binding.Property<GetConnectionsResponseData, string>(r => TimeSpan.FromSeconds(r.LiveTime).ToString(@"hh\:mm\:ss"))}, HeaderText = "Live Time", Width = 100 },
+						new GridColumn { DataCell = new TextBoxCell { Binding = Binding.Property<GetConnectionsResponseData, string>(r => r.State)}, HeaderText = "State", Expand = true }
+					}
+				};
+
+				grid.ContextMenu = new ContextMenu
+				{
+					Items = 
+					{
+						peersCtx_Ban
+					}
+				};
+
+				peersCtx_Ban.Executed += (s, e) =>
+				{
+					if (grid.SelectedRow == -1)
+						return;
+
+					GetConnectionsResponseData c = (GetConnectionsResponseData)grid.DataStore.ElementAt(grid.SelectedRow);
+					DaemonRpc.BanPeer(c.IP);
+				};
+
+				mainControl = new StackLayout
+				{
+					Orientation = Orientation.Vertical,
+					HorizontalContentAlignment = HorizontalAlignment.Stretch,
+					VerticalContentAlignment = VerticalAlignment.Stretch,
+					Items = 
+					{
+						new StackLayoutItem(new TableLayout
 						{
-							new TableRow(
-								new TableCell(new Label { Text = "Daemon" }),
-								new TableCell(null),
-								new TableCell(null, true),
-								new TableCell(lblMinerStatus),
-								new TableCell(btnStartStopMining),
-								new TableCell(null)
-							),
-							new TableRow(
-								new TableCell(new Label { Text = "Height:" }),
-								new TableCell(lblHeight),
-								new TableCell(null, true),
-								new TableCell(new Label { Text = "Threads:" }),
-								new TableCell(
-									new StackLayout
-									{
-										Orientation = Orientation.Horizontal,
-										HorizontalContentAlignment = HorizontalAlignment.Right,
-										VerticalContentAlignment = VerticalAlignment.Center,
-										Spacing = 15,
-										Items =
-										{
-											lblMiningThreads,
-											nsMiningThreads,
-											btnChangeMiningThreads
-										}
-									}
+							Padding = 10,
+							Spacing = new Eto.Drawing.Size(10, 10),
+							Rows =
+							{
+								new TableRow(
+									new TableCell(new Label { Text = "Daemon" }),
+									new TableCell(null),
+									new TableCell(null, true),
+									new TableCell(lblMinerStatus),
+									new TableCell(btnStartStopMining),
+									new TableCell(null)
 								),
-								new TableCell(null)
-							),
-							new TableRow(
-								new TableCell(new Label { Text = "Run Time:" }),
-								new TableCell(lblRunTime),
-								new TableCell(null, true),
-								new TableCell(new Label { Text = "Address:" }),
-								new TableCell(lblMiningAddress),								
-								new TableCell(null)
-							),
-							new TableRow(
-								new TableCell(new Label { Text = "Net Hash:" }),
-								new TableCell(lblNetHash),
-								new TableCell(null, true),
-								new TableCell(new Label { Text = "Hash Rate:" }),
-								new TableCell(lblMiningHashrate),
-								new TableCell(null)
-							),
-							new TableRow(
-								new TableCell(new Label { Text = "Network:" }),
-								new TableCell(lblNetwork),
-								new TableCell(null, true),
-								new TableCell(new Label { Text = "Time to Block:" }),
-								new TableCell(lblTimeToBlock),
-								new TableCell(null)
-							)
-						}
-					}, false),
-					new StackLayoutItem(new Scrollable
-					{
-						Content = grid
-					}, true)
-				}
-			};
+								new TableRow(
+									new TableCell(new Label { Text = "Height:" }),
+									new TableCell(lblHeight),
+									new TableCell(null, true),
+									new TableCell(new Label { Text = "Threads:" }),
+									new TableCell(
+										new StackLayout
+										{
+											Orientation = Orientation.Horizontal,
+											HorizontalContentAlignment = HorizontalAlignment.Right,
+											VerticalContentAlignment = VerticalAlignment.Center,
+											Spacing = 15,
+											Items =
+											{
+												lblMiningThreads,
+												nsMiningThreads,
+												btnChangeMiningThreads
+											}
+										}
+									),
+									new TableCell(null)
+								),
+								new TableRow(
+									new TableCell(new Label { Text = "Run Time:" }),
+									new TableCell(lblRunTime),
+									new TableCell(null, true),
+									new TableCell(new Label { Text = "Address:" }),
+									new TableCell(lblMiningAddress),
+									new TableCell(null)
+								),
+								new TableRow(
+									new TableCell(new Label { Text = "Net Hash:" }),
+									new TableCell(lblNetHash),
+									new TableCell(null, true),
+									new TableCell(new Label { Text = "Hash Rate:" }),
+									new TableCell(lblMiningHashrate),
+									new TableCell(null)
+								),
+								new TableRow(
+									new TableCell(new Label { Text = "Network:" }),
+									new TableCell(lblNetwork),
+									new TableCell(null, true),
+									new TableCell(new Label { Text = "Time to Block:" }),
+									new TableCell(lblTimeToBlock),
+									new TableCell(null)
+								)
+							}
+						}, false),
+						new StackLayoutItem(new Scrollable
+						{
+							Content = grid
+						}, true)
+					}
+				};
 
-			btnStartStopMining.Click += (s, e) =>
-            {
-                GlobalMethods.StartStopMining();
-            };
-
-			btnChangeMiningThreads.Click += (s, e) =>
-			{
-				if(nsMiningThreads.Value != Configuration.Instance.Daemon.MiningThreads)
+				btnStartStopMining.Click += (s, e) =>
 				{
-					Configuration.Instance.Daemon.MiningThreads = (int)nsMiningThreads.Value;
+					GlobalMethods.StartStopMining();
+				};
 
-					Configuration.Save();
+				btnChangeMiningThreads.Click += (s, e) =>
+				{
+					if(nsMiningThreads.Value != Configuration.Instance.Daemon.MiningThreads)
+					{
+						try
+						{
+							Configuration.Instance.Daemon.MiningThreads = (int)nsMiningThreads.Value;
 
-					DaemonRpc.StopMining();
-					DaemonRpc.StartMining();
-				}
-			};
+							Configuration.Save();
+
+							DaemonRpc.StopMining();
+							Logger.LogDebug("MF.FPC", "Mining stopped");
+							DaemonRpc.StartMining();
+							Logger.LogDebug("MF.FPC", "Mining started");
+						}
+						catch (Exception ex2)
+						{
+							ErrorHandler.HandleException("DP.CY2", ex2, true);
+						}
+					}
+				};
+			}
+			catch (Exception ex)
+			{
+				ErrorHandler.HandleException("DP.CY", ex, true);
+			}
         }
 
 		public void UpdateInfo(GetInfoResponseData info)

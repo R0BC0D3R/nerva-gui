@@ -14,6 +14,7 @@ namespace Nerva.Desktop.Content.Dialogs
         public DialogBase(string title)
         {
             this.Title = title;
+            this.Topmost = true;
 
             // Set Icon but only if found. Otherwise, app will not work correctly
 			string iconFile = GlobalMethods.GetAppIcon();
