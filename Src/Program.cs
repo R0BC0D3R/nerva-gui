@@ -1,8 +1,6 @@
 ﻿using System;
 using System.IO;
-using System.Reflection;
 using AngryWasp.Cli.Args;
-using AngryWasp.Logger;
 using AngryWasp.Serializer;
 using Eto;
 using Eto.Forms;
@@ -10,7 +8,6 @@ using Nerva.Desktop.CLI;
 using Nerva.Desktop.Config;
 using Nerva.Desktop.Helpers;
 using Application = Eto.Forms.Application;
-using Log = AngryWasp.Logger.Log;
 
 #if UNIX
 using Nerva.Desktop.Helpers.Native;
@@ -67,7 +64,7 @@ namespace Nerva.Desktop
 			}
 #endif
 
-			InitializeLog(logFile);
+			Logger.InitializeLog(logFile);
 			Serializer.Initialize();
 			AddressBook.Load();
 
@@ -82,26 +79,26 @@ namespace Nerva.Desktop
 			if (args["cli-path"] != null)
 			{
 				string p = args["cli-path"].Value;
-				Log.Instance.Write($"CLI path manually set to {p}");
+				Logger.LogDebug("PROG.M", $"CLI path manually set to {p}");
 				Configuration.Instance.ToolsPath = p;
 			}
 
 			if (args["wallet-path"] != null)
 			{
 				string p = args["wallet-path"].Value;
-				Log.Instance.Write($"Wallet path manually set to {p}");
+				Logger.LogDebug("PROG.M", $"Wallet path manually set to {p}");
 				Configuration.Instance.Wallet.WalletDir = p;
 			}
 
 			try
 			{
 				Platform platform = Eto.Platform.Detect;
-				Log.Instance.Write($"Platform detected as {platform.ToString()}");
+				Logger.LogDebug("PROG.M", $"Platform detected as {platform.ToString()}");
 				new Application(platform).Run(new MainForm(newFile));
 			}
 			catch (Exception ex)
 			{
-				AngryWasp.Logger.Log.Instance.WriteNonFatalException(ex);
+				ErrorHandler.HandleException("P.M", ex, true);
 				Shutdown(true);
 			}
 			
@@ -120,27 +117,10 @@ namespace Nerva.Desktop
 			WalletProcess.ForceClose();
 
 			Configuration.Save();
-			Log.Instance.Write(Log_Severity.Fatal, "PROGRAM TERMINATED");
-			Log.Instance.Shutdown();
+			Logger.LogError("PROG.S", "PROGRAM TERMINATED");
+			Logger.ShutdownLog();
 
 			Environment.Exit(0);
-		}	
-
-		private static void InitializeLog(string logPath)
-		{
-			Log.CreateInstance(true, logPath);
-			Log.Instance.Write($"NERVA Desktop. Version {Version.LONG_VERSION}");
-
-			//Crash the program if not 64-bit
-			if (!Environment.Is64BitOperatingSystem)
-				Log.Instance.Write(Log_Severity.Fatal, "NERVA Desktop is only available for 64-bit platforms");
-
-			Log.Instance.Write(Log_Severity.None, "System Information:");
-			Log.Instance.Write(Log_Severity.None, $"OS: {Environment.OSVersion.Platform} {Environment.OSVersion.Version}");
-			Log.Instance.Write(Log_Severity.None, $"CPU Count: {Environment.ProcessorCount}");
-			
-			if (logPath != null)
-				Log.Instance.Write($"Writing log to file '{logPath}'");
 		}
 	}
 }

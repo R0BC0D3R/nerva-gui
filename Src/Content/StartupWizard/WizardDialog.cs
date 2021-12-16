@@ -101,7 +101,7 @@ namespace Nerva.Desktop.Content.Wizard
             }
             catch (Exception ex)
             {
-                ErrorHandling.HandleException("WizardDialog.ConstructContent", ex, true);
+                ErrorHandler.HandleException("WD.CC", ex, true);
             }
         }
 

@@ -1,13 +1,11 @@
 using System;
 using System.Collections.Generic;
 using Eto.Forms;
-using AngryWasp.Logger;
 using Nerva.Desktop.Helpers;
 using Nerva.Desktop.Content.Dialogs;
 using Nerva.Rpc.Wallet;
 using Configuration = Nerva.Desktop.Config.Configuration;
 using Nerva.Rpc;
-using Log = AngryWasp.Logger.Log;
 using Nerva.Desktop.CLI;
 
 namespace Nerva.Desktop.Content
@@ -44,10 +42,10 @@ namespace Nerva.Desktop.Content
 				Configuration.Save();
 
 				DaemonRpc.StopMining();
-				Log.Instance.Write("Mining stopped");
+				Logger.LogDebug("BP.CTL", "Mining stopped");
 
 				if (DaemonRpc.StartMining())
-					Log.Instance.Write($"Mining started for @ {Conversions.WalletAddressShortForm(Configuration.Instance.Daemon.MiningAddress)} on {Configuration.Instance.Daemon.MiningThreads} threads");
+					Logger.LogDebug("BP.CTL", $"Mining started for @ {Conversions.WalletAddressShortForm(Configuration.Instance.Daemon.MiningAddress)} on {Configuration.Instance.Daemon.MiningThreads} threads");
 			};
 
 			ctx_Info.Executed += (s, e) =>
@@ -229,7 +227,7 @@ namespace Nerva.Desktop.Content
 			}
 			catch (Exception ex)
 			{
-				AngryWasp.Logger.Log.Instance.Write(Log_Severity.Error, $".NET Exception, {ex.Message}");
+				ErrorHandler.HandleException("BP.UPD", ex, $".NET Exception, {ex.Message}", false);
 			}
 		}
     }

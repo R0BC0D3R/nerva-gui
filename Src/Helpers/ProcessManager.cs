@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using AngryWasp.Helpers;
-using AngryWasp.Logger;
 using Nerva.Desktop.Config;
 
 #if UNIX
@@ -27,24 +26,24 @@ namespace Nerva.Desktop.Helpers
 
                 if (pl.Count == 0)
                 {
-                    Log.Instance.Write(Log_Severity.Info, $"No instances of {exe} to kill");
+                    Logger.LogDebug("PM.KIL", $"No instances of {exe} to kill");
                     return;
                 }
 
                 foreach (Process p in pl)
                 {
-                    Log.Instance.Write(Log_Severity.Warning, $"Killing running instance of {exe} with id {p.Id}");
+                    Logger.LogDebug("PM.KIL", $"Killing running instance of {exe} with id {p.Id}");
 #if UNIX
                     UnixNative.Kill(p.Id, Signum.SIGABRT);
 #else
                     p.Kill();
 #endif
-                    Log.Instance.Write($"Process {p.Id} killed");
+                    Logger.LogDebug("PM.KIL", $"Process {p.Id} killed");
                 }
             }
             catch (Exception ex)
             {
-                Log.Instance.WriteNonFatalException(ex, "Could not kill process");
+                ErrorHandler.HandleException("PM.KIL", ex, "Could not kill process", false);
             }
         }
 
@@ -103,7 +102,7 @@ namespace Nerva.Desktop.Helpers
 
                 if (p == null || p.HasExited)
                 {
-                    Log.Instance.Write(Log_Severity.Warning, $"CLI tool {exe} exited unexpectedly. Restarting");
+                    Logger.LogDebug("PM.IR", $"CLI tool {exe} exited unexpectedly. Restarting");
                     p = null;
                     return false;
                 }
@@ -112,7 +111,7 @@ namespace Nerva.Desktop.Helpers
             }
             catch (Exception ex)
             {
-                Log.Instance.Write(Log_Severity.Warning, ex.Message);
+                ErrorHandler.HandleException("PM.IR", ex, false);
                 return false;
             }
         }
@@ -135,7 +134,7 @@ namespace Nerva.Desktop.Helpers
 
         public static void StartExternalProcess(string exePath, string args)
         {
-            Log.Instance.Write($"Starting process {ExeNameToProcessName(exePath)} {args}");
+            Logger.LogDebug("PM.SEP", $"Starting process {ExeNameToProcessName(exePath)} {args}");
 
             Process proc = Process.Start(new ProcessStartInfo(exePath, args)
             {
@@ -162,7 +161,7 @@ namespace Nerva.Desktop.Helpers
             catch (Exception)
             {
                 logFile = FileHelper.RenameDuplicateFile(logFile);
-                Log.Instance.Write(Log_Severity.Warning, $"Cannot cycle log file. New log will be written to {logFile}");
+                Logger.LogError("PM.CLF", $"Cannot cycle log file. New log will be written to {logFile}");
                 return logFile;
             }
 
@@ -175,7 +174,7 @@ namespace Nerva.Desktop.Helpers
 
             if (Configuration.Instance.Testnet)
             {
-                Log.Instance.Write("Connecting to testnet");
+                Logger.LogDebug("PM.GCL", "Connecting to testnet");
                 arg += " --testnet";
             }
 

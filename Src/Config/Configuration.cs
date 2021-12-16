@@ -1,6 +1,6 @@
+using System;
 using System.IO;
 using AngryWasp.Helpers;
-using AngryWasp.Logger;
 using AngryWasp.Serializer;
 using Nerva.Desktop.Helpers;
 
@@ -53,32 +53,32 @@ namespace Nerva.Desktop.Config
             if(instance == null)
             {
                 instance = Configuration.New();
-                Log.Instance.Write("Config.SetMissingElements: Instance was null. Created new one");
+                Logger.LogDebug("CON.SME", "Config.SetMissingElements: Instance was null. Created new one");
             }
             else 
             {
                 if(string.IsNullOrEmpty(instance.ToolsPath))
                 {
                     instance.ToolsPath = Path.Combine(storageDirectory, "cli");
-                    Log.Instance.Write("Config.SetMissingElements: ToolsPath was null. Set to: " + instance.ToolsPath);
+                    Logger.LogDebug("CON.SME", "Config.SetMissingElements: ToolsPath was null. Set to: " + instance.ToolsPath);
                 }
 
                 if(string.IsNullOrEmpty(instance.AddressBookPath))
                 {
                     instance.AddressBookPath = Path.Combine(storageDirectory, "address-book.xml");
-                    Log.Instance.Write("Config.SetMissingElements: AddressBookPath was null. Set to: " + instance.AddressBookPath);
+                    Logger.LogDebug("CON.SME", "Config.SetMissingElements: AddressBookPath was null. Set to: " + instance.AddressBookPath);
                 }
 
                 if(instance.Daemon == null)
                 {
                     instance.Daemon = Daemon.New(false);
-                    Log.Instance.Write("Config.SetMissingElements: Daemon was null. Created new one");
+                    Logger.LogDebug("CON.SME", "Config.SetMissingElements: Daemon was null. Created new one");
                 }
 
                 if(instance.Wallet == null)
                 {
                     instance.Wallet = Wallet.New();
-                    Log.Instance.Write("Config.SetMissingElements: Wallet was null. Created new one");
+                    Logger.LogDebug("CON.SME", "Config.SetMissingElements: Wallet was null. Created new one");
                 }
             }            
         }
@@ -98,13 +98,13 @@ namespace Nerva.Desktop.Config
 
                 try
                 {
-                    Log.Instance.Write($"Configuration loaded from '{loadedConfigFile}'");
+                    Logger.LogDebug("CON.LD", $"Configuration loaded from '{loadedConfigFile}'");
                     var os = new ObjectSerializer();
                     instance = os.Deserialize<Configuration>(XHelper.LoadDocument(loadedConfigFile));
                 }
-                catch
+                catch(Exception ex)
                 {
-                    Log.Instance.Write(Log_Severity.Fatal, $"There is an error loading the config file. Delete file {file} and try again");
+                    ErrorHandler.HandleException("CON.LD", ex, $"There is an error loading the config file. Delete file {file} and try again", true);
                 }
             }
         }
@@ -112,7 +112,7 @@ namespace Nerva.Desktop.Config
         public static void Save()
         {
             new ObjectSerializer().Serialize(instance, loadedConfigFile);
-            Log.Instance.Write($"Configuration saved to '{loadedConfigFile}'");
+            Logger.LogDebug("CON.SV", $"Configuration saved to '{loadedConfigFile}'");
         }
 
         #endregion

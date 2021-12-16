@@ -1,5 +1,4 @@
 using System;
-using AngryWasp.Logger;
 
 namespace Nerva.Desktop.Helpers
 {
@@ -32,7 +31,7 @@ namespace Nerva.Desktop.Helpers
             }
             catch (Exception ex)
             {
-                ErrorHandling.HandleException("Conversions.VersionStringToInt", ex, false);
+                ErrorHandler.HandleException("CV.VSTI", ex, false);
             }
 
             return version;

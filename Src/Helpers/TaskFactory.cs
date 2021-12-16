@@ -3,7 +3,6 @@ using System.Collections.Concurrent;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using AngryWasp.Logger;
 
 namespace Nerva.Desktop.Helpers
 {
@@ -87,7 +86,7 @@ namespace Nerva.Desktop.Helpers
             }
             else
             {
-                Log.Instance.Write(Log_Severity.Error, $"Task {name} is already running");
+                Logger.LogError("TF.RT", $"Task {name} is already running");
                 return null;
             }
         }
@@ -105,7 +104,9 @@ namespace Nerva.Desktop.Helpers
                 {
                     TaskContainer tc = null;
                     if (!containers.TryRemove(c.Key, out tc))
-                        Log.Instance.Write(Log_Severity.Error, $"Failed to remove task {c.Key} from TaskFactory");
+                    {
+                        Logger.LogError("TF.PRU", $"Failed to remove task {c.Key} from TaskFactory");
+                    }
                 }
             }
         }

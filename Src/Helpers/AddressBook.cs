@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
 using AngryWasp.Helpers;
-using AngryWasp.Logger;
 using AngryWasp.Serializer;
 using Nerva.Desktop.Config;
 
@@ -42,12 +41,12 @@ namespace Nerva.Desktop.Helpers
             {
                 instance = New();
         
-                Log.Instance.Write($"Address Book created at '{file}'");
+                Logger.LogDebug("AB.LOAD", $"Address Book created at '{file}'");
                 new ObjectSerializer().Serialize(instance, file);
             }
             else
             {
-                Log.Instance.Write($"Address Book loaded from '{file}'");
+                Logger.LogDebug("AB.LOAD", $"Address Book loaded from '{file}'");
                 instance = new ObjectSerializer().Deserialize<AddressBook>(XHelper.LoadDocument(file));
             }
         }
@@ -55,7 +54,7 @@ namespace Nerva.Desktop.Helpers
         public static void Save()
         {
             new ObjectSerializer().Serialize(instance, file);
-            Log.Instance.Write($"Address Book saved to '{file}'");
+            Logger.LogDebug("AB.SAVE", $"Address Book saved to '{file}'");
         }
     }
 }

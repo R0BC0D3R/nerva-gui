@@ -1,7 +1,6 @@
 using System;
 using System.IO;
 using System.Net;
-using AngryWasp.Logger;
 using Eto.Drawing;
 using Eto.Forms;
 using Nerva.Desktop.Config;
@@ -31,7 +30,7 @@ namespace Nerva.Desktop.Content.Wizard
 
         public override Control CreateContent()
         {
-            Log.Instance.Write("GCC.CreateContent: OS Type: " + OS.Type);
+            Logger.LogDebug("GCC.CC", "OS Type: " + OS.Type);
             switch (OS.Type)
             {
                 case OS_Type.Unsupported:
@@ -110,7 +109,7 @@ namespace Nerva.Desktop.Content.Wizard
             }
             catch (Exception ex)
             {
-                ErrorHandling.HandleException("GCC.CreateContent", ex, true);
+                ErrorHandler.HandleException("GCC.CC", ex, true);
             }
 
             return layout;
@@ -136,8 +135,8 @@ namespace Nerva.Desktop.Content.Wizard
 
         public override void OnAssignContent()
         {
-            Log.Instance.Write("GCC.OnAssignContent: OS Type: " + OS.Type);
-            Log.Instance.Write("GCC.OnAssignContent: Daemon Path: " + FileNames.DaemonPath);
+            Logger.LogDebug("GCC.OAC", "OS Type: " + OS.Type);
+            Logger.LogDebug("GCC.OAC", "Daemon Path: " + FileNames.DaemonPath);
             btnDownload.Enabled = OS.Type != OS_Type.Unsupported;
             Parent.EnableNextButton(File.Exists(FileNames.DaemonPath));
         }
@@ -173,7 +172,7 @@ namespace Nerva.Desktop.Content.Wizard
                         { 
                             Parent.EnableNextButton(true);
                             Configuration.Instance.ToolsPath = dest;
-                            Log.Instance.Write($"Setting Config.ToolsPath: {dest}");
+                            Logger.LogDebug("GCC.HDC", $"Setting Config.ToolsPath: {dest}");
                         }
                         else
                         {
@@ -187,7 +186,7 @@ namespace Nerva.Desktop.Content.Wizard
             }
             catch (Exception ex)
             {
-                ErrorHandling.HandleException("GetCliContent.HandleDownloadClick", ex, true);
+                ErrorHandler.HandleException("GCC.HDC", ex, true);
             }
         }
     }

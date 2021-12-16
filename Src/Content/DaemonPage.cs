@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using Nerva.Desktop.Helpers;
 using System.Linq;
-using AngryWasp.Logger;
 using Eto.Forms;
 using Nerva.Desktop.CLI;
 using AngryWasp.Helpers;
@@ -163,7 +162,7 @@ namespace Nerva.Desktop.Content
 					else if (info.Testnet)
 						lblNetwork.Text = "TestNet";
 					else
-						Log.Instance.Write(Log_Severity.Fatal, "Unknown network connection type");
+						ErrorHandler.HandleException("DP.UI", new Exception("Unknown network"), "Unknown network connection type", false);
 				}
 				else
 				{
@@ -177,7 +176,7 @@ namespace Nerva.Desktop.Content
 			}
 			catch (Exception ex)
 			{
-				AngryWasp.Logger.Log.Instance.Write(Log_Severity.Error, $".NET Exception, {ex.Message}");
+				ErrorHandler.HandleException("DP.UI", ex, false);
 			}
 		}
 
@@ -194,7 +193,7 @@ namespace Nerva.Desktop.Content
 			}
 			catch (Exception ex)
 			{
-				AngryWasp.Logger.Log.Instance.Write(Log_Severity.Error, $".NET Exception, {ex.Message}");
+				ErrorHandler.HandleException("DP.UC", ex, false);
 			}
 		}
 
@@ -237,7 +236,7 @@ namespace Nerva.Desktop.Content
 			}
 			catch (Exception ex)
 			{
-				AngryWasp.Logger.Log.Instance.Write(Log_Severity.Error, $".NET Exception, {ex.Message}");
+				ErrorHandler.HandleException("DP.UMS", ex, false);
 			}
 		}
     }

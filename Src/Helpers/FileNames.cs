@@ -1,5 +1,4 @@
 using System.IO;
-using AngryWasp.Logger;
 using Nerva.Desktop.Config;
 
 namespace Nerva.Desktop.Helpers
@@ -19,17 +18,19 @@ namespace Nerva.Desktop.Helpers
             get {
                 if (string.IsNullOrEmpty(Configuration.Instance.ToolsPath))
                 {
-                    Log.Instance.Write(Log_Severity.Warning, "ToolPath is null. Trying to use default...");
+                    Logger.LogDebug("FN.DP", "ToolPath is null. Trying to use default...");
                     Configuration.SetMissingElements();
 
                     if(string.IsNullOrEmpty(Configuration.Instance.ToolsPath))
                     {
-                        Log.Instance.Write(Log_Severity.Warning, "ToolPath is null. Could not recover");
+                        Logger.LogDebug("FN.DP", "ToolPath is null. Could not recover");
                     }
                 }
 
                 if (string.IsNullOrEmpty(NERVAD))
-                    Log.Instance.Write(Log_Severity.Fatal, "NERVAD is null");
+                {
+                    Logger.LogError("FN.DP", "NERVAD is null and it should never be!");
+                }
 
                 return Path.Combine(Configuration.Instance.ToolsPath, NERVAD);
             }

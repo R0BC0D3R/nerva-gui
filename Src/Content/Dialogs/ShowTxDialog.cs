@@ -2,7 +2,6 @@ using AngryWasp.Helpers;
 using Eto.Forms;
 using Nerva.Rpc.Wallet;
 using Nerva.Desktop.Helpers;
-using Log = AngryWasp.Logger.Log;
 
 namespace Nerva.Desktop.Content.Dialogs
 {
@@ -59,7 +58,7 @@ namespace Nerva.Desktop.Content.Dialogs
 		protected override void OnOk()
 		{
 			// Saving transactions does not apply so button is invisible. This should never log
-			Log.Instance.Write("Saving transactions disabled.  Why are you here?");
+			Logger.LogInfo("STD.OO", "Saving transactions disabled.  Why are you here?");
 			Close(DialogResult.Ok);
 		}
 

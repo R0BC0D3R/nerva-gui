@@ -4,7 +4,6 @@ using Eto.Forms;
 using Nerva.Rpc.Daemon;
 using Nerva.Desktop.CLI;
 using Configuration = Nerva.Desktop.Config.Configuration;
-using Log = AngryWasp.Logger.Log;
 
 namespace Nerva.Desktop.Helpers
 {
@@ -19,13 +18,13 @@ namespace Nerva.Desktop.Helpers
                     if (r.Active)
                     {
                         DaemonRpc.StopMining();
-                        Log.Instance.Write("Mining stopped");                        
+                        Logger.LogInfo("GM.SSM", "Mining stopped");                        
                     }
                     else
                     {
                         if (DaemonRpc.StartMining())
                         {
-                            Log.Instance.Write($"Mining started for @ {Conversions.WalletAddressShortForm(Configuration.Instance.Daemon.MiningAddress)} on {Configuration.Instance.Daemon.MiningThreads} threads");
+                            Logger.LogInfo("GM.SSM",$"Mining started for @ {Conversions.WalletAddressShortForm(Configuration.Instance.Daemon.MiningAddress)} on {Configuration.Instance.Daemon.MiningThreads} threads");
                         }
                         else
                         {
@@ -41,7 +40,7 @@ namespace Nerva.Desktop.Helpers
             }
             catch (Exception ex)
             {
-                ErrorHandling.HandleException("GM.StartStopMining", ex, false);
+                ErrorHandler.HandleException("GM.SSM", ex, false);
             }
         }
 
@@ -60,7 +59,7 @@ namespace Nerva.Desktop.Helpers
             }
             catch (Exception ex)
             {
-                ErrorHandling.HandleException("GM.GetAppIcon", ex, false);
+                ErrorHandler.HandleException("GM.GAI", ex, false);
             }
 
             return iconFile;

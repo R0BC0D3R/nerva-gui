@@ -2,7 +2,6 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using Eto.Forms;
-using AngryWasp.Logger;
 using Nerva.Desktop.Helpers;
 using AngryWasp.Helpers;
 using Nerva.Desktop.Content.Dialogs;
@@ -10,7 +9,6 @@ using Nerva.Desktop.CLI;
 using Nerva.Rpc.Wallet;
 using Nerva.Rpc;
 using Configuration = Nerva.Desktop.Config.Configuration;
-using Log = AngryWasp.Logger.Log;
 
 namespace Nerva.Desktop.Content
 {
@@ -125,7 +123,7 @@ namespace Nerva.Desktop.Content
             }
             catch (Exception ex)
             {
-                AngryWasp.Logger.Log.Instance.Write(Log_Severity.Error, $".NET Exception, {ex.Message}");
+                ErrorHandler.HandleException("TP.UPD", ex, false);
             }
         }
 
@@ -162,7 +160,7 @@ namespace Nerva.Desktop.Content
                     while ((height = merged[i].Height) > lastHeight)
                     {
                         ++i;
-                        Log.Instance.Write($"Found TX on block {height}");
+                        Logger.LogDebug("TP.PNT", $"Found TX on block {height}");
 
                         if (i >= merged.Count)
                             break;

@@ -48,7 +48,7 @@ namespace Nerva.Desktop.Content.Wizard
             }
             catch (Exception ex)
             {
-                ErrorHandling.HandleException("FinishedContent.CreateContent", ex, true);
+                ErrorHandler.HandleException("FC.CC", ex, true);
             }
 
             return layout;

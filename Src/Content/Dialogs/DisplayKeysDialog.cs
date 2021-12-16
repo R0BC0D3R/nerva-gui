@@ -2,7 +2,7 @@ using Eto.Forms;
 using Nerva.Rpc;
 using Nerva.Rpc.Wallet;
 using Nerva.Desktop.CLI;
-using Log = AngryWasp.Logger.Log;
+using Nerva.Desktop.Helpers;
 
 namespace Nerva.Desktop.Content.Dialogs
 {
@@ -109,7 +109,7 @@ namespace Nerva.Desktop.Content.Dialogs
         protected override void OnOk()
         {
             // Saving keys does not apply and button is invisible. This should never log
-            Log.Instance.Write("Saving keys disabled.  Why are you here?");
+            Logger.LogDebug("DKD.OOk", "Saving keys disabled.  Why are you here?");
             this.Close(DialogResult.Ok);
         }
 

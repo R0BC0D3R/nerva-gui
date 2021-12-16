@@ -5,7 +5,6 @@ using System.IO;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using AngryWasp.Logger;
 using Eto.Forms;
 using Eto.Drawing;
 using Nerva.Rpc;
@@ -16,7 +15,6 @@ using Nerva.Desktop.Content.Dialogs;
 using Nerva.Desktop.Content.Wizard;
 using Nerva.Desktop.Helpers;
 using Configuration = Nerva.Desktop.Config.Configuration;
-using Log = AngryWasp.Logger.Log;
 
 namespace Nerva.Desktop
 {
@@ -57,7 +55,7 @@ namespace Nerva.Desktop
             }
             catch (Exception ex)
             {
-                ErrorHandling.HandleException("MAIN.Constructor", ex, true);
+                ErrorHandler.HandleException("MF.C", ex, true);
             }
         }
 
@@ -72,7 +70,7 @@ namespace Nerva.Desktop
             }
             catch (Exception ex)
             {
-                ErrorHandling.HandleException("MAIN.MainFormClosing", ex, false);
+                ErrorHandler.HandleException("MF.MFC", ex, false);
             }
         }
 
@@ -108,7 +106,7 @@ namespace Nerva.Desktop
             }
             catch (Exception ex)
             {
-                ErrorHandling.HandleException("MAIN.StartUpdateTaskList", ex, false);
+                ErrorHandler.HandleException("MF.SUTL", ex, false);
             }
         }
 
@@ -116,7 +114,7 @@ namespace Nerva.Desktop
         {
             try
             {
-                Log.Instance.Write("Entering StartMasterUpdateProcess");
+                Logger.LogDebug("MF.SMUP", "Start Master Update Process");
 
                 if(masterTimer == null)
                 {
@@ -125,12 +123,12 @@ namespace Nerva.Desktop
                     masterTimer.Elapsed += (s, e) => MasterUpdateProcess();
                     masterTimer.Start();
 
-                    Log.Instance.Write("Master timer will start in 5 seconds");
+                    Logger.LogDebug("MF.SMUP", "Master timer will start in 5 seconds");
                 }
             }
             catch (Exception ex)
             {
-                ErrorHandling.HandleException("MAIN.StartMasterUpdateProcess", ex, false);
+                ErrorHandler.HandleException("MF.SMUP", ex, false);
             }
         }
 
@@ -170,14 +168,14 @@ namespace Nerva.Desktop
             }
             catch (Exception ex)
             {
-                ErrorHandling.HandleException("MAIN.MasterUpdateProcess", ex, false);
+                ErrorHandler.HandleException("MF.MUP", ex, false);
             }
             finally
             {
                 // Restart timer
                 if (masterTimer == null)
                 {
-                    Log.Instance.Write("MAIN.MasterUpdateProcess. Timer is NULL. Recreating. Why?");
+                    Logger.LogError("MF.MUP", "Timer is NULL. Recreating. Why?");
                     masterTimer = new System.Timers.Timer();
                     masterTimer.Interval = 5000;
                     masterTimer.Elapsed += (s, e) => MasterUpdateProcess();
@@ -201,19 +199,19 @@ namespace Nerva.Desktop
                     if(FileNames.DirectoryContainsCliTools(Configuration.Instance.ToolsPath))
                     {
                         DaemonProcess.ForceClose();
-                        Log.Instance.Write("MAIN.KeepDaemonRunning: Starting daemon process");
+                        Logger.LogDebug("MF.KDR", "Starting daemon process");
                         ProcessManager.StartExternalProcess(FileNames.DaemonPath, DaemonProcess.GenerateCommandLine());
                         isInitialDaemonConnectionSuccess = false;
                     }
                     else 
                     {
-                        Log.Instance.Write("MAIN.KeepDaemonRunning: CLI tools not found");
+                        Logger.LogDebug("MF.KDR", "CLI tools not found");
                     }
                 }
             }
             catch (Exception ex)
             {
-                ErrorHandling.HandleException("MAIN.KeepDaemonRunning", ex, false);
+                ErrorHandler.HandleException("MF.KDR", ex, false);
             }
         }
 
@@ -228,18 +226,18 @@ namespace Nerva.Desktop
                     if(FileNames.DirectoryContainsCliTools(Configuration.Instance.ToolsPath))
                     {
                         WalletProcess.ForceClose();
-                        Log.Instance.Write("MAIN.KeepDaemonRunning: Starting wallet process");
+                        Logger.LogDebug("MF.KWPR", "Starting wallet process");
                         ProcessManager.StartExternalProcess(FileNames.RpcWalletPath, WalletProcess.GenerateCommandLine());
                     }
                     else 
                     {
-                        Log.Instance.Write("MAIN.KeepWalletProcessRunning: CLI tools not found");
+                        Logger.LogDebug("MF.KWPR", "CLI tools not found");
                     }
                 }
             }
             catch (Exception ex)
             {
-                ErrorHandling.HandleException("MAIN.KeepWalletProcessRunning", ex, false);
+                ErrorHandler.HandleException("MF.KWPR", ex, false);
             }
         }
         public void WalletUiUpdate()
@@ -277,7 +275,7 @@ namespace Nerva.Desktop
             }
             catch (Exception ex)
             {
-                ErrorHandling.HandleException("MAIN.WalletUiUpdate", ex, false);
+                ErrorHandler.HandleException("MF.WUU", ex, false);
             }
         }
 
@@ -287,7 +285,7 @@ namespace Nerva.Desktop
             {
                 if (e.Code != -13) //skip messages about not having a wallet open
                 {
-                    Log.Instance.Write(Log_Severity.Error, $"Wallet update failed, Code {e.Code}: {e.Message}");
+                    Logger.LogError("MF.WUF", $"Wallet update failed, Code {e.Code}: {e.Message}");
                 }
 
                 Application.Instance.AsyncInvoke(() =>
@@ -300,7 +298,7 @@ namespace Nerva.Desktop
             }
             catch (Exception ex)
             {
-                ErrorHandling.HandleException("MAIN.WalletUpdateFailed", ex, false);
+                ErrorHandler.HandleException("MF.WUF", ex, false);
             }
         }
 
@@ -384,7 +382,7 @@ namespace Nerva.Desktop
             }
             catch (Exception ex)
             {
-                ErrorHandling.HandleException("MAIN.DaemonUiUpdate", ex, false);
+                ErrorHandler.HandleException("MF.DUU", ex, false);
             }
         }
 
@@ -396,7 +394,7 @@ namespace Nerva.Desktop
             }
             catch (Exception ex)
             {
-                ErrorHandling.HandleException("MAIN.ToggleMiningClicked", ex, true);
+                ErrorHandler.HandleException("MF.DTMC", ex, true);
             }
         }
 
@@ -405,13 +403,13 @@ namespace Nerva.Desktop
             try
             {
                 //Log the restart and kill the daemon
-                Log.Instance.Write("Restarting daemon");
+                Logger.LogDebug("MF.DRC", "Restarting daemon");
                 DaemonRpc.StopDaemon();
                 DaemonProcess.ForceClose();
             }
             catch (Exception ex)
             {
-                ErrorHandling.HandleException("MAIN.DaemonRestartClicked", ex, true);
+                ErrorHandler.HandleException("MF.DRC", ex, true);
             }
         }
 
@@ -446,7 +444,7 @@ namespace Nerva.Desktop
             }
             catch (Exception ex)
             {
-                ErrorHandling.HandleException("MAIN.NewWalletClicked", ex, true);
+                ErrorHandler.HandleException("MF.WNC", ex, true);
             }
         }
 
@@ -462,7 +460,7 @@ namespace Nerva.Desktop
             }
             catch (Exception ex)
             {
-                ErrorHandling.HandleException("MAIN.OpenWalletClicked", ex, true);
+                ErrorHandler.HandleException("MF.OWC", ex, true);
             }
         }
 
@@ -497,7 +495,7 @@ namespace Nerva.Desktop
             }
             catch (Exception ex)
             {
-                ErrorHandling.HandleException("MAIN.ImportWalletClicked", ex, true);
+                ErrorHandler.HandleException("MF.IWC", ex, true);
             }
         }
 
@@ -518,25 +516,27 @@ namespace Nerva.Desktop
                     Helpers.TaskFactory.Instance.RunTask("openwallet", $"Opening wallet {name}", () =>
                     {
                         WalletRpc.OpenWallet(name, password, () => {
-                            Log.Instance.Write($"Opened wallet {name}");
+                            Logger.LogDebug("MF.ONW", $"Opened wallet {name}");
                         }, OpenError);
                     });
                 }, (RequestError error) =>
                 {
                     if (error.Code != -13)
-                        Log.Instance.Write(Log_Severity.Error, $"Error closing wallet: {error.Message}");
+                    {
+                        Logger.LogError("MF.ONW", $"Error closing wallet: {error.Message}");
+                    }
 
                     Helpers.TaskFactory.Instance.RunTask("openwallet", $"Opening wallet {name}", () =>
                     {
                         WalletRpc.OpenWallet(name, password, () => {
-                            Log.Instance.Write($"Opened wallet {name}");
+                            Logger.LogDebug("MF.ONW", $"Opened wallet {name}");
                         }, OpenError);
                     });
                 });
             }
             catch (Exception ex)
             {
-                ErrorHandling.HandleException("MAIN.OpenNewWallet", ex, false);
+                ErrorHandler.HandleException("MF.ONW", ex, false);
             }
         }
 
@@ -559,7 +559,7 @@ namespace Nerva.Desktop
             }
             catch (Exception ex)
             {
-                ErrorHandling.HandleException("MAIN.CreateSuccess", ex, false);
+                ErrorHandler.HandleException("MF.CS", ex, false);
             }
         }
 
@@ -575,7 +575,7 @@ namespace Nerva.Desktop
             }
             catch (Exception ex)
             {
-                ErrorHandling.HandleException("MAIN.CreateError", ex, false);
+                ErrorHandler.HandleException("MF.CE", ex, false);
             }
         }
 
@@ -595,7 +595,7 @@ namespace Nerva.Desktop
             }
             catch (Exception ex)
             {
-                ErrorHandling.HandleException("MAIN.OpenError", ex, false);
+                ErrorHandler.HandleException("MF.OE", ex, false);
             }
         }
 
@@ -605,7 +605,7 @@ namespace Nerva.Desktop
             {
                 Helpers.TaskFactory.Instance.RunTask("store", $"Saving wallet information", () =>
                 {
-                    Log.Instance.Write("Saving wallet");
+                    Logger.LogDebug("MF.WSeC", "Saving wallet");
                     WalletRpc.Store();
 
                     Application.Instance.AsyncInvoke(() =>
@@ -617,7 +617,7 @@ namespace Nerva.Desktop
             }
             catch (Exception ex)
             {
-                ErrorHandling.HandleException("MAIN.WalletStoreClicked", ex, true);
+                ErrorHandler.HandleException("MF.WSeC", ex, true);
             }
         }
 
@@ -627,7 +627,7 @@ namespace Nerva.Desktop
             {
                 Helpers.TaskFactory.Instance.RunTask("closewallet", "Closing the wallet", () => 
                 {
-                    Log.Instance.Write("Closing wallet");
+                    Logger.LogDebug("MF.WSpC","Closing wallet");
                     lastTxHeight = 0;
 
                     WalletRpc.CloseWallet(null, null);
@@ -642,7 +642,7 @@ namespace Nerva.Desktop
             }
             catch (Exception ex)
             {
-                ErrorHandling.HandleException("MAIN.WalletStopClicked", ex, true);
+                ErrorHandler.HandleException("MF.WSpC", ex, true);
             }
         }
 
@@ -652,11 +652,15 @@ namespace Nerva.Desktop
             {
                 Helpers.TaskFactory.Instance.RunTask("rescanspent", $"Rescanning spent outputs", () =>
                 {
-                    Log.Instance.Write("Rescanning spent outputs");
+                    Logger.LogDebug("MF.WRSC", "Rescanning spent outputs");
                     if (!WalletRpc.RescanSpent())
-                        Log.Instance.Write("Rescanning spent outputs failed");
+                    {
+                        Logger.LogDebug("MF.WRSC", "Rescanning spent outputs failed");
+                    }
                     else
-                        Log.Instance.Write("Rescanning spent outputs success");
+                    {
+                        Logger.LogDebug("MF.WRSC", "Rescanning spent outputs success");
+                    }
 
                     Application.Instance.AsyncInvoke(() =>
                     {
@@ -667,7 +671,7 @@ namespace Nerva.Desktop
             }
             catch (Exception ex)
             {
-                ErrorHandling.HandleException("MAIN.WalletRescanSpentClicked", ex, true);
+                ErrorHandler.HandleException("MF.WRSC", ex, true);
             }
         }
 
@@ -677,11 +681,15 @@ namespace Nerva.Desktop
             {
                 Helpers.TaskFactory.Instance.RunTask("rescanchain", $"Rescanning the blockchain", () =>
                 {
-                    Log.Instance.Write("Rescanning blockchain");
+                    Logger.LogDebug("MF.WRBC", "Rescanning blockchain");
                     if (!WalletRpc.RescanBlockchain())
-                        Log.Instance.Write("Rescanning blockchain failed");
+                    {
+                        Logger.LogError("MF.WRBC", "Rescanning blockchain failed");
+                    }
                     else
-                        Log.Instance.Write("Rescanning blockchain success");
+                    {
+                        Logger.LogDebug("MF.WRBC", "Rescanning blockchain success");
+                    }
 
                     Application.Instance.AsyncInvoke(() =>
                     {
@@ -692,7 +700,7 @@ namespace Nerva.Desktop
             }
             catch (Exception ex)
             {
-                ErrorHandling.HandleException("MAIN.WalletRescanBlockchainClicked", ex, true);
+                ErrorHandler.HandleException("MF.WRBC", ex, true);
             }
         }
 
@@ -704,7 +712,7 @@ namespace Nerva.Desktop
             }
             catch (Exception ex)
             {
-                ErrorHandling.HandleException("MAIN.WalletKeysViewClicked", ex, true);
+                ErrorHandler.HandleException("MF.WKVC", ex, true);
             }
         }
 
@@ -737,7 +745,7 @@ namespace Nerva.Desktop
             }
             catch (Exception ex)
             {
-                ErrorHandling.HandleException("MAIN.WalletAccountCreateClicked", ex, true);
+                ErrorHandler.HandleException("MF.WACC", ex, true);
             }
         }
 
@@ -761,7 +769,7 @@ namespace Nerva.Desktop
             }
             catch (Exception ex)
             {
-                ErrorHandling.HandleException("MAIN.AboutClicked", ex, true);
+                ErrorHandler.HandleException("MF.AC", ex, true);
             }
         }
 
@@ -778,7 +786,7 @@ namespace Nerva.Desktop
             }
             catch (Exception ex)
             {
-                ErrorHandling.HandleException("MAIN.DebugFolderClicked", ex, true);
+                ErrorHandler.HandleException("MF.DFC", ex, true);
             }
         }
 
@@ -795,7 +803,7 @@ namespace Nerva.Desktop
             }
             catch (Exception ex)
             {
-                ErrorHandling.HandleException("MAIN.DiscordClicked", ex, true);
+                ErrorHandler.HandleException("MF.DC", ex, true);
             }
         }
 
@@ -812,7 +820,7 @@ namespace Nerva.Desktop
             }
             catch (Exception ex)
             {
-                ErrorHandling.HandleException("MAIN.TwitterClicked", ex, true);
+                ErrorHandler.HandleException("MF.TC", ex, true);
             }
         }
 
@@ -829,7 +837,7 @@ namespace Nerva.Desktop
             }
             catch (Exception ex)
             {
-                ErrorHandling.HandleException("MAIN.RedditClicked", ex, true);
+                ErrorHandler.HandleException("MF.RC", ex, true);
             }
         }
 
@@ -848,7 +856,7 @@ namespace Nerva.Desktop
                         MessageBox.Show(this, "NERVA backend will now restart to apply your changes", "NERVA Preferences",
                             MessageBoxButtons.OK, MessageBoxType.Information, MessageBoxDefaultButton.OK);
 
-                        Log.Instance.Write("Restarting CLI");
+                        Logger.LogDebug("MF.FPC", "Restarting CLI");
 
                         Helpers.TaskFactory.Instance.RunTask("restartcli", "Restarting the CLI", () =>
                         {
@@ -877,7 +885,7 @@ namespace Nerva.Desktop
             }
             catch (Exception ex)
             {
-                ErrorHandling.HandleException("MAIN.FilePreferencesClicked", ex, true);
+                ErrorHandler.HandleException("MF.FPC", ex, true);
             }
         }
 
@@ -930,7 +938,7 @@ namespace Nerva.Desktop
             }
             catch (Exception ex)
             {
-                ErrorHandling.HandleException("MAIN.FileUpdateCheckClicked", ex, true);
+                ErrorHandler.HandleException("MF.FUCC", ex, true);
             }
         }
 
@@ -960,7 +968,7 @@ namespace Nerva.Desktop
             }
             catch (Exception ex)
             {
-                ErrorHandling.HandleException("MAIN.DisplayUpdateResult", ex, false);
+                ErrorHandler.HandleException("MF.DUR", ex, false);
             }
         }
 
@@ -972,7 +980,7 @@ namespace Nerva.Desktop
             }
             catch (Exception ex)
             {
-                ErrorHandling.HandleException("MAIN.QuickClicked", ex, true);
+                ErrorHandler.HandleException("MF.QC", ex, true);
             }
         }
     }

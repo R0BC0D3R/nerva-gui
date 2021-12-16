@@ -1,10 +1,8 @@
 using System;
 using System.IO;
 using System.Net;
-using AngryWasp.Logger;
 using Nerva.Rpc;
 using Nerva.Rpc.Daemon;
-using Log = AngryWasp.Logger.Log;
 using DnsClient;
 using System.IO.Compression;
 using Nerva.Desktop.Config;
@@ -107,18 +105,18 @@ namespace Nerva.Desktop.Helpers
             {
                 if (cliUpdateInfo == null)
                 {
-                    Log.Instance.Write("UM.UpdateInfo: cliUpdateInfo is null");
+                    Logger.LogDebug("UM.UI", "cliUpdateInfo is null");
                     GetRemoteVersion();
                 }
                 
-                Log.Instance.Write("UM.UpdateInfo: Returning download link: " + cliUpdateInfo.DownloadLink);
+                Logger.LogDebug("UM.UI", "Returning download link: " + cliUpdateInfo.DownloadLink);
                 return cliUpdateInfo;
             }
         }
 
         public static void CheckUpdate()
         {
-            Log.Instance.Write("UM.CheckUpdate: Checking for updates...");
+            Logger.LogDebug("UM.CU", "Checking for updates...");
 
             GetLocalVersion();
             GetRemoteVersion();
@@ -141,11 +139,13 @@ namespace Nerva.Desktop.Helpers
             DaemonRpc.GetInfo((GetInfoResponseData r) => {
                 localCliVersion = r.Version;
             }, (RequestError e) => {
-                Log.Instance.Write(Log_Severity.Error, $"GetInfo RPC call returned error {e.Code}, {e.Message}");
+                Logger.LogError("UM.GLV", $"GetInfo RPC call returned error {e.Code}, {e.Message}");
             });
 
             if (string.IsNullOrEmpty(localCliVersion))
-                Log.Instance.Write(Log_Severity.Error, "Could not determine if a CLI update is required");
+            {
+                Logger.LogError("UM.GLV", "Could not determine if a CLI update is required");
+            }
         }
 
         private static void GetRemoteVersion()
@@ -163,18 +163,18 @@ namespace Nerva.Desktop.Helpers
                     
                     foreach (var record in records)
                     {
-                        Log.Instance.Write("UM.GetRemoteVersion: Node: " + node.UpdateUrl);
+                        Logger.LogDebug("UM.GRV", "Node: " + node.UpdateUrl);
 
                         // Only consider TXT records
                         if(record is DnsClient.Protocol.TxtRecord)
                         {
                             string txt = ((DnsClient.Protocol.TxtRecord)record).Text.ToArray()[0];
 
-                            Log.Instance.Write("UM.GetRemoteVersion: TXT: " + txt);
+                            Logger.LogDebug("UM.GRV", "TXT: " + txt);
 
                             if (txt.StartsWith("nerva-cli:"))
                             {
-                                Log.Instance.Write("UM.GetRemoteVersion: Found DNS update record: " + record);
+                                Logger.LogDebug("UM.GRV", "Found DNS update record: " + record);
                                 string downloadLink = GetDownloadLink(node.DownloadUrl);
                                 if(!string.IsNullOrEmpty(downloadLink))
                                 {
@@ -201,13 +201,13 @@ namespace Nerva.Desktop.Helpers
                 // If DNS records could not be retrieved for some reason, use defaults
                 if(cliUpdateInfo == null || string.IsNullOrEmpty(cliUpdateInfo.DownloadLink))
                 {
-                    Log.Instance.Write("UM.GetRemoteVersion: Update Info or Download link NULL. Creating from DEFAULTS");
+                    Logger.LogDebug("UM.GRV", "Update Info or Download link NULL. Creating from DEFAULTS");
                     cliUpdateInfo = UpdateInfo.CreateDefault();
                 }
             }
             catch (Exception ex)
             {
-                ErrorHandling.HandleException("UM.GetRemoteVersion", ex, false);
+                ErrorHandler.HandleException("UM.GRV", ex, false);
             }
         }
         
@@ -228,12 +228,12 @@ namespace Nerva.Desktop.Helpers
 
                 if (File.Exists(destFile))
                 {
-                    Log.Instance.Write($"Binary package found @ {destFile}");
+                    Logger.LogDebug("UM.DU", $"Binary package found @ {destFile}");
                     onComplete(true, destFile);
                 }
                 else
                 {
-                    Log.Instance.Write("Downloading binary package.");
+                    Logger.LogDebug("UM.DU", "Downloading binary package.");
                     using (var client = new WebClient())
                     {
                         client.DownloadFileAsync(new Uri(url + ".sig"),  destFile);
@@ -249,10 +249,12 @@ namespace Nerva.Desktop.Helpers
                         client.DownloadFileCompleted += (s, e) =>
                         {
                             if (e.Error == null)
+                            {
                                 onComplete(true, destFile);
+                            }
                             else
                             {
-                                AngryWasp.Logger.Log.Instance.Write(Log_Severity.Error, $".NET Exception, {e.Error.Message}");
+                                Logger.LogError("UM.DU", $".NET Exception, {e.Error.Message}");
                                 onComplete(false, destFile);
                             }
                         };
@@ -277,7 +279,7 @@ namespace Nerva.Desktop.Helpers
                 string txt = ((DnsClient.Protocol.TxtRecord)r).Text.ToArray()[0];
                 if (txt.StartsWith(prefix))
                 {
-                    Log.Instance.Write($"Found DNS download record: {r}");
+                    Logger.LogDebug("UM.GDL", $"Found DNS download record: {r}");
                     return txt.Substring(prefix.Length);
                 }       
             }
@@ -308,13 +310,12 @@ namespace Nerva.Desktop.Helpers
 
                 if (File.Exists(destFile))
                 {
-                    Log.Instance.Write($"CLI tools found @ {destFile}");
+                    Logger.LogDebug("UM.DC", $"CLI tools found @ {destFile}");
                     ExtractFile(destDir, destFile, onComplete);
                 }
                 else
                 {
-                    Log.Instance.Write("Downloading CLI tools.");
-                    AngryWasp.Logger.Log.Instance.Write(url);
+                    Logger.LogDebug("UM.DC", "Downloading CLI tools. URL: " + url);
                     using (var client = new WebClient())
                     {
                         client.DownloadProgressChanged += (s, e) =>
@@ -328,8 +329,7 @@ namespace Nerva.Desktop.Helpers
                                 ExtractFile(destDir, destFile, onComplete);
                             else
                             {
-                                AngryWasp.Logger.Log.Instance.Write(Log_Severity.Error, $".NET Exception, {e.Error.Message}");
-                                AngryWasp.Logger.Log.Instance.WriteNonFatalException(e.Error);
+                                ErrorHandler.HandleException("UM.DC", e.Error, false);
                                 onComplete(false, destFile);
                             }
                         };
@@ -347,12 +347,12 @@ namespace Nerva.Desktop.Helpers
                 DaemonProcess.ForceClose();
                 WalletProcess.ForceClose();
 
-                Log.Instance.Write("Extracting CLI tools");
+                Logger.LogDebug("UM.EF", "Extracting CLI tools");
                 
                 ZipArchive archive = ZipFile.Open(destFile, ZipArchiveMode.Read);
                 foreach (var a in archive.Entries)
                 {
-                    Log.Instance.Write($"Extracting {a.FullName}");
+                    Logger.LogDebug("UM.EF", $"Extracting {a.FullName}");
                     string extFile = Path.Combine(destDir, a.FullName);
                     a.ExtractToFile(extFile, true);
 #if UNIX
@@ -363,16 +363,20 @@ namespace Nerva.Desktop.Helpers
                 string installDir = Configuration.Instance.ToolsPath;
 
                 if (!Directory.Exists(installDir))
+                {
                     Directory.CreateDirectory(installDir);
+                }
 
                 try
                 {
                     foreach (var f in new DirectoryInfo(destDir).GetFiles())
+                    {
                         File.Copy(f.FullName, Path.Combine(installDir, f.Name), true);
+                    }
                 }
-                catch (Exception ex)
+                catch (Exception ex2)
                 {
-                    AngryWasp.Logger.Log.Instance.Write(Log_Severity.Error, $".NET Exception, {ex.Message}");
+                    ErrorHandler.HandleException("UM.EF2", ex2, false);
                 }
 
                 //todo: add ~/.local/bin to mac $PATH
@@ -381,7 +385,7 @@ namespace Nerva.Desktop.Helpers
             }
             catch (Exception ex)
             {
-                AngryWasp.Logger.Log.Instance.Write(Log_Severity.Error, $".NET Exception, {ex.Message}");
+                ErrorHandler.HandleException("UM.EF", ex, false);
                 onComplete(false, null);
                 return;
             }

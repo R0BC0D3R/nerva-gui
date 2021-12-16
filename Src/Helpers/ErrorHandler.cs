@@ -3,18 +3,18 @@ using Eto.Forms;
 
 namespace Nerva.Desktop.Helpers
 {
-    public static class ErrorHandling
+    public static class ErrorHandler
     {
         public static void HandleException(string origin, Exception ex, bool showMessage)
         {
-            HandleException(origin, "", ex, showMessage);
+            HandleException(origin, ex, showMessage);
         }
 
-        public static void HandleException(string origin, string message, Exception ex, bool showMessage)
+        public static void HandleException(string origin, Exception ex, string message, bool showMessage)
         {
             if (string.IsNullOrEmpty(message))
             {
-                Logging.LogException(origin, ex);
+                Logger.LogException(origin, ex);
                 if (showMessage)
                 {
                     MessageBox.Show(Application.Instance.MainForm, ex.Message, MessageBoxButtons.OK, MessageBoxType.Error, MessageBoxDefaultButton.OK);
@@ -22,7 +22,7 @@ namespace Nerva.Desktop.Helpers
             }
             else
             {
-                Logging.LogException(origin, message, ex);
+                Logger.LogException(origin, message, ex);
                 if (showMessage)
                 {
                     MessageBox.Show(Application.Instance.MainForm, message + " : " + ex.Message, MessageBoxButtons.OK, MessageBoxType.Error, MessageBoxDefaultButton.OK);

@@ -1,4 +1,3 @@
-using AngryWasp.Logger;
 using Nerva.Desktop.Config;
 using Nerva.Desktop.Helpers;
 
@@ -19,7 +18,7 @@ namespace Nerva.Desktop.CLI
             {
                 string ma = Configuration.Instance.Daemon.MiningAddress;
 
-                Log.Instance.Write($"Enabling startup mining @ {ma}");
+                Logger.LogDebug("DP.GCL", $"Enabling startup mining @ {ma}");
                 a += $" --start-mining {ma} --mining-threads {Configuration.Instance.Daemon.MiningThreads}";
             }
             
