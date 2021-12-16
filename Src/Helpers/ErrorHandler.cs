@@ -7,7 +7,7 @@ namespace Nerva.Desktop.Helpers
     {
         public static void HandleException(string origin, Exception ex, bool showMessage)
         {
-            HandleException(origin, ex, showMessage);
+            HandleException(origin, ex, string.Empty, showMessage);
         }
 
         public static void HandleException(string origin, Exception ex, string message, bool showMessage)

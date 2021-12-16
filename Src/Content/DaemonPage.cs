@@ -16,6 +16,8 @@ namespace Nerva.Desktop.Content
 
 		private ulong lastReportedDiff = 0;
 
+		private bool _isCurrentlyMining = false;
+
         #region Form Controls
 
         private StackLayout mainControl;
@@ -37,7 +39,7 @@ namespace Nerva.Desktop.Content
 
 		public Button btnStartStopMining = new Button { Text = "Start Mining", Enabled = false };
 
-		public Button btnChangeMiningThreads = new Button { Text = "Go!", Enabled = false, Size = new Eto.Drawing.Size(50, 22)  };
+		public Button btnChangeMiningThreads = new Button { Text = "Set", Enabled = false, Size = new Eto.Drawing.Size(50, 22)  };
 		public NumericStepper nsMiningThreads = new NumericStepper { MinValue = 1, MaxValue = Environment.ProcessorCount, DecimalPlaces = 0, MaximumDecimalPlaces = 0, Enabled = false, Size = new Eto.Drawing.Size(50, 22), ToolTip = "Number of CPU threads to use for mining",  };
 
         #endregion
@@ -168,13 +170,18 @@ namespace Nerva.Desktop.Content
 						try
 						{
 							Configuration.Instance.Daemon.MiningThreads = (int)nsMiningThreads.Value;
-
 							Configuration.Save();
 
-							DaemonRpc.StopMining();
-							Logger.LogDebug("MF.FPC", "Mining stopped");
-							DaemonRpc.StartMining();
-							Logger.LogDebug("MF.FPC", "Mining started");
+							string userMessage = "Number of mining threads changed to " + Configuration.Instance.Daemon.MiningThreads;
+							if(_isCurrentlyMining)
+							{
+								Logger.LogDebug("MF.FPC", "Restarting miner...");
+								DaemonRpc.StopMining();								
+								DaemonRpc.StartMining();
+								userMessage += " and miner restarted";
+							}
+
+							MessageBox.Show(Application.Instance.MainForm, userMessage, MessageBoxButtons.OK, MessageBoxType.Information, MessageBoxDefaultButton.OK);
 						}
 						catch (Exception ex2)
 						{
@@ -194,32 +201,44 @@ namespace Nerva.Desktop.Content
 			try
 			{
 				if (info != null)
-				{
-					double nethash = Math.Round(((info.Difficulty / 60.0d) / 1000.0d), 2);
-					//Update the daemon info
-					lblHeight.Text = info.Height.ToString();
-					lblNetHash.Text = nethash.ToString() + " kH/s";
-					lblRunTime.Text = (DateTime.Now.ToUniversalTime() - DateTimeHelper.UnixTimestampToDateTime((ulong)info.StartTime)).ToString(@"hh\:mm\:ss");
+				{					
+					// Update the daemon info
+					if (lblHeight.Text != info.Height.ToString()) { lblHeight.Text = info.Height.ToString(); }
 
-					version = info.Version;
+					DateTime miningStartTime = DateTimeHelper.UnixTimestampToDateTime((ulong)info.StartTime);
+					string runTime = (DateTime.Now.ToUniversalTime() - miningStartTime).ToString(@"%d\.hh\:mm\:ss");
+					if (lblRunTime.Text != runTime) { lblRunTime.Text = runTime; }
+
+					string nethash = Math.Round(((info.Difficulty / 60.0d) / 1000.0d), 2) + " kH/s";
+					if (lblNetHash.Text != nethash) { lblNetHash.Text = nethash; }
+					
+					string network = "-";
+					if (info.Mainnet)
+					{
+						network = "MainNet";
+					}
+					else if (info.Testnet)
+					{
+						network = "TestNet";
+					}
+					else
+					{
+						ErrorHandler.HandleException("DP.UI", new Exception("Unknown network"), "Unknown network connection type", false);
+					}
+					if (lblNetwork.Text != network) { lblNetwork.Text = network; }
 
 					lastReportedDiff = info.Difficulty;
-
-					if (info.Mainnet)
-						lblNetwork.Text = "MainNet";
-					else if (info.Testnet)
-						lblNetwork.Text = "TestNet";
-					else
-						ErrorHandler.HandleException("DP.UI", new Exception("Unknown network"), "Unknown network connection type", false);
+					version = info.Version;
 				}
 				else
 				{
-					lblNetwork.Text = "-";
-					lblHeight.Text = "-";
-					lblNetHash.Text = "-";
-					lblRunTime.Text = "-";
-					version = "-";
+					if (lblNetwork.Text != "-") { lblNetwork.Text = "-"; }
+					if (lblHeight.Text != "-") { lblHeight.Text = "-"; }
+					if (lblNetHash.Text != "-") { lblNetHash.Text = "-"; }
+					if (lblRunTime.Text != "-") { lblRunTime.Text = "-"; }
+
 					lastReportedDiff = 0;
+					version = "-";
 				}
 			}
 			catch (Exception ex)
@@ -251,35 +270,42 @@ namespace Nerva.Desktop.Content
 			{
 				if (mStatus != null && mStatus.Active)
 				{
-					lblMinerStatus.Text = "Miner (Active)";
-					btnStartStopMining.Text = "Stop Mining";
-					lblMiningAddress.Text = Conversions.WalletAddressShortForm(mStatus.Address);
-					lblMiningThreads.Text = mStatus.ThreadCount.ToString();
+					if (!_isCurrentlyMining) { _isCurrentlyMining = true; }
 
-					string speed;
+					if (lblMinerStatus.Text != "Miner (Active)") { lblMinerStatus.Text = "Miner (Active)"; }
+					if (btnStartStopMining.Text != "Stop Mining") { btnStartStopMining.Text = "Stop Mining"; }
+					if (lblMiningAddress.Text != Conversions.WalletAddressShortForm(mStatus.Address)) { lblMiningAddress.Text = Conversions.WalletAddressShortForm(mStatus.Address); }
+					if (lblMiningThreads.Text != mStatus.ThreadCount.ToString()) { lblMiningThreads.Text = mStatus.ThreadCount.ToString(); }
+
+					string speed = string.Empty;
 					if (mStatus.Speed > 1000)
+					{
 						speed = $"{mStatus.Speed / 1000.0d} kH/s";
+					}
 					else
+					{					
 						speed = $"{(double)mStatus.Speed} h/s";
-					
-					lblMiningHashrate.Text = speed;
+					}					
+					if (lblMiningHashrate.Text != speed) { lblMiningHashrate.Text = speed; }
 
+					string timeToBlock = "-";
 					if (lastReportedDiff != 0)
 					{
 						double t = ((lastReportedDiff / 60.0d) / mStatus.Speed) / 1440.0d;
-						lblTimeToBlock.Text = String.Format("{0:F2}", Math.Round(t, 2)) + " days";
+						timeToBlock = String.Format("{0:F2}", Math.Round(t, 2)) + " days";
 					}
-					else
-						lblTimeToBlock.Text = "-";
+					if (lblTimeToBlock.Text != timeToBlock) { lblTimeToBlock.Text = timeToBlock; }
 				}
 				else
 				{
-					lblMinerStatus.Text = "Miner (Inactive)";
-					btnStartStopMining.Text = "Start Mining";
-					lblMiningAddress.Text = "-";
-					lblMiningThreads.Text = "-";
-					lblMiningHashrate.Text = "-";
-					lblTimeToBlock.Text = "-";
+					if (_isCurrentlyMining) { _isCurrentlyMining = false; }
+
+					if (lblMinerStatus.Text != "Miner (Inactive)") { lblMinerStatus.Text = "Miner (Inactive)"; }
+					if (btnStartStopMining.Text != "Start Mining") { btnStartStopMining.Text = "Start Mining"; }
+					if (lblMiningAddress.Text != "-") { lblMiningAddress.Text = "-"; }
+					if (lblMiningThreads.Text != "-") { lblMiningThreads.Text = "-"; }
+					if (lblMiningHashrate.Text != "-") { lblMiningHashrate.Text = "-"; }
+					if (lblTimeToBlock.Text != "-") { lblTimeToBlock.Text = "-"; }
 				}
 			}
 			catch (Exception ex)

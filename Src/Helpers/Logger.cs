@@ -43,11 +43,11 @@ namespace Nerva.Desktop.Helpers
             {
                 if (string.IsNullOrEmpty(message))
                 {
-                    Log.Instance.Write(Log_Severity.None, "ERROR\t" + DateTime.Now.ToString("u") + "\t" + origin + "\t Ex Msg: " + exception.Message + " | Trace: " + exception.StackTrace);
+                    Log.Instance.Write(Log_Severity.None, "ERROR\t" + DateTime.Now.ToString("u") + "\t" + origin + "\t Ex Msg: " + exception.Message + "\nTrace: " + exception.StackTrace);
                 }
                 else
                 {
-                    Log.Instance.Write(Log_Severity.None, "ERROR\t" + DateTime.Now.ToString("u") + "\t" + origin + "\t " + message + " | Ex Msg: " + exception.Message + " | Trace: " + exception.StackTrace);
+                    Log.Instance.Write(Log_Severity.None, "ERROR\t" + DateTime.Now.ToString("u") + "\t" + origin + "\t " + message + " | Ex Msg: " + exception.Message + "\nTrace: " + exception.StackTrace);
                 }
             }
             catch (Exception ex)
