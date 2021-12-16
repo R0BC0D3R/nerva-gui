@@ -96,7 +96,9 @@ namespace Nerva.Desktop.Helpers
                 var pl = GetRunningByName(exe);
 
                 if (pl.Count == 0)
+                {
                     return false;
+                }
 
                 p = pl[0];
 
@@ -107,7 +109,9 @@ namespace Nerva.Desktop.Helpers
                     return false;
                 }
                 else
+                {
                     return true;
+                }
             }
             catch (Exception ex)
             {

@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Net;
+using System.Threading;
 using Nerva.Rpc;
 using Nerva.Rpc.Daemon;
 using DnsClient;
@@ -211,61 +212,6 @@ namespace Nerva.Desktop.Helpers
             }
         }
         
-        public static void DownloadUpdate(Update_Type ut, string file, Action<DownloadProgressChangedEventArgs> onProgress, Action<bool, string> onComplete)
-        {
-            TaskFactory.Instance.RunTask("downloadupdate", "Downloading update", () =>
-            {
-                string url = cliUpdateInfo.DownloadLink;
-                string destDir = Configuration.Instance.ToolsPath;
-                
-                if (string.IsNullOrEmpty(destDir))
-                    destDir = Environment.CurrentDirectory;
-
-                if (!Directory.Exists(destDir))
-                    Directory.CreateDirectory(destDir);
-
-                string destFile = Path.Combine(destDir, file);
-
-                if (File.Exists(destFile))
-                {
-                    Logger.LogDebug("UM.DU", $"Binary package found @ {destFile}");
-                    onComplete(true, destFile);
-                }
-                else
-                {
-                    Logger.LogDebug("UM.DU", "Downloading binary package.");
-                    using (var client = new WebClient())
-                    {
-                        client.DownloadFileAsync(new Uri(url + ".sig"),  destFile);
-                    }
-                    
-                    using (var client = new WebClient())
-                    {
-                        client.DownloadProgressChanged += (s, e) =>
-                        {
-                            onProgress(e);
-                        };
-
-                        client.DownloadFileCompleted += (s, e) =>
-                        {
-                            if (e.Error == null)
-                            {
-                                onComplete(true, destFile);
-                            }
-                            else
-                            {
-                                Logger.LogError("UM.DU", $".NET Exception, {e.Error.Message}");
-                                onComplete(false, destFile);
-                            }
-                        };
-
-                        client.DownloadFileAsync(new Uri(url),  destFile);
-                    }
-                }
-            });   
-        }
-
-
         public static string GetDownloadLink(string downloadRecordUrl)
         {
             var client = new LookupClient();
@@ -289,6 +235,7 @@ namespace Nerva.Desktop.Helpers
 
         public static void DownloadCLI(string file, Action<DownloadProgressChangedEventArgs> onProgress, Action<bool, string> onComplete)
         {
+
             TaskFactory.Instance.RunTask("downloadcli", "Downloading the CLI tools", () =>
             {
                 string url = cliUpdateInfo.DownloadLink;
@@ -303,7 +250,9 @@ namespace Nerva.Desktop.Helpers
                 string destDir = Configuration.Instance.ToolsPath;
 
                 if (!Directory.Exists(destDir))
+                {
                     Directory.CreateDirectory(destDir);
+                }
 
                 // Check if we already downloaded the CLI package
                 string destFile = Path.Combine(destDir, Path.GetFileName(file));
@@ -311,6 +260,7 @@ namespace Nerva.Desktop.Helpers
                 if (File.Exists(destFile))
                 {
                     Logger.LogDebug("UM.DC", $"CLI tools found @ {destFile}");
+
                     ExtractFile(destDir, destFile, onComplete);
                 }
                 else
@@ -326,7 +276,9 @@ namespace Nerva.Desktop.Helpers
                         client.DownloadFileCompleted += (s, e) =>
                         {
                             if (e.Error == null)
+                            {
                                 ExtractFile(destDir, destFile, onComplete);
+                            }
                             else
                             {
                                 ErrorHandler.HandleException("UM.DC", e.Error, false);
@@ -344,9 +296,19 @@ namespace Nerva.Desktop.Helpers
         {
             try
             {
-                DaemonProcess.ForceClose();
-                WalletProcess.ForceClose();
+                Logger.LogDebug("UM.EF", "Closing Daemon and Wallet processes");
+                while (DaemonProcess.IsRunning())
+                {
+                    DaemonProcess.ForceClose();
+                    Thread.Sleep(1000);
+                }
 
+                while (WalletProcess.IsRunning())
+                {
+                    WalletProcess.ForceClose();
+                    Thread.Sleep(1000);
+                }
+                
                 Logger.LogDebug("UM.EF", "Extracting CLI tools");
                 
                 ZipArchive archive = ZipFile.Open(destFile, ZipArchiveMode.Read);
@@ -359,29 +321,6 @@ namespace Nerva.Desktop.Helpers
                     UnixNative.Chmod(extFile, 33261);
 #endif
                 }
-
-                string installDir = Configuration.Instance.ToolsPath;
-
-                if (!Directory.Exists(installDir))
-                {
-                    Directory.CreateDirectory(installDir);
-                }
-
-                try
-                {
-                    foreach (var f in new DirectoryInfo(destDir).GetFiles())
-                    {
-                        File.Copy(f.FullName, Path.Combine(installDir, f.Name), true);
-                    }
-                }
-                catch (Exception ex2)
-                {
-                    ErrorHandler.HandleException("UM.EF2", ex2, false);
-                }
-
-                //todo: add ~/.local/bin to mac $PATH
-
-                destDir = installDir; 
             }
             catch (Exception ex)
             {

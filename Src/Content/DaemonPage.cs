@@ -35,7 +35,7 @@ namespace Nerva.Desktop.Content
 		private Label lblMiningAddress = new Label() { Text = "." };
 		private Label lblMiningThreads = new Label() { Text = "." };
 		private Label lblMiningHashrate = new Label() { Text = "." };
-		private Label lblTimeToBlock = new Label() { Text = "." };
+		private Label lblTimeToBlock = new Label() { Text = ".", ToolTip = "Approximately how long it takes to find a block" };
 
 		public Button btnStartStopMining = new Button { Text = "Start Mining", Enabled = false };
 
@@ -291,8 +291,21 @@ namespace Nerva.Desktop.Content
 					string timeToBlock = "-";
 					if (lastReportedDiff != 0)
 					{
-						double t = ((lastReportedDiff / 60.0d) / mStatus.Speed) / 1440.0d;
-						timeToBlock = String.Format("{0:F2}", Math.Round(t, 2)) + " days";
+						double blockMinutes = ((lastReportedDiff / 60.0d) / mStatus.Speed);
+
+						if((blockMinutes / 1440d) > 1)
+						{
+							timeToBlock = String.Format("{0:F1}", Math.Round(blockMinutes, 1) / 1440d) + " days (estimated)";
+						}
+						else if((blockMinutes / 60.0d) > 1)
+						{
+							timeToBlock = String.Format("{0:F1}", Math.Round(blockMinutes, 1) / 60.0d) + " hours (estimated)";
+						}
+						else 
+						{
+							timeToBlock = String.Format("{0:F0}", Math.Round(blockMinutes, 0)) + " minutes (estimated)";
+						}
+						
 					}
 					if (lblTimeToBlock.Text != timeToBlock) { lblTimeToBlock.Text = timeToBlock; }
 				}

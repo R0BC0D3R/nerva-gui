@@ -5,28 +5,43 @@ namespace Nerva.Desktop.Helpers
 {
     public static class ErrorHandler
     {
-        public static void HandleException(string origin, Exception ex, bool showMessage)
+        public static void HandleException(string origin, Exception exception, bool showMessage)
         {
-            HandleException(origin, ex, string.Empty, showMessage);
+            HandleException(origin, exception, string.Empty, showMessage);
         }
 
-        public static void HandleException(string origin, Exception ex, string message, bool showMessage)
+        public static void HandleException(string origin, Exception exception, string message, bool showMessage)
         {
-            if (string.IsNullOrEmpty(message))
-            {
-                Logger.LogException(origin, ex);
-                if (showMessage)
+            try
+            {                
+                if (string.IsNullOrEmpty(message))
                 {
-                    MessageBox.Show(Application.Instance.MainForm, ex.Message, MessageBoxButtons.OK, MessageBoxType.Error, MessageBoxDefaultButton.OK);
+                    Logger.LogException(origin, exception);
+                    if (showMessage)
+                    {
+                        Application.Instance.AsyncInvoke( () =>
+                        {
+                            MessageBox.Show(exception.Message, MessageBoxButtons.OK, MessageBoxType.Error, MessageBoxDefaultButton.OK);
+                        });
+                    }
+                }
+                else
+                {
+                    Logger.LogException(origin, message, exception);
+                    if (showMessage)
+                    {
+                        Application.Instance.AsyncInvoke( () =>
+                        {
+                            MessageBox.Show(message + " : " + exception.Message, MessageBoxButtons.OK, MessageBoxType.Error, MessageBoxDefaultButton.OK);
+                        });
+                    }
                 }
             }
-            else
+            catch (Exception ex)
             {
-                Logger.LogException(origin, message, ex);
-                if (showMessage)
-                {
-                    MessageBox.Show(Application.Instance.MainForm, message + " : " + ex.Message, MessageBoxButtons.OK, MessageBoxType.Error, MessageBoxDefaultButton.OK);
-                }
+                Logger.LogException("EH.HE", ex);
+                // Exception handling failed.  Not much you can do.  Just try to continue.
+                ex.Data.Clear();
             }
         }
     }

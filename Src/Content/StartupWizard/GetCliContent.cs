@@ -177,7 +177,10 @@ namespace Nerva.Desktop.Content.Wizard
                         else
                         {
                             if (File.Exists(dest))
+                            {
                                 File.Delete(dest);
+                            }
+                            
                             MessageBox.Show(Application.Instance.MainForm, "An error occured while downloading/extracting the NERVA CLI tools.\r\n" +
                             "Please refer to the log file and try again later", "Request Failed", MessageBoxButtons.OK, MessageBoxType.Error, MessageBoxDefaultButton.OK);
                         }

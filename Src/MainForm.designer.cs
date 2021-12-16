@@ -9,10 +9,10 @@ namespace Nerva.Desktop
 	{	
 		#region Status Bar controls
 		
-		Label lblDaemonStatus = new Label { Text = "Daemon Offline" };
-		Label lblWalletStatus = new Label { Text = "Wallet Offline" };
+		Label lblDaemonStatus = new Label { Text = "Daemon offline" };
+		Label lblWalletStatus = new Label { Text = "Wallet offline" };
 		Label lblVersion = new Label { Text = "Version: 0.0.0.0" };
-		Label lblTaskList = new Label { Text = "Tasks: 0", Tag = -1 };
+		Label lblTaskList = new Label { Text = "Tasks: 0", Tag = -1, Visible = false };
 
 		DaemonPage daemonPage = new DaemonPage();
 		BalancesPage balancesPage = new BalancesPage();

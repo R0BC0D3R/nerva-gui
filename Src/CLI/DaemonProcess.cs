@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using Nerva.Desktop.Config;
 using Nerva.Desktop.Helpers;
 
@@ -8,6 +9,21 @@ namespace Nerva.Desktop.CLI
         public static void ForceClose()
         {
             ProcessManager.Kill(FileNames.NERVAD);
+        }
+
+        public static bool IsRunning()
+        {
+            Process process = null;
+            ProcessManager.IsRunning(FileNames.NERVAD, out process);
+
+            if(process != null)
+            {
+                return true;
+            }
+            else 
+            {
+                return false;
+            }
         }
 
         public static string GenerateCommandLine()
