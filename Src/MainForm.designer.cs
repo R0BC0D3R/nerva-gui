@@ -106,7 +106,7 @@ namespace Nerva.Desktop
 			var wallet_Store = new Command { MenuText = "Save", ToolBarText = "Save" };
 			wallet_Store.Executed += wallet_Store_Clicked;
 			
-			var wallet_Account_Create = new Command { MenuText = "Create Account", ToolBarText = "Create Account" };
+			var wallet_Account_Create = new Command { MenuText = "New Sub-Account", ToolBarText = "New Sub-Account" };
 			wallet_Account_Create.Executed += wallet_Account_Create_Clicked;
 
 			var wallet_RescanSpent = new Command { MenuText = "Spent Outputs", ToolBarText = "Spent Outputs" };
@@ -172,9 +172,10 @@ namespace Nerva.Desktop
 							wallet_New,
 							wallet_Open,
 							wallet_Import,
-							wallet_Stop,
 							new SeparatorMenuItem(),
 							wallet_Store,
+							wallet_Stop,
+							new SeparatorMenuItem(),
 							wallet_Account_Create,
 							new ButtonMenuItem
 							{

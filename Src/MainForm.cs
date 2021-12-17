@@ -842,22 +842,22 @@ namespace Nerva.Desktop
         {
             try
             {
-                TextDialog d = new TextDialog("Enter Account Name", false);
+                TextDialog d = new TextDialog("Enter Wallet Sub-Account Name", false);
                 if (d.ShowModal() == DialogResult.Ok)
                 {
-                    Helpers.TaskFactory.Instance.RunTask("createwallet", "Creating new wallet", () =>
+                    Helpers.TaskFactory.Instance.RunTask("createwallet", "Creating new wallet sub-account", () =>
                     {
                         WalletRpc.CreateAccount(d.Text, (CreateAccountResponseData r) =>
                         {
                             Application.Instance.AsyncInvoke(() =>
                             {
-                                MessageBox.Show(this, $"New wallet {d.Text} created", MessageBoxButtons.OK, MessageBoxType.Error);
+                                MessageBox.Show(this, $"New wallet sub-account {d.Text} created", MessageBoxButtons.OK, MessageBoxType.Information);
                             });
                         }, (RequestError err) =>
                         {
                             Application.Instance.AsyncInvoke(() =>
                             {
-                                MessageBox.Show(this, "Failed to create new wallet", MessageBoxButtons.OK, MessageBoxType.Error);
+                                MessageBox.Show(this, "Failed to create new wallet sub-account", MessageBoxButtons.OK, MessageBoxType.Error);
                             });
                         });
                     });
