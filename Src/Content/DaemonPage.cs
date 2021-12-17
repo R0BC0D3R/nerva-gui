@@ -203,14 +203,14 @@ namespace Nerva.Desktop.Content
 				if (info != null)
 				{					
 					// Update the daemon info
-					if (lblHeight.Text != info.Height.ToString()) { lblHeight.Text = info.Height.ToString(); }
+					if (!lblHeight.Text.Equals(info.Height.ToString())) { lblHeight.Text = info.Height.ToString(); }
 
 					DateTime miningStartTime = DateTimeHelper.UnixTimestampToDateTime((ulong)info.StartTime);
 					string runTime = (DateTime.Now.ToUniversalTime() - miningStartTime).ToString(@"%d\.hh\:mm\:ss");
-					if (lblRunTime.Text != runTime) { lblRunTime.Text = runTime; }
+					if (!lblRunTime.Text.Equals(runTime)) { lblRunTime.Text = runTime; }
 
 					string nethash = Math.Round(((info.Difficulty / 60.0d) / 1000.0d), 2) + " kH/s";
-					if (lblNetHash.Text != nethash) { lblNetHash.Text = nethash; }
+					if (!lblNetHash.Text.Equals(nethash)) { lblNetHash.Text = nethash; }
 					
 					string network = "-";
 					if (info.Mainnet)
@@ -225,17 +225,17 @@ namespace Nerva.Desktop.Content
 					{
 						ErrorHandler.HandleException("DP.UI", new Exception("Unknown network"), "Unknown network connection type", false);
 					}
-					if (lblNetwork.Text != network) { lblNetwork.Text = network; }
+					if (!lblNetwork.Text.Equals(network)) { lblNetwork.Text = network; }
 
 					lastReportedDiff = info.Difficulty;
 					version = info.Version;
 				}
 				else
 				{
-					if (lblNetwork.Text != "-") { lblNetwork.Text = "-"; }
-					if (lblHeight.Text != "-") { lblHeight.Text = "-"; }
-					if (lblNetHash.Text != "-") { lblNetHash.Text = "-"; }
-					if (lblRunTime.Text != "-") { lblRunTime.Text = "-"; }
+					if (!lblNetwork.Text.Equals("-")) { lblNetwork.Text = "-"; }
+					if (!lblHeight.Text.Equals("-")) { lblHeight.Text = "-"; }
+					if (!lblNetHash.Text.Equals("-")) { lblNetHash.Text = "-"; }
+					if (!lblRunTime.Text.Equals("-")) { lblRunTime.Text = "-"; }
 
 					lastReportedDiff = 0;
 					version = "-";
@@ -272,10 +272,10 @@ namespace Nerva.Desktop.Content
 				{
 					if (!_isCurrentlyMining) { _isCurrentlyMining = true; }
 
-					if (lblMinerStatus.Text != "Miner (Active)") { lblMinerStatus.Text = "Miner (Active)"; }
-					if (btnStartStopMining.Text != "Stop Mining") { btnStartStopMining.Text = "Stop Mining"; }
-					if (lblMiningAddress.Text != Conversions.WalletAddressShortForm(mStatus.Address)) { lblMiningAddress.Text = Conversions.WalletAddressShortForm(mStatus.Address); }
-					if (lblMiningThreads.Text != mStatus.ThreadCount.ToString()) { lblMiningThreads.Text = mStatus.ThreadCount.ToString(); }
+					if (!lblMinerStatus.Text.Equals("Miner (Active)")) { lblMinerStatus.Text = "Miner (Active)"; }
+					if (!btnStartStopMining.Text.Equals("Stop Mining")) { btnStartStopMining.Text = "Stop Mining"; }
+					if (!lblMiningAddress.Text.Equals(Conversions.WalletAddressShortForm(mStatus.Address))) { lblMiningAddress.Text = Conversions.WalletAddressShortForm(mStatus.Address); }
+					if (!lblMiningThreads.Text.Equals(mStatus.ThreadCount.ToString())) { lblMiningThreads.Text = mStatus.ThreadCount.ToString(); }
 
 					string speed = string.Empty;
 					if (mStatus.Speed > 1000)
@@ -286,7 +286,7 @@ namespace Nerva.Desktop.Content
 					{					
 						speed = $"{(double)mStatus.Speed} h/s";
 					}					
-					if (lblMiningHashrate.Text != speed) { lblMiningHashrate.Text = speed; }
+					if (!lblMiningHashrate.Text.Equals(speed)) { lblMiningHashrate.Text = speed; }
 
 					string timeToBlock = "-";
 					if (lastReportedDiff != 0)
@@ -305,20 +305,19 @@ namespace Nerva.Desktop.Content
 						{
 							timeToBlock = String.Format("{0:F0}", Math.Round(blockMinutes, 0)) + " minutes (estimated)";
 						}
-						
 					}
-					if (lblTimeToBlock.Text != timeToBlock) { lblTimeToBlock.Text = timeToBlock; }
+					if (!lblTimeToBlock.Text.Equals(timeToBlock)) { lblTimeToBlock.Text = timeToBlock; }
 				}
 				else
 				{
 					if (_isCurrentlyMining) { _isCurrentlyMining = false; }
 
-					if (lblMinerStatus.Text != "Miner (Inactive)") { lblMinerStatus.Text = "Miner (Inactive)"; }
-					if (btnStartStopMining.Text != "Start Mining") { btnStartStopMining.Text = "Start Mining"; }
-					if (lblMiningAddress.Text != "-") { lblMiningAddress.Text = "-"; }
-					if (lblMiningThreads.Text != "-") { lblMiningThreads.Text = "-"; }
-					if (lblMiningHashrate.Text != "-") { lblMiningHashrate.Text = "-"; }
-					if (lblTimeToBlock.Text != "-") { lblTimeToBlock.Text = "-"; }
+					if (!lblMinerStatus.Text.Equals("Miner (Inactive)")) { lblMinerStatus.Text = "Miner (Inactive)"; }
+					if (!btnStartStopMining.Text.Equals("Start Mining")) { btnStartStopMining.Text = "Start Mining"; }
+					if (!lblMiningAddress.Text.Equals("-")) { lblMiningAddress.Text = "-"; }
+					if (!lblMiningThreads.Text.Equals("-")) { lblMiningThreads.Text = "-"; }
+					if (!lblMiningHashrate.Text.Equals("-")) { lblMiningHashrate.Text = "-"; }
+					if (!lblTimeToBlock.Text.Equals("-")) { lblTimeToBlock.Text = "-"; }
 				}
 			}
 			catch (Exception ex)

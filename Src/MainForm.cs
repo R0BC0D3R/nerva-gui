@@ -291,7 +291,7 @@ namespace Nerva.Desktop
 
                 Application.Instance.AsyncInvoke(() =>
                 {
-                    lblWalletStatus.Text = "Wallet offline - see Wallet menu";
+                    lblWalletStatus.Text = "Wallet offline - see Wallet menu to open, create or import wallet";
                     lastTxHeight = 0;
                     balancesPage.Update(null);
                     transfersPage.Update(null);
@@ -317,7 +317,7 @@ namespace Nerva.Desktop
                 }
 
                 bool isGetInfoSuccessful = false;
-                DaemonRpc.GetInfo((GetInfoResponseData r) =>
+                DaemonRpc.GetInfo((GetInfoResponseData response) =>
                 {
                     Application.Instance.Invoke(() =>
                     {
@@ -332,16 +332,29 @@ namespace Nerva.Desktop
 
                         isGetInfoSuccessful = true;
 
-                        daemonPage.UpdateInfo(r);
+                        daemonPage.UpdateInfo(response);
 
-                        lblDaemonStatus.Text = $"Height: {r.Height} | Connections: {r.OutgoingConnectionsCount}(out)+{r.IncomingConnectionsCount}(in)";                        
+                        string daemonStatus = $"Daemon: {response.OutgoingConnectionsCount}(out)+{response.IncomingConnectionsCount}(in)";                       
 
-                        if (r.TargetHeight != 0 && r.Height < r.TargetHeight)
-                            lblDaemonStatus.Text += " | Syncing";
+                        if (response.TargetHeight == 0)
+                        {
+                            daemonStatus += " | Connecting";
+                        }
+                        else if (response.Height < response.TargetHeight)
+                        {
+                            daemonStatus += " | Synchronizing (Height " + response.Height + " of " + response.TargetHeight + ")";
+                        }
                         else
-                            lblDaemonStatus.Text += " | Sync OK";
+                        {
+                            daemonStatus += " | Fully Synchronized";
+                        }
 
-                        lblVersion.Text = $"Version: {r.Version}";
+                        daemonStatus += " | Status: " + response.Status;
+
+                        if(!lblDaemonStatus.Text.Equals(daemonStatus)) { lblDaemonStatus.Text = daemonStatus; }
+
+                        string version = "Version: " + response.Version;
+                        if(!lblVersion.Text.Equals(version)) { lblVersion.Text = version; }
                     });
                 }, (RequestError e) =>
                 {
