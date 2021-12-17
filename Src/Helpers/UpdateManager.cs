@@ -233,6 +233,47 @@ namespace Nerva.Desktop.Helpers
             return null;
         }
 
+        public static string GetQuicksyncLink()
+        {
+            string quicksyncLink = Nerva.Desktop.Version.DEFAULT_DOWNLOAD_URL_QUICKSYNC;
+
+            try
+            {
+                var client = new LookupClient();            
+                string prefix = "quicksync:";
+                bool foundGoodRecord = false;
+                
+                foreach(DnsNode node in Version.REMOTE_NODES)
+                {
+                    var records = client.Query(node.DownloadUrl, QueryType.TXT).Answers;
+
+                    foreach (var record in records)
+                    {
+                        string txt = ((DnsClient.Protocol.TxtRecord)record).Text.ToArray()[0];
+                        if (txt.StartsWith(prefix))
+                        {
+                            Logger.LogDebug("UM.GQSL", "Found DNS quicksync record: " + record);
+                            quicksyncLink = txt.Substring(prefix.Length);
+                            foundGoodRecord = true;
+                            break;
+                        }       
+                    }
+
+                    if(foundGoodRecord)
+                    {
+                        // Since we found good record, break outer loop
+                        break;
+                    }
+                }
+            }
+            catch(Exception ex)
+            {
+                ErrorHandler.HandleException("UM.GQSL", ex, false);
+            }
+
+            return quicksyncLink;
+        }
+
         public static void DownloadCLI(string file, Action<DownloadProgressChangedEventArgs> onProgress, Action<bool, string> onComplete)
         {
 
@@ -290,6 +331,43 @@ namespace Nerva.Desktop.Helpers
                     }
                 }
             });   
+        }
+
+        public static void DownloadFileToFolder(string fileUrl, string destinationDir, Action<bool, string> onComplete)
+        {
+            try
+            {
+                if (!Directory.Exists(destinationDir))
+                {
+                    Directory.CreateDirectory(destinationDir);
+                }
+
+                string destinationFile = Path.Combine(destinationDir, Path.GetFileName(fileUrl));
+
+                Logger.LogDebug("UM.DFTF", "Downloading file. URL: " + fileUrl + " | Destination: " + destinationFile);
+                using (var client = new WebClient())
+                {
+                    client.DownloadFileCompleted += (s, e) =>
+                    {
+                        if (e.Error == null)
+                        {
+                            Logger.LogDebug("UM.DFTF", "File downloaded successfully");
+                            onComplete(true, destinationFile);
+                        }
+                        else
+                        {
+                            ErrorHandler.HandleException("UM.DFTF", e.Error, false);
+                            onComplete(false, destinationFile);
+                        }
+                    };
+
+                    client.DownloadFileAsync(new Uri(fileUrl),  destinationFile);
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorHandler.HandleException("UM.DFTF", ex, false);
+            }
         }
 
         private static void ExtractFile(string destDir, string destFile, Action<bool, string> onComplete)

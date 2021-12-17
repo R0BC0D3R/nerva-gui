@@ -181,7 +181,7 @@ namespace Nerva.Desktop.Content
 								userMessage += " and miner restarted";
 							}
 
-							MessageBox.Show(Application.Instance.MainForm, userMessage, MessageBoxButtons.OK, MessageBoxType.Information, MessageBoxDefaultButton.OK);
+							MessageBox.Show(Application.Instance.MainForm, userMessage, MessageBoxButtons.OK, MessageBoxType.Information);
 						}
 						catch (Exception ex2)
 						{

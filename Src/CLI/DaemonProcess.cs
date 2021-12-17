@@ -28,23 +28,33 @@ namespace Nerva.Desktop.CLI
 
         public static string GenerateCommandLine()
         {
-            string a = ProcessManager.GenerateCommandLine(FileNames.DaemonPath, Configuration.Instance.Daemon.Rpc);
+            return GenerateCommandLine(string.Empty);
+        }
+
+        public static string GenerateCommandLine(string extraParams)
+        {
+            string parameters = ProcessManager.GenerateCommandLine(FileNames.DaemonPath, Configuration.Instance.Daemon.Rpc);
 
             if (Configuration.Instance.Daemon.AutoStartMining)
             {
                 string ma = Configuration.Instance.Daemon.MiningAddress;
 
                 Logger.LogDebug("DP.GCL", $"Enabling startup mining @ {ma}");
-                a += $" --start-mining {ma} --mining-threads {Configuration.Instance.Daemon.MiningThreads}";
+                parameters += $" --start-mining {ma} --mining-threads {Configuration.Instance.Daemon.MiningThreads}";
             }
             
 #if UNIX
-            a += " --detach";
+            parameters += " --detach";
 #endif
 
-            a += $" {Configuration.Instance.Daemon.AdditionalArguments}";
+            parameters += $" {Configuration.Instance.Daemon.AdditionalArguments}";
 
-            return a;
+            if(!string.IsNullOrEmpty(extraParams))
+            {
+                parameters += " " + extraParams;
+            }
+
+            return parameters;
         }
     }
 }

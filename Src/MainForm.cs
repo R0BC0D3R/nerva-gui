@@ -23,6 +23,7 @@ namespace Nerva.Desktop
     {
         public System.Timers.Timer masterTimer = null;
         public bool killMasterProcess = false;
+        public bool _askedToQuicksync = false;
 
         ulong lastTxHeight = 0;
         private bool isInitialDaemonConnectionSuccess = false;
@@ -339,6 +340,22 @@ namespace Nerva.Desktop
                         if (response.TargetHeight != 0 && response.Height < response.TargetHeight)
                         {
                             daemonStatus += " | Synchronizing (Height " + response.Height + " of " + response.TargetHeight + ")";
+
+                            // See if user wants to use QuickSync if they're far behind
+                            if(!_askedToQuicksync)
+                            {
+                                _askedToQuicksync = true;
+                                double percentSynced = response.Height / Convert.ToDouble(response.TargetHeight);
+
+                                if(percentSynced < 0.7)
+                                {
+                                    string message = "You're currently only " + percentSynced.ToString("P1") + " synchronized with NERVA network" + "\n\r\n\rWould you like to use QuickSync to synchronize faster?";
+                                    if (MessageBox.Show(this, message, MessageBoxButtons.YesNo, MessageBoxType.Question, MessageBoxDefaultButton.No) == DialogResult.Yes)
+                                    {
+                                        SynchronizeWithQuicksync();                                    
+                                    }
+                                }
+                            }
                         }
                         else
                         {
@@ -396,6 +413,46 @@ namespace Nerva.Desktop
             {
                 ErrorHandler.HandleException("MF.DUU", ex, false);
             }
+        }
+
+        private void SynchronizeWithQuicksync()
+        {
+            Application.Instance.AsyncInvoke( () =>
+            {
+                try
+                {                    
+                    string quicksyncLink = UpdateManager.GetQuicksyncLink();
+
+                    UpdateManager.DownloadFileToFolder(quicksyncLink, Configuration.Instance.ToolsPath, (bool success, string destinationFile) =>
+                    {
+                        if(success)
+                        {
+                            Logger.LogDebug("MF.SWQC", "Restarting CLI");
+                            DaemonProcess.ForceClose();
+                            WalletProcess.ForceClose();
+                            ProcessManager.StartExternalProcess(FileNames.DaemonPath, DaemonProcess.GenerateCommandLine("--quicksync \"" + destinationFile + "\""));
+
+                            Application.Instance.AsyncInvoke( () =>
+                            {
+                                daemonPage.UpdateInfo(null);
+                                daemonPage.UpdateConnections(null);
+                                daemonPage.UpdateMinerStatus(null);
+                                balancesPage.Update(null);
+                                transfersPage.Update(null);
+                            });
+                        }
+                        else 
+                        {
+                            string message = "An error occured while downloading QuickSync file.\r\nPlease refer to the log file and try again later.";
+                            MessageBox.Show(this, message, MessageBoxButtons.OK, MessageBoxType.Error);
+                        }
+                    });         
+                }
+                catch (Exception ex)
+                {
+                    ErrorHandler.HandleException("MF.SWQS", ex, "Problem synchronizing using QuickSync.  See log for more details.", true);
+                }
+            });
         }
 
         protected void daemon_ToggleMining_Clicked(object sender, EventArgs e)
@@ -561,8 +618,8 @@ namespace Nerva.Desktop
                     balancesPage.Update(null);
                     transfersPage.Update(null);
 
-                    if (MessageBox.Show(Application.Instance.MainForm, "Wallet creation complete.\nWould you like to use this as the mining address?", "Create Wallet",
-                        MessageBoxButtons.YesNo, MessageBoxType.Question, MessageBoxDefaultButton.Yes) == DialogResult.Yes)
+                    string message = "Wallet creation complete.\nWould you like to use this as the mining address?";
+                    if (MessageBox.Show(this, message, MessageBoxButtons.YesNo, MessageBoxType.Question, MessageBoxDefaultButton.Yes) == DialogResult.Yes)
                     {
                         Configuration.Instance.Daemon.MiningAddress = address;
                         Configuration.Save();
@@ -581,8 +638,8 @@ namespace Nerva.Desktop
             {
                 Application.Instance.AsyncInvoke( () =>
                 {
-                    MessageBox.Show(Application.Instance.MainForm, $"Wallet creation failed.\r\nError Code: {error.Code}\r\n{error.Message}", "Create Wallet",
-                    MessageBoxButtons.OK, MessageBoxType.Error, MessageBoxDefaultButton.OK);
+                    string message = $"Wallet creation failed.\r\nError Code: {error.Code}\r\n{error.Message}";
+                    MessageBox.Show(this, message, MessageBoxButtons.OK, MessageBoxType.Error);
                 });
             }
             catch (Exception ex)
@@ -598,11 +655,15 @@ namespace Nerva.Desktop
                 Application.Instance.AsyncInvoke( () =>
                 {
                     if (error.Code != -1)
-                        MessageBox.Show(Application.Instance.MainForm, $"Failed to open the wallet.\r\nError Code: {error.Code}\r\n{error.Message}", "Open Wallet",
-                            MessageBoxButtons.OK, MessageBoxType.Error, MessageBoxDefaultButton.OK);
+                    {
+                        string message = $"Failed to open the wallet.\r\nError Code: {error.Code}\r\n{error.Message}";
+                        MessageBox.Show(this, message, MessageBoxButtons.OK, MessageBoxType.Error);
+                    }
                     else
-                        MessageBox.Show(Application.Instance.MainForm, $"Failed to open the wallet.\r\nPlease check your password and make sure the network type is correct", "Open Wallet",
-                            MessageBoxButtons.OK, MessageBoxType.Error, MessageBoxDefaultButton.OK);
+                    {
+                        string message = $"Failed to open the wallet.\r\nPlease check your password and make sure the network type is correct";
+                        MessageBox.Show(this, message, MessageBoxButtons.OK, MessageBoxType.Error);
+                    }
                 });
             }
             catch (Exception ex)
@@ -622,8 +683,7 @@ namespace Nerva.Desktop
 
                     Application.Instance.AsyncInvoke(() =>
                     {
-                        MessageBox.Show(this, "Wallet Save Complete", "NERVA Wallet", MessageBoxButtons.OK,
-                            MessageBoxType.Information, MessageBoxDefaultButton.OK);
+                        MessageBox.Show(this, "Wallet Save Complete", MessageBoxButtons.OK, MessageBoxType.Information);
                     });
                 });
             }
@@ -676,8 +736,7 @@ namespace Nerva.Desktop
 
                     Application.Instance.AsyncInvoke(() =>
                     {
-                        MessageBox.Show(this, "Rescanning spent outputs complete", "Rescan Spent",
-                            MessageBoxButtons.OK, MessageBoxType.Information, MessageBoxDefaultButton.OK);
+                        MessageBox.Show(this, "Rescanning spent outputs complete", MessageBoxButtons.OK, MessageBoxType.Information);
                     });
                 });
             }
@@ -705,8 +764,7 @@ namespace Nerva.Desktop
 
                     Application.Instance.AsyncInvoke(() =>
                     {
-                        MessageBox.Show(this, "Rescanning blockchain complete", "Rescan Blockchain",
-                            MessageBoxButtons.OK, MessageBoxType.Information, MessageBoxDefaultButton.OK);
+                        MessageBox.Show(this, "Rescanning blockchain complete", MessageBoxButtons.OK, MessageBoxType.Information);
                     });
                 });
             }
@@ -741,15 +799,13 @@ namespace Nerva.Desktop
                         {
                             Application.Instance.AsyncInvoke(() =>
                             {
-                                MessageBox.Show(this, $"New account {d.Text} created", "Create Account",
-                                    MessageBoxButtons.OK, MessageBoxType.Error, MessageBoxDefaultButton.OK);
+                                MessageBox.Show(this, $"New wallet {d.Text} created", MessageBoxButtons.OK, MessageBoxType.Error);
                             });
                         }, (RequestError err) =>
                         {
                             Application.Instance.AsyncInvoke(() =>
                             {
-                                MessageBox.Show(this, "Failed to create new account", "Create Account",
-                                    MessageBoxButtons.OK, MessageBoxType.Error, MessageBoxDefaultButton.OK);
+                                MessageBox.Show(this, "Failed to create new wallet", MessageBoxButtons.OK, MessageBoxType.Error);
                             });
                         });
                     });
@@ -865,8 +921,7 @@ namespace Nerva.Desktop
                     if (d.RestartCliRequired)
                     {
                         //if thge daemon has to be restarted, there is a good chance the wallet has to be restarted, so just do it
-                        MessageBox.Show(this, "NERVA backend will now restart to apply your changes", "NERVA Preferences",
-                            MessageBoxButtons.OK, MessageBoxType.Information, MessageBoxDefaultButton.OK);
+                        MessageBox.Show(this, "NERVA backend will now restart to apply your changes", MessageBoxButtons.OK, MessageBoxType.Information);
 
                         Logger.LogDebug("MF.FPC", "Restarting CLI");
 
@@ -920,8 +975,8 @@ namespace Nerva.Desktop
 
                 if (updateRequired)
                 {
-                    if (MessageBox.Show(Application.Instance.MainForm, "New version is available:\n\r\n\r" + cliMsg + "\n\r\n\rWould you like to download it?", "NERVA Updater", 
-                        MessageBoxButtons.YesNo, MessageBoxType.Question, MessageBoxDefaultButton.No) == DialogResult.Yes)
+                    string message = "New version is available:\n\r\n\r" + cliMsg + "\n\r\n\rWould you like to download it?";
+                    if (MessageBox.Show(this, message, MessageBoxButtons.YesNo, MessageBoxType.Question, MessageBoxDefaultButton.No) == DialogResult.Yes)
                     {
                         if (UpdateManager.CliUpdateInfo != null && UpdateManager.CliUpdateInfo.UpdateStatus == Update_Status_Code.NewVersionAvailable)
                         {
@@ -946,7 +1001,7 @@ namespace Nerva.Desktop
                                     if (success)
                                     {
                                         string message = "Update completed successfully!";
-                                        MessageBox.Show(Application.Instance.MainForm, message, "NERVA Updater", MessageBoxButtons.OK, MessageBoxType.Information);
+                                        MessageBox.Show(this, message, MessageBoxButtons.OK, MessageBoxType.Information);
                                     }
                                     else
                                     {
@@ -956,7 +1011,7 @@ namespace Nerva.Desktop
                                         }
                                         
                                         string message = "An error occured while downloading/extracting the NERVA CLI tools.\r\nPlease refer to the log file and try again later.";
-                                        MessageBox.Show(Application.Instance.MainForm, message, "NERVA Updater", MessageBoxButtons.OK, MessageBoxType.Error, MessageBoxDefaultButton.OK);
+                                        MessageBox.Show(this, message, MessageBoxButtons.OK, MessageBoxType.Error);
                                     }
                                 });
 
@@ -972,7 +1027,7 @@ namespace Nerva.Desktop
                 }
                 else
                 {
-                    MessageBox.Show(Application.Instance.MainForm, "You are up to date", "NERVA Updater", MessageBoxButtons.OK, MessageBoxType.Information);
+                    MessageBox.Show(this, "You are up to date", MessageBoxButtons.OK, MessageBoxType.Information);
                 }
             }
             catch (Exception ex)
@@ -989,8 +1044,7 @@ namespace Nerva.Desktop
                 {
                     Application.Instance.AsyncInvoke(() =>
                     {
-                        MessageBox.Show(Application.Instance.MainForm, $"Update downloaded to {file}", "NERVA Updater", 
-                            MessageBoxButtons.OK, MessageBoxType.Information);
+                        MessageBox.Show(this, $"Update downloaded to {file}", MessageBoxButtons.OK, MessageBoxType.Information);
                     });
                 }
                 else
@@ -1000,8 +1054,7 @@ namespace Nerva.Desktop
                                                 
                     Application.Instance.AsyncInvoke(() =>
                     {
-                        MessageBox.Show(Application.Instance.MainForm, $"An error occurred during the update", "NERVA Updater", 
-                            MessageBoxButtons.OK, MessageBoxType.Error);
+                        MessageBox.Show(this, $"An error occurred during the update", MessageBoxButtons.OK, MessageBoxType.Error);
                     });
                 }
             }
