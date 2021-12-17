@@ -170,9 +170,9 @@ namespace Nerva.Desktop.Content.Wizard
 
                         if (success)
                         { 
-                            Parent.EnableNextButton(true);
                             Configuration.Instance.ToolsPath = dest;
                             Logger.LogDebug("GCC.HDC", $"Setting Config.ToolsPath: {dest}");
+                            Parent.OnNext();
                         }
                         else
                         {

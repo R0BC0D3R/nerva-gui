@@ -34,13 +34,13 @@ namespace Nerva.Desktop.Content.Wizard
                     VerticalContentAlignment = VerticalAlignment.Stretch,
                     Items =
                     {
-                        new Label { Text = "Press 'Finish' to start using NERVA Desktop." },
+                        new Label { Text = "Press 'Finish' to start using NERVA Desktop" },
                         new Label { Text = "   " },
-                        new Label { Text = "Look in Wallet menu to create/restore/open wallet." },                        
+                        new Label { Text = "Look in Wallet menu to create/restore/open wallet" },                        
                         new Label { Text = "   " },
-                        new Label { Text = "Set your mining preferences under File > Preferences." },                        
+                        new Label { Text = "Set your mining preferences under File > Preferences" },                        
                         new Label { Text = "   " },
-                        new Label { Text = "If you require help, please check the help menu for some useful links." },
+                        new Label { Text = "If you require help, please check the help menu for some useful links" },
                         new Label { Text = "   " },
                         new StackLayoutItem(null, true),
                     }

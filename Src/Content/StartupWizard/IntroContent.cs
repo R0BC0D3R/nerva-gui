@@ -36,14 +36,12 @@ namespace Nerva.Desktop.Content.Wizard
                     {
                         new Label { Text = "Welcome to NERVA" },
                         new Label { Text = "   " },
-                        new Label { Text = "This wizard will guide you through all the steps required to get up and running." },
+                        new Label { Text = "This wizard will guide you through all the steps required to get up and running" },
                         new Label { Text = "   " },
                         new Label { Text = "Click 'Next' to continue" },
                         new Label { Text = "   " },
                     }
                 };
-
-                
             }
             catch (Exception ex)
             {

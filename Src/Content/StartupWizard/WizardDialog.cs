@@ -141,7 +141,7 @@ namespace Nerva.Desktop.Content.Wizard
             ConstructContent();
         }
 
-        protected virtual void OnNext()
+        public virtual void OnNext()
         {
             pages[currentPage].OnNext();
 

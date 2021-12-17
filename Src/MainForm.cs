@@ -336,11 +336,7 @@ namespace Nerva.Desktop
 
                         string daemonStatus = $"Daemon: {response.OutgoingConnectionsCount}(out)+{response.IncomingConnectionsCount}(in)";                       
 
-                        if (response.TargetHeight == 0)
-                        {
-                            daemonStatus += " | Connecting";
-                        }
-                        else if (response.Height < response.TargetHeight)
+                        if (response.TargetHeight != 0 && response.Height < response.TargetHeight)
                         {
                             daemonStatus += " | Synchronizing (Height " + response.Height + " of " + response.TargetHeight + ")";
                         }
