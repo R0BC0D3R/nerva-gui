@@ -499,7 +499,40 @@ namespace Nerva.Desktop
             }
         }
 
+        protected void daemonRestartWithCommand_Clicked(object sender, EventArgs e)
+        {
+            try
+            {
+                Logger.LogDebug("MF.DRQC", "Restarting daemon with custom command");
 
+                TextDialog dialog = new TextDialog("Enter custom command to pass to Daemon", false);
+                if (dialog.ShowModal() == DialogResult.Ok)
+                {
+                    if(string.IsNullOrEmpty(dialog.Text))
+                    {
+                        MessageBox.Show(this, "Daemon command cannot be blank", MessageBoxButtons.OK, MessageBoxType.Error);
+                    }
+                    else if(!dialog.Text.Trim().StartsWith("--"))
+                    {
+                        MessageBox.Show(this, "Daemon commands start with --", MessageBoxButtons.OK, MessageBoxType.Error);
+                    }
+                    else 
+                    {
+                        DaemonProcess.ForceClose();
+                        WalletProcess.ForceClose();
+                        ProcessManager.StartExternalProcess(FileNames.DaemonPath, DaemonProcess.GenerateCommandLine(dialog.Text.Trim()));
+                    }
+                }
+                else 
+                {
+                    Logger.LogDebug("MF.DRQC", "Daemon restart cancelled");
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorHandler.HandleException("MF.DRQC", ex, true);
+            }
+        }
 
         protected void wallet_New_Clicked(object sender, EventArgs e)
         {
