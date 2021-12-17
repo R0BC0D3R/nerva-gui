@@ -359,10 +359,10 @@ namespace Nerva.Desktop
                         }
                         else
                         {
-                            daemonStatus += " | Fully Synchronized";
+                            daemonStatus += " | Sync OK";
                         }
 
-                        daemonStatus += " | Status: " + response.Status;
+                        daemonStatus += " | Status " + response.Status;
 
                         if(!lblDaemonStatus.Text.Equals(daemonStatus)) { lblDaemonStatus.Text = daemonStatus; }
 

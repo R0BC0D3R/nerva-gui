@@ -26,21 +26,21 @@ namespace Nerva.Desktop.Content
 
 		GridView grid;
 	
-		private Label lblHeight = new Label() { Text = "." };
-		private Label lblRunTime = new Label() { Text = "." };
-		private Label lblNetHash = new Label() { Text = "." };
-		private Label lblNetwork = new Label() { Text = "." };
+		private Label lblHeight = new Label() { Text = ".", ToolTip = "Network height you're on" };
+		private Label lblRunTime = new Label() { Text = ".", ToolTip = "How long your Daemon process has been running" };
+		private Label lblNetHash = new Label() { Text = ".", ToolTip = "Combined hash rate of NERVA network" };
+		private Label lblNetwork = new Label() { Text = ".", ToolTip = "Network you're currently on" };
 
 		private Label lblMinerStatus = new Label { Text = "Miner (Inactive)" };
-		private Label lblMiningAddress = new Label() { Text = "." };
-		private Label lblMiningThreads = new Label() { Text = "." };
-		private Label lblMiningHashrate = new Label() { Text = "." };
-		private Label lblTimeToBlock = new Label() { Text = ".", ToolTip = "Approximately how long it takes to find a block" };
+		private Label lblMiningAddress = new Label() { Text = ".", ToolTip = "Address you're mining to" };
+		private Label lblMiningThreads = new Label() { Text = ".", ToolTip = "Number of CPU threads you're mining with"  };
+		private Label lblMiningHashrate = new Label() { Text = ".", ToolTip = "The speed with which you're mining" };
+		private Label lblTimeToBlock = new Label() { Text = ".", ToolTip = "Approximately how long it will take to find a block with current hash rate" };
 
-		public Button btnStartStopMining = new Button { Text = "Start Mining", Enabled = false };
+		public Button btnStartStopMining = new Button { Text = "Start Mining", ToolTip = "Start mining process", Enabled = false };
 
-		public Button btnChangeMiningThreads = new Button { Text = "Set", Enabled = false, Size = new Eto.Drawing.Size(50, 22)  };
-		public NumericStepper nsMiningThreads = new NumericStepper { MinValue = 1, MaxValue = Environment.ProcessorCount, DecimalPlaces = 0, MaximumDecimalPlaces = 0, Enabled = false, Size = new Eto.Drawing.Size(50, 22), ToolTip = "Number of CPU threads to use for mining",  };
+		public Button btnChangeMiningThreads = new Button { Text = "Set", Enabled = false, Size = new Eto.Drawing.Size(50, 22), ToolTip = "Change number of CPU threads used for mining" };
+		public NumericStepper nsMiningThreads = new NumericStepper { MinValue = 1, MaxValue = Environment.ProcessorCount, DecimalPlaces = 0, MaximumDecimalPlaces = 0, Enabled = false, Size = new Eto.Drawing.Size(50, 22), ToolTip = "Number of CPU threads to use for mining"  };
 
         #endregion
 
@@ -273,7 +273,11 @@ namespace Nerva.Desktop.Content
 					if (!_isCurrentlyMining) { _isCurrentlyMining = true; }
 
 					if (!lblMinerStatus.Text.Equals("Miner (Active)")) { lblMinerStatus.Text = "Miner (Active)"; }
-					if (!btnStartStopMining.Text.Equals("Stop Mining")) { btnStartStopMining.Text = "Stop Mining"; }
+					if (!btnStartStopMining.Text.Equals("Stop Mining"))
+					{
+						btnStartStopMining.Text = "Stop Mining";
+						btnStartStopMining.ToolTip = "Stop mining process";
+					}
 					if (!lblMiningAddress.Text.Equals(Conversions.WalletAddressShortForm(mStatus.Address))) { lblMiningAddress.Text = Conversions.WalletAddressShortForm(mStatus.Address); }
 					if (!lblMiningThreads.Text.Equals(mStatus.ThreadCount.ToString())) { lblMiningThreads.Text = mStatus.ThreadCount.ToString(); }
 
@@ -313,7 +317,11 @@ namespace Nerva.Desktop.Content
 					if (_isCurrentlyMining) { _isCurrentlyMining = false; }
 
 					if (!lblMinerStatus.Text.Equals("Miner (Inactive)")) { lblMinerStatus.Text = "Miner (Inactive)"; }
-					if (!btnStartStopMining.Text.Equals("Start Mining")) { btnStartStopMining.Text = "Start Mining"; }
+					if (!btnStartStopMining.Text.Equals("Start Mining"))
+					{
+						btnStartStopMining.Text = "Start Mining";
+						btnStartStopMining.ToolTip = "Stop mining process";
+					}
 					if (!lblMiningAddress.Text.Equals("-")) { lblMiningAddress.Text = "-"; }
 					if (!lblMiningThreads.Text.Equals("-")) { lblMiningThreads.Text = "-"; }
 					if (!lblMiningHashrate.Text.Equals("-")) { lblMiningHashrate.Text = "-"; }
