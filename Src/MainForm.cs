@@ -250,7 +250,8 @@ namespace Nerva.Desktop
                 {
                     Application.Instance.AsyncInvoke( () =>
                     {
-                        lblWalletStatus.Text = $"Account(s): {ra.Accounts.Count}  | Balance: {Conversions.FromAtomicUnits(ra.TotalBalance)} XNV";
+                        string message = "Account(s): " + ra.Accounts.Count + "  |  Balance: " + Conversions.FromAtomicUnits(ra.TotalBalance) + " XNV";
+                        if (!lblWalletStatus.Text.Equals(message)) { lblWalletStatus.Text = message; }
                         balancesPage.Update(ra);
                     });
                 }, WalletUpdateFailed);
@@ -292,7 +293,8 @@ namespace Nerva.Desktop
 
                 Application.Instance.AsyncInvoke(() =>
                 {
-                    lblWalletStatus.Text = "Wallet offline - see Wallet menu to open, create or import wallet";
+                    string message = "Wallet offline - see Wallet menu to open, create or import wallet";
+                    if (!lblWalletStatus.Text.Equals(message)) { lblWalletStatus.Text = message; }
                     lastTxHeight = 0;
                     balancesPage.Update(null);
                     transfersPage.Update(null);
@@ -312,7 +314,8 @@ namespace Nerva.Desktop
                 {
                     Application.Instance.Invoke(() =>
                     {
-                        lblDaemonStatus.Text = "Trying to establish connection with daemon...";                                    
+                        string message = "Trying to establish connection with daemon...";
+                        if (!lblDaemonStatus.Text.Equals(message)) { lblDaemonStatus.Text = message; }
                         daemonPage.UpdateInfo(null);
                     });                    
                 }
@@ -364,7 +367,7 @@ namespace Nerva.Desktop
 
                         daemonStatus += " | Status " + response.Status;
 
-                        if(!lblDaemonStatus.Text.Equals(daemonStatus)) { lblDaemonStatus.Text = daemonStatus; }
+                        if (!lblDaemonStatus.Text.Equals(daemonStatus)) { lblDaemonStatus.Text = daemonStatus; }
 
                         string version = "Version: " + response.Version;
                         if(!lblVersion.Text.Equals(version)) { lblVersion.Text = version; }
@@ -373,7 +376,8 @@ namespace Nerva.Desktop
                 {
                     Application.Instance.Invoke(() =>
                     {
-                        lblDaemonStatus.Text = "Daemon not responding";
+                        string message = "Daemon not responding";
+                        if (!lblDaemonStatus.Text.Equals(message)) { lblDaemonStatus.Text = message; }
                         daemonPage.UpdateInfo(null);
                     });
                 });
@@ -626,7 +630,8 @@ namespace Nerva.Desktop
             {
                 Application.Instance.AsyncInvoke(() =>
                 {
-                    lblWalletStatus.Text = "Wallet offline";
+                    string message = "Wallet offline";
+                    if (!lblWalletStatus.Text.Equals(message)) { lblWalletStatus.Text = message; }
                     lastTxHeight = 0;
                     balancesPage.Update(null);
                     transfersPage.Update(null);
@@ -760,7 +765,8 @@ namespace Nerva.Desktop
                     {
                         balancesPage.Update(null);
                         transfersPage.Update(null);
-                        lblWalletStatus.Text = "Wallet offline";
+                        string message = "Wallet offline";
+                        if (!lblWalletStatus.Text.Equals(message)) { lblWalletStatus.Text = message; }
                     });
                 });
             }
@@ -1043,7 +1049,8 @@ namespace Nerva.Desktop
                             {
                                 Application.Instance.AsyncInvoke(() =>
                                 {
-                                    lblDaemonStatus.Text = "Updating Client Tools. Please wait...";                                    
+                                    string message = "Updating Client Tools. Please wait...";
+                                    if (!lblDaemonStatus.Text.Equals(message)) { lblDaemonStatus.Text = message; }
                                 });
 
                             }, (bool success, string dest) =>
