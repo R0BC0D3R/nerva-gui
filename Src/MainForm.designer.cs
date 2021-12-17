@@ -83,6 +83,9 @@ namespace Nerva.Desktop
 			var daemon_Restart = new Command { MenuText = "Restart", ToolBarText = "Restart" };
 			daemon_Restart.Executed += daemon_Restart_Clicked;
 
+			var daemonRestartQuickSync = new Command { MenuText = "Restart with QuickSync", ToolBarText = "Restart with QuickSync" };
+			daemonRestartQuickSync.Executed += daemonRestartQuickSync_Clicked;
+
 
 			// Wallet
 			var wallet_New = new Command { MenuText = "New", ToolBarText = "New" };
@@ -152,7 +155,8 @@ namespace Nerva.Desktop
 						Items =
 						{
 							daemon_ToggleMining,
-							daemon_Restart
+							daemon_Restart,
+							daemonRestartQuickSync
 						}
 					},
 					new ButtonMenuItem

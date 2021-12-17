@@ -23,7 +23,7 @@ namespace Nerva.Desktop
     {
         public System.Timers.Timer masterTimer = null;
         public bool killMasterProcess = false;
-        public bool _askedToQuicksync = false;
+        public bool _askedToQuickSync = false;
 
         ulong lastTxHeight = 0;
         private bool isInitialDaemonConnectionSuccess = false;
@@ -342,9 +342,9 @@ namespace Nerva.Desktop
                             daemonStatus += " | Synchronizing (Height " + response.Height + " of " + response.TargetHeight + ")";
 
                             // See if user wants to use QuickSync if they're far behind
-                            if(!_askedToQuicksync)
+                            if(!_askedToQuickSync)
                             {
-                                _askedToQuicksync = true;
+                                _askedToQuickSync = true;
                                 double percentSynced = response.Height / Convert.ToDouble(response.TargetHeight);
 
                                 if(percentSynced < 0.7)
@@ -352,7 +352,7 @@ namespace Nerva.Desktop
                                     string message = "You're currently only " + percentSynced.ToString("P1") + " synchronized with NERVA network" + "\n\r\n\rWould you like to use QuickSync to synchronize faster?";
                                     if (MessageBox.Show(this, message, MessageBoxButtons.YesNo, MessageBoxType.Question, MessageBoxDefaultButton.No) == DialogResult.Yes)
                                     {
-                                        SynchronizeWithQuicksync();                                    
+                                        SynchronizeWithQuickSync();
                                     }
                                 }
                             }
@@ -415,15 +415,15 @@ namespace Nerva.Desktop
             }
         }
 
-        private void SynchronizeWithQuicksync()
+        private void SynchronizeWithQuickSync()
         {
             Application.Instance.AsyncInvoke( () =>
             {
                 try
                 {                    
-                    string quicksyncLink = UpdateManager.GetQuicksyncLink();
+                    string quickSyncLink = UpdateManager.GetQuickSyncLink();
 
-                    UpdateManager.DownloadFileToFolder(quicksyncLink, Configuration.Instance.ToolsPath, (bool success, string destinationFile) =>
+                    UpdateManager.DownloadFileToFolder(quickSyncLink, Configuration.Instance.ToolsPath, (bool success, string destinationFile) =>
                     {
                         if(success)
                         {
@@ -481,6 +481,25 @@ namespace Nerva.Desktop
                 ErrorHandler.HandleException("MF.DRC", ex, true);
             }
         }
+
+        protected void daemonRestartQuickSync_Clicked(object sender, EventArgs e)
+        {
+            try
+            {
+                Logger.LogDebug("MF.DRQC", "Restarting daemon with QuickSync");
+
+                // Need this so it doesn't ask again to QuickSync in case user is less than 70% synchronized
+                _askedToQuickSync = true;
+
+                SynchronizeWithQuickSync();
+            }
+            catch (Exception ex)
+            {
+                ErrorHandler.HandleException("MF.DRQC", ex, true);
+            }
+        }
+
+
 
         protected void wallet_New_Clicked(object sender, EventArgs e)
         {

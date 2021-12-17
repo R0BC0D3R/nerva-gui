@@ -233,9 +233,9 @@ namespace Nerva.Desktop.Helpers
             return null;
         }
 
-        public static string GetQuicksyncLink()
+        public static string GetQuickSyncLink()
         {
-            string quicksyncLink = Nerva.Desktop.Version.DEFAULT_DOWNLOAD_URL_QUICKSYNC;
+            string quickSyncLink = Nerva.Desktop.Version.DEFAULT_DOWNLOAD_URL_QUICKSYNC;
 
             try
             {
@@ -252,8 +252,8 @@ namespace Nerva.Desktop.Helpers
                         string txt = ((DnsClient.Protocol.TxtRecord)record).Text.ToArray()[0];
                         if (txt.StartsWith(prefix))
                         {
-                            Logger.LogDebug("UM.GQSL", "Found DNS quicksync record: " + record);
-                            quicksyncLink = txt.Substring(prefix.Length);
+                            Logger.LogDebug("UM.GQSL", "Found DNS QuickSync record: " + record);
+                            quickSyncLink = txt.Substring(prefix.Length);
                             foundGoodRecord = true;
                             break;
                         }       
@@ -271,7 +271,7 @@ namespace Nerva.Desktop.Helpers
                 ErrorHandler.HandleException("UM.GQSL", ex, false);
             }
 
-            return quicksyncLink;
+            return quickSyncLink;
         }
 
         public static void DownloadCLI(string file, Action<DownloadProgressChangedEventArgs> onProgress, Action<bool, string> onComplete)
