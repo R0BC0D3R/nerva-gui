@@ -250,7 +250,7 @@ namespace Nerva.Desktop
                 {
                     Application.Instance.AsyncInvoke( () =>
                     {
-                        string message = "Account(s): " + ra.Accounts.Count + "  |  Balance: " + Conversions.FromAtomicUnits(ra.TotalBalance) + " XNV";
+                        string message = "Account(s): " + ra.Accounts.Count + "  |  Balance: " + Conversions.FromAtomicUnits4Places(ra.TotalBalance) + " XNV";
                         if (!lblWalletStatus.Text.Equals(message)) { lblWalletStatus.Text = message; }
                         balancesPage.Update(ra);
                     });

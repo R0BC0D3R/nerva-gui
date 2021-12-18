@@ -36,7 +36,7 @@ namespace Nerva.Desktop.Content.Dialogs
         {
             this.accData = accData;
             lblAccount.Text = $"{Conversions.WalletAddressShortForm(accData.BaseAddress)} ({(string.IsNullOrEmpty(accData.Label) ? "No Label" : accData.Label)})";
-            lblAmount.Text = Conversions.FromAtomicUnits(accData.Balance).ToString();
+            lblAmount.Text = Conversions.FromAtomicUnits4Places(accData.Balance).ToString();
             cbxPriority.DataStore = Enum.GetNames(typeof(Send_Priority));
             cbxPriority.SelectedIndex = 0;
 

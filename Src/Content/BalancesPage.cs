@@ -108,42 +108,68 @@ namespace Nerva.Desktop.Content
 						{
 							Application.Instance.AsyncInvoke( () =>
 							{
-								StringBuilder exportBuilder = new StringBuilder();
-								exportBuilder.AppendLine("height,type,locked,timestamp,amount,hash,payment id,fee,destination,note");
+								try
+								{									 								
+									StringBuilder exportBuilder = new StringBuilder();
+									SortedDictionary<string, TransferItem> transferRows = new SortedDictionary<string, TransferItem>();
 
-								foreach(TransferItem transfer in responseData.Incoming)
-								{
-									exportBuilder.AppendLine(transfer.Height + "," + 
-										transfer.Type + "," + 
-										(transfer.Locked ? "locked" : "unlocked") + "," +
-										DateTimeHelper.UnixTimestampToDateTime(transfer.Timestamp).ToString() + "," +
-										Conversions.FromAtomicUnits(transfer.Amount).ToString() + "," +
-										transfer.TxId + "," +
-										transfer.PaymentId + "," +
-										Conversions.FromAtomicUnits(transfer.Fee).ToString() + "," +
-										subAddress.BaseAddress + "," +
-										"\"" + transfer.Note + "\""									
-									);
+									// Create header row
+									exportBuilder.AppendLine("height,type,locked,timestamp,amount,running balance,hash,payment id,fee,destination,note");
+									
+									// Add Incoming tranfers to dictionary
+									foreach(TransferItem transfer in responseData.Incoming)
+									{
+										transferRows.Add(transfer.Height + ":" + transfer.TxId, transfer);
+									}
+
+									// Add Outgoing tranfers to dictionary
+									foreach(TransferItem transfer in responseData.Outgoing)
+									{
+										transferRows.Add(transfer.Height + ":" + transfer.TxId, transfer);
+									}
+									
+									double runningBalance = 0.0;
+									foreach(TransferItem transfer in transferRows.Values)
+									{
+										// Keep running balance
+										double transferAmount = Conversions.FromAtomicUnits(transfer.Amount);
+										double fee = 0.0;
+										if(transfer.Type.Equals("out"))
+										{
+											// Subtract from total
+											fee = Conversions.FromAtomicUnits(transfer.Fee);
+											runningBalance -= transferAmount - fee;
+										}
+										else 
+										{
+											// Add to total. There is no fee for receiver of funds
+											runningBalance += transferAmount;
+										}
+
+										// Add row to string builder
+										exportBuilder.AppendLine(transfer.Height + "," + 
+											transfer.Type + "," + 
+											(transfer.Locked ? "locked" : "unlocked") + "," +
+											DateTimeHelper.UnixTimestampToDateTime(transfer.Timestamp).ToString() + "," +
+											transferAmount.ToString("F12") + "," +
+											runningBalance.ToString("F12") + "," +
+											transfer.TxId + "," +
+											transfer.PaymentId + "," +
+											fee.ToString("F12") + "," +
+											((transfer.Destinations != null && transfer.Destinations.Count > 0) ? transfer.Destinations[0].Address : subAddress.BaseAddress) + "," +
+											"\"" + transfer.Note + "\""									
+										);
+									}
+
+									// Write transfer rows to file
+									File.WriteAllText(saveFile, exportBuilder.ToString());
+
+									MessageBox.Show(Application.Instance.MainForm, "Transfers exported successfully!", MessageBoxType.Information);
 								}
-
-								foreach(TransferItem transfer in responseData.Outgoing)
+								catch (Exception ex)
 								{
-									exportBuilder.AppendLine(transfer.Height + "," + 
-										transfer.Type + "," + 
-										(transfer.Locked ? "locked" : "unlocked") + "," +
-										DateTimeHelper.UnixTimestampToDateTime(transfer.Timestamp).ToString() + "," +
-										Conversions.FromAtomicUnits(transfer.Amount).ToString() + "," +
-										transfer.TxId + "," +
-										transfer.PaymentId + "," +
-										Conversions.FromAtomicUnits(transfer.Fee).ToString() + "," +
-										((transfer.Destinations != null && transfer.Destinations.Count > 0) ? transfer.Destinations[0].Address : "NONE") + "," +
-										"\"" + transfer.Note + "\""										
-									);
+									ErrorHandler.HandleException("BP.ETE", ex, true);
 								}
-
-								File.WriteAllText(saveFile, exportBuilder.ToString());
-
-								MessageBox.Show(Application.Instance.MainForm, "Transfers exported successfully!", MessageBoxType.Information);
 							});
 						}, (RequestError error) =>
 						{
@@ -175,7 +201,7 @@ namespace Nerva.Desktop.Content
 							Application.Instance.AsyncInvoke(() =>
 							{
 								MessageBox.Show(Application.Instance.MainForm, 
-								$"Sent: {Conversions.FromAtomicUnits(r.Amount)}\r\nFees: {Conversions.FromAtomicUnits(r.Fee)}\r\nHash: {r.TxHash}\r\nKey: {r.TxKey}", 
+								$"Sent: {Conversions.FromAtomicUnits4Places(r.Amount)}\r\nFees: {Conversions.FromAtomicUnits4Places(r.Fee)}\r\nHash: {r.TxHash}\r\nKey: {r.TxKey}", 
 								"TX Results", MessageBoxType.Information);
 							});
 						}, (RequestError err) =>
@@ -225,8 +251,8 @@ namespace Nerva.Desktop.Content
 					new GridColumn { DataCell = new TextBoxCell { Binding = Binding.Property<SubAddressAccount, string>(r => r.Index.ToString())}, HeaderText = "#", Width = 30 },
 					new GridColumn { DataCell = new TextBoxCell { Binding = Binding.Property<SubAddressAccount, string>(r => r.Label)}, HeaderText = "Label", Width = 150 },
 					new GridColumn { DataCell = new TextBoxCell { Binding = Binding.Property<SubAddressAccount, string>(r => Conversions.WalletAddressShortForm(r.BaseAddress))}, HeaderText = "Address", Width = 200 },
-					new GridColumn { DataCell = new TextBoxCell { Binding = Binding.Property<SubAddressAccount, string>(r => Conversions.FromAtomicUnits(r.Balance).ToString())}, HeaderText = "Balance", Width = 100 },
-					new GridColumn { DataCell = new TextBoxCell { Binding = Binding.Property<SubAddressAccount, string>(r => Conversions.FromAtomicUnits(r.UnlockedBalance).ToString())}, HeaderText = "Unlocked", Expand = true },
+					new GridColumn { DataCell = new TextBoxCell { Binding = Binding.Property<SubAddressAccount, string>(r => Conversions.FromAtomicUnits4Places(r.Balance).ToString())}, HeaderText = "Balance", Width = 100 },
+					new GridColumn { DataCell = new TextBoxCell { Binding = Binding.Property<SubAddressAccount, string>(r => Conversions.FromAtomicUnits4Places(r.UnlockedBalance).ToString())}, HeaderText = "Unlocked", Expand = true },
 				}
 			};
 
@@ -282,8 +308,8 @@ namespace Nerva.Desktop.Content
 			{
 				if (a != null)
 				{
-					lblTotalXnv.Text = Conversions.FromAtomicUnits(a.TotalBalance).ToString();
-					lblUnlockedXnv.Text = Conversions.FromAtomicUnits(a.TotalUnlockedBalance).ToString();
+					lblTotalXnv.Text = Conversions.FromAtomicUnits4Places(a.TotalBalance).ToString();
+					lblUnlockedXnv.Text = Conversions.FromAtomicUnits4Places(a.TotalUnlockedBalance).ToString();
 					accounts = a.Accounts;
 				}
 				else

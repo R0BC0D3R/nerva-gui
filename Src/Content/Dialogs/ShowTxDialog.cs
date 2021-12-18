@@ -30,8 +30,8 @@ namespace Nerva.Desktop.Content.Dialogs
 
 			lblType.Text = tx.Type;
 			lblTime.Text = DateTimeHelper.UnixTimestampToDateTime(tx.Timestamp).ToString();
-			lblAmount.Text = Conversions.FromAtomicUnits(tx.Amount).ToString();
-			lblFee.Text = Conversions.FromAtomicUnits(tx.Fee).ToString();
+			lblAmount.Text = Conversions.FromAtomicUnits4Places(tx.Amount).ToString();
+			lblFee.Text = Conversions.FromAtomicUnits4Places(tx.Fee).ToString();
 			lblHeight.Text = tx.Height.ToString();
 			lblUnlockTime.Text = (tx.UnlockTime).ToString();
 			lblIndex.Text = $"{tx.SubAddressIndex.Major}.{tx.SubAddressIndex.Minor}";
@@ -49,7 +49,7 @@ namespace Nerva.Desktop.Content.Dialogs
 				foreach (var d in tx.Destinations)
 					tl2.Rows.Add(new TableRow(
 						new TableCell(new Label { Text = Conversions.WalletAddressShortForm(d.Address) }),
-						new TableCell(new Label { Text = Conversions.FromAtomicUnits(d.Amount).ToString() })));
+						new TableCell(new Label { Text = Conversions.FromAtomicUnits4Places(d.Amount).ToString() })));
 			}
 
 			DefaultButton = btnCancel;
