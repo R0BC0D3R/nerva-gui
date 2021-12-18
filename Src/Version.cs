@@ -5,7 +5,7 @@ namespace Nerva.Desktop
 {	
 	public static class Version
 	{
-        public const string VERSION = "0.3.1.6";
+        public const string VERSION = "0.3.1.7";
         public const string CODE_NAME = "";
         public static readonly string LONG_VERSION = VERSION + (string.IsNullOrEmpty(CODE_NAME) ? "" : ": " + CODE_NAME);
 

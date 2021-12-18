@@ -97,6 +97,9 @@ namespace Nerva.Desktop.Content
 				if (grid.SelectedRow == -1) { return; }
 
 				SaveFileDialog saveDialog = new SaveFileDialog();
+				saveDialog.Filters.Insert(0, new FileFilter("CSV Files", new string[] { ".csv" }));
+				saveDialog.Filters.Insert(1, new FileFilter("All Files", new string[] { ".*" }));
+
 				if(saveDialog.ShowDialog(Application.Instance.MainForm) == DialogResult.Ok)
 				{
 					string saveFile = saveDialog.FileName;
