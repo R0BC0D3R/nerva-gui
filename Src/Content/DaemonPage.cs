@@ -13,10 +13,9 @@ namespace Nerva.Desktop.Content
     public class DaemonPage
 	{
         List<string> la = new List<string>();
-
 		private ulong lastReportedDiff = 0;
-
 		private bool _isCurrentlyMining = false;
+		public DateTime LastDaemonResponseTime = DateTime.Now;
 
         #region Form Controls
 
@@ -199,18 +198,32 @@ namespace Nerva.Desktop.Content
 		public void UpdateInfo(GetInfoResponseData info)
 		{
 			try
-			{
+			{				
+				bool hasAnythingChanged = false;
+
 				if (info != null)
 				{					
 					// Update the daemon info
-					if (!lblHeight.Text.Equals(info.Height.ToString())) { lblHeight.Text = info.Height.ToString(); }
+					if (!lblHeight.Text.Equals(info.Height.ToString())) 
+					{
+						lblHeight.Text = info.Height.ToString(); 
+						hasAnythingChanged = true;
+					}
 
 					DateTime miningStartTime = DateTimeHelper.UnixTimestampToDateTime((ulong)info.StartTime);
 					string runTime = (DateTime.Now.ToUniversalTime() - miningStartTime).ToString(@"%d\.hh\:mm\:ss");
-					if (!lblRunTime.Text.Equals(runTime)) { lblRunTime.Text = runTime; }
+					if (!lblRunTime.Text.Equals(runTime))
+					{
+						lblRunTime.Text = runTime;
+						hasAnythingChanged = true;
+					}
 
 					string nethash = Math.Round(((info.Difficulty / 60.0d) / 1000.0d), 2) + " kH/s";
-					if (!lblNetHash.Text.Equals(nethash)) { lblNetHash.Text = nethash; }
+					if (!lblNetHash.Text.Equals(nethash))
+					{
+						lblNetHash.Text = nethash;
+						hasAnythingChanged = true;
+					}
 					
 					string network = "-";
 					if (info.Mainnet)
@@ -225,20 +238,45 @@ namespace Nerva.Desktop.Content
 					{
 						ErrorHandler.HandleException("DP.UI", new Exception("Unknown network"), "Unknown network connection type", false);
 					}
-					if (!lblNetwork.Text.Equals(network)) { lblNetwork.Text = network; }
+					if (!lblNetwork.Text.Equals(network))
+					{
+						lblNetwork.Text = network;
+						hasAnythingChanged = true;
+					}
 
 					lastReportedDiff = info.Difficulty;
 					version = info.Version;
 				}
 				else
 				{
-					if (!lblNetwork.Text.Equals("-")) { lblNetwork.Text = "-"; }
-					if (!lblHeight.Text.Equals("-")) { lblHeight.Text = "-"; }
-					if (!lblNetHash.Text.Equals("-")) { lblNetHash.Text = "-"; }
-					if (!lblRunTime.Text.Equals("-")) { lblRunTime.Text = "-"; }
+					if (!lblNetwork.Text.Equals("-"))
+					{
+						lblNetwork.Text = "-";
+						hasAnythingChanged = true;
+					}
+					if (!lblHeight.Text.Equals("-"))
+					{
+						lblHeight.Text = "-";
+						hasAnythingChanged = true;
+					}
+					if (!lblNetHash.Text.Equals("-"))
+					{
+						lblNetHash.Text = "-";
+						hasAnythingChanged = true;
+					}
+					if (!lblRunTime.Text.Equals("-"))
+					{
+						lblRunTime.Text = "-";
+						hasAnythingChanged = true;
+					}
 
 					lastReportedDiff = 0;
 					version = "-";
+				}
+
+				if (hasAnythingChanged)
+				{
+					LastDaemonResponseTime = DateTime.Now;
 				}
 			}
 			catch (Exception ex)

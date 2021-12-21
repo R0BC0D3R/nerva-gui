@@ -194,9 +194,17 @@ namespace Nerva.Desktop
         {
             try
             {
-                Process p = null;
+                bool forceRestart = false;
+                if(daemonPage.LastDaemonResponseTime.AddMinutes(5) < DateTime.Now)
+                {
+                    // Daemon not responding.  Kill and restart
+                    forceRestart = true;
+                    daemonPage.LastDaemonResponseTime = DateTime.Now;
+                    Logger.LogDebug("MF.KDR", "No response from daemon since: " + daemonPage.LastDaemonResponseTime.ToLongTimeString() + " . Forcing restart...");                    
+                }
 
-                if (!ProcessManager.IsRunning(FileNames.NERVAD, out p))
+                Process process = null;
+                if (!ProcessManager.IsRunning(FileNames.NERVAD, out process) || forceRestart)
                 {
                     if(FileNames.DirectoryContainsCliTools(Configuration.Instance.ToolsPath))
                     {
