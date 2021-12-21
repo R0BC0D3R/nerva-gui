@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Reflection;		// Do not remove. Needed by Linux/macOS to compile
 using AngryWasp.Cli.Args;
 using AngryWasp.Serializer;
 using Eto;
