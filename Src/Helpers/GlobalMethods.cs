@@ -18,13 +18,15 @@ namespace Nerva.Desktop.Helpers
                     if (r.Active)
                     {
                         DaemonRpc.StopMining();
-                        Logger.LogInfo("GM.SSM", "Mining stopped");                        
+                        Logger.LogInfo("GM.SSM", "Mining stopped");
+                        MessageBox.Show(Application.Instance.MainForm, "Mining stopped", MessageBoxButtons.OK, MessageBoxType.Information);
                     }
                     else
                     {
                         if (DaemonRpc.StartMining())
                         {
                             Logger.LogInfo("GM.SSM",$"Mining started for @ {Conversions.WalletAddressShortForm(Configuration.Instance.Daemon.MiningAddress)} on {Configuration.Instance.Daemon.MiningThreads} threads");
+                            MessageBox.Show(Application.Instance.MainForm, "Mining started", MessageBoxButtons.OK, MessageBoxType.Information);
                         }
                         else
                         {

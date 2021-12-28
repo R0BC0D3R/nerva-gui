@@ -144,15 +144,22 @@ namespace Nerva.Desktop.Helpers
                 {
                     try
                     {
-                        if(process.ProcessName.Contains("nerva"))
-                        {
-                            Logger.LogDebug("PM.GEBN", "Found nerva: " + process.ProcessName + " | ID: " + process.Id + " | MWT: " + process.MainWindowTitle + " | MMFN: " + process.MainModule.FileName + " | MMMN: " + process.MainModule.ModuleName);
-                        }
+                        // macOS seems to be limited to 15 chars for process.ProcessName so use process.MainModule.ModuleName instead:
+                        // Found nerva: nerva-wallet-rp | ID: 949 | MWT:  | MMFN: /Users/devmac/.nerva-gui/cli/nerva-wallet-rpc | MMMN: nerva-wallet-rpc
+                        
+                        //if(process.ProcessName.Contains("nerva"))
+                        //{
+                        //    Logger.LogDebug("PM.GEBN", "Found nerva: " + process.ProcessName + " | ID: " + process.Id + " | MWT: " + process.MainWindowTitle + " | MMFN: " + process.MainModule.FileName + " | MMMN: " + process.MainModule.ModuleName);
+                        //}
 
-                        if(process.ProcessName.Contains(processName))
+                        if(process.ProcessName.Contains(processName.Length > 13 ? processName.Substring(0, 12) : processName))
                         {
-                            Logger.LogDebug("PM.GEBN", "Found process: " + process.ProcessName + " | ID: " + process.Id + " | MWT: " + process.MainWindowTitle + " | MMFN: " + process.MainModule.FileName + " | MMMN: " + process.MainModule.ModuleName);
-                            processList.Add(process);
+                            // We're looking at all processes and some will not have MainModule so we need above check first
+                            if(process.MainModule.ModuleName.Contains(processName))
+                            {
+                                Logger.LogDebug("PM.GEBN", "Found process: " + process.ProcessName + " | ID: " + process.Id + " | MWT: " + process.MainWindowTitle + " | MMFN: " + process.MainModule.FileName + " | MMMN: " + process.MainModule.ModuleName);
+                                processList.Add(process);
+                            }
                         }
                     }
                     catch (Exception ex1)
