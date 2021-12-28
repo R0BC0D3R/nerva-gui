@@ -21,10 +21,13 @@ namespace Nerva.Desktop
 {
     public partial class MainForm : Form
     {
-        public System.Timers.Timer masterTimer = null;
-        public bool killMasterProcess = false;
-        public bool _askedToQuickSync = false;
-
+        public static System.Timers.Timer _masterTimer = null;
+        public const int _masterTimerInterval = 2000;
+        public static bool _killMasterProcess = false;
+        public static DateTime _cliToolsRunningLastCheck = DateTime.MinValue;
+        
+        public static bool _askedToQuickSync = false;
+        
         ulong lastTxHeight = 0;
         private bool isInitialDaemonConnectionSuccess = false;
 
@@ -65,8 +68,8 @@ namespace Nerva.Desktop
         {
             try
             {
-                killMasterProcess = true;
-                masterTimer.Stop();
+                _killMasterProcess = true;
+                _masterTimer.Stop();
 
                 Program.Shutdown(false);
             }
@@ -118,14 +121,14 @@ namespace Nerva.Desktop
             {
                 Logger.LogDebug("MF.SMUP", "Start Master Update Process");
 
-                if(masterTimer == null)
+                if(_masterTimer == null)
                 {
-                    masterTimer = new System.Timers.Timer();
-                    masterTimer.Interval = 5000;
-                    masterTimer.Elapsed += (s, e) => MasterUpdateProcess();
-                    masterTimer.Start();
+                    _masterTimer = new System.Timers.Timer();
+                    _masterTimer.Interval = _masterTimerInterval;
+                    _masterTimer.Elapsed += (s, e) => MasterUpdateProcess();
+                    _masterTimer.Start();
 
-                    Logger.LogDebug("MF.SMUP", "Master timer will start in 5 seconds");
+                    Logger.LogDebug("MF.SMUP", "Master timer will start in 2 seconds");
                 }
             }
             catch (Exception ex)
@@ -138,32 +141,37 @@ namespace Nerva.Desktop
         {
             try
             {
-                if (masterTimer != null)
+                if (_masterTimer != null)
                 {
-                    masterTimer.Stop();
+                    _masterTimer.Stop();
                 }
 
                 // If kill master process is issued at any point, skip everything else and do not restrt master timer
 
-                if(!killMasterProcess)
+                if(_cliToolsRunningLastCheck.AddSeconds(30) < DateTime.Now)
                 {
-                    KeepDaemonRunning();
-                }
+                    _cliToolsRunningLastCheck = DateTime.Now;
+
+                    if(!_killMasterProcess)
+                    {
+                        KeepDaemonRunning();
+                    }
 
 
-                if(!killMasterProcess)
-                {
-                    KeepWalletProcessRunning();
+                    if(!_killMasterProcess)
+                    {
+                        KeepWalletProcessRunning();
+                    }
                 }
 
 
                 // Update UI
-                if(!killMasterProcess)
+                if(!_killMasterProcess)
                 {
                     DaemonUiUpdate();
                 }
 
-                if(!killMasterProcess && isInitialDaemonConnectionSuccess)
+                if(!_killMasterProcess && isInitialDaemonConnectionSuccess)
                 {
                     WalletUiUpdate();
                 }
@@ -175,17 +183,17 @@ namespace Nerva.Desktop
             finally
             {
                 // Restart timer
-                if (masterTimer == null)
+                if (_masterTimer == null)
                 {
                     Logger.LogError("MF.MUP", "Timer is NULL. Recreating. Why?");
-                    masterTimer = new System.Timers.Timer();
-                    masterTimer.Interval = 5000;
-                    masterTimer.Elapsed += (s, e) => MasterUpdateProcess();
+                    _masterTimer = new System.Timers.Timer();
+                    _masterTimer.Interval = _masterTimerInterval;
+                    _masterTimer.Elapsed += (s, e) => MasterUpdateProcess();
                 }
 
-                if(!killMasterProcess)
+                if(!_killMasterProcess)
                 {
-                    masterTimer.Start();
+                    _masterTimer.Start();
                 }
             }
         }
@@ -1047,8 +1055,8 @@ namespace Nerva.Desktop
                         if (UpdateManager.CliUpdateInfo != null && UpdateManager.CliUpdateInfo.UpdateStatus == Update_Status_Code.NewVersionAvailable)
                         {
                             // Pause master process so it does not try to restart CLI tools
-                            killMasterProcess = true;
-                            masterTimer.Stop();
+                            _killMasterProcess = true;
+                            _masterTimer.Stop();
 
                             lblVersion.Text = "0.0.0.0";
 
@@ -1082,11 +1090,11 @@ namespace Nerva.Desktop
                                     }
                                 });
 
-                                if(killMasterProcess)
+                                if(_killMasterProcess)
                                 {
                                     // Master process was stopped so need to restart it
-                                    killMasterProcess = false;
-                                    masterTimer.Start();
+                                    _killMasterProcess = false;
+                                    _masterTimer.Start();
                                 }
                             });
                         }

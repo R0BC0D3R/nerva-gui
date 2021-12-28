@@ -14,31 +14,30 @@ namespace Nerva.Desktop.Helpers
 {
     public static class ProcessManager
     {
-        private static string ExeNameToProcessName(string exe) =>
-            Path.GetFileNameWithoutExtension(exe);
+        private static string ExeNameToProcessName(string exe) => Path.GetFileNameWithoutExtension(exe);
 
         public static void Kill(string exe)
         {
             try
             {
-                exe = ExeNameToProcessName(exe);
-                var pl = GetRunningByName(exe);
+                Logger.LogDebug("PM.KIL", "Exe: " + exe);
+                List<Process> processList = GetRunningByName(exe);
 
-                if (pl.Count == 0)
+                if (processList.Count == 0)
                 {
                     Logger.LogDebug("PM.KIL", $"No instances of {exe} to kill");
                     return;
                 }
 
-                foreach (Process p in pl)
+                foreach (Process process in processList)
                 {
-                    Logger.LogDebug("PM.KIL", $"Killing running instance of {exe} with id {p.Id}");
+                    Logger.LogDebug("PM.KIL", $"Killing running instance of {exe} with id {process.Id}");
 #if UNIX
-                    UnixNative.Kill(p.Id, Signum.SIGABRT);
+                    UnixNative.Kill(process.Id, Signum.SIGABRT);
 #else
-                    p.Kill();
+                    process.Kill();
 #endif
-                    Logger.LogDebug("PM.KIL", $"Process {p.Id} killed");
+                    Logger.LogDebug("PM.KIL", $"Process {process.Id} killed");
                 }
             }
             catch (Exception ex)
@@ -53,7 +52,7 @@ namespace Nerva.Desktop.Helpers
         {
             // Mac has a fucked up launchd process with the same name which messes up a simple search by name
             // So we need this mostrosity of a command to get the pid of the actual process and not the launchd process
-            Process proc = Process.Start(new ProcessStartInfo(Path.Combine(Configuration.StorageDirectory, "FindProcesses.sh"), fileName)
+            Process process = Process.Start(new ProcessStartInfo(Path.Combine(Configuration.StorageDirectory, "FindProcesses.sh"), fileName)
             {
                 UseShellExecute = false,
                 RedirectStandardError = true,
@@ -61,24 +60,33 @@ namespace Nerva.Desktop.Helpers
                 CreateNoWindow = true
             });
 
-            proc.WaitForExit();
+            process.WaitForExit();
 
-            var result = proc.StandardOutput.ReadToEnd().Trim();
+            var result = process.StandardOutput.ReadToEnd().Trim();
+            Logger.LogDebug("PM.PFBN", "Result: " + result);
 
             if (string.IsNullOrEmpty(result))
+            {
                 return new Process[0];
+            }
 
             string[] split = result.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
 
             List<Process> returnValue = new List<Process>();
 
-            foreach (var s in split)
+            foreach (string processString in split)
             {
                 int pid;
-                if (int.TryParse(s, out pid))
+                if (int.TryParse(processString, out pid))
+                {
                     returnValue.Add(Process.GetProcessById(pid));
+                }
                 else
+                {
                     Debugger.Break();
+                }
+
+                Logger.LogDebug("PM.PFBN", "Process: " + processString + " | PID: " + pid);
             }
 
             return returnValue.ToArray();
@@ -86,26 +94,27 @@ namespace Nerva.Desktop.Helpers
 
 #endif
 
-        public static bool IsRunning(string exe, out Process p)
+        public static bool IsRunning(string exe, out Process process)
         {
-            exe = ExeNameToProcessName(exe);
-            p = null;
+            process = null;
 
             try
             {
-                var pl = GetRunningByName(exe);
+                Logger.LogDebug("PM.IR", "Exe: " + exe);
+                List<Process> processList = GetRunningByName(exe);
 
-                if (pl.Count == 0)
+                Logger.LogDebug("PM.IR", "Process count: " + processList.Count);
+                if (processList.Count == 0)
                 {
                     return false;
                 }
 
-                p = pl[0];
+                process = processList[0];
 
-                if (p == null || p.HasExited)
+                if (process == null || process.HasExited)
                 {
                     Logger.LogDebug("PM.IR", $"CLI tool {exe} exited unexpectedly. Restarting");
-                    p = null;
+                    process = null;
                     return false;
                 }
                 else
@@ -121,19 +130,37 @@ namespace Nerva.Desktop.Helpers
         }
 
         public static List<Process> GetRunningByName(string exe)
-        { 
-            exe = ExeNameToProcessName(exe);
-            List<Process> r = new  List<Process>();
-#if UNIX
-            foreach (var p in PsFindByName(exe))
-                if (!p.HasExited)
-                    r.Add(p);
-#else
-            foreach (var p in Process.GetProcessesByName(exe))
-                if (!p.HasExited)
-                    r.Add(p);
-#endif
-            return r;
+        {             
+            List<Process> processList = new  List<Process>();
+
+            try
+            {                 
+                string processName = ExeNameToProcessName(exe);
+                Logger.LogDebug("PM.GEBN", "Exe: " + exe + " | Process Name: " + processName);
+
+                IList<Process> runningProcesses = Process.GetProcesses();
+
+                foreach(Process process in runningProcesses)
+                {
+                    try
+                    {
+                         if(process.ProcessName.Contains(processName))
+                         {
+                             Logger.LogDebug("PM.GEBN", "Found process: " + process.ProcessName + " | ID: " + process.Id + " | MWT: " + process.MainWindowTitle + " | MMFN: " + process.MainModule.FileName + " | MMMN: " + process.MainModule.ModuleName);
+                             processList.Add(process);
+                         }
+                    }
+                    catch (Exception ex1)
+                    {
+                        ErrorHandler.HandleException("PM.GRBN", ex1, false);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorHandler.HandleException("PM.GRBN", ex, false);
+            }
+            return processList;
         }
 
         public static void StartExternalProcess(string exePath, string args)
@@ -157,10 +184,14 @@ namespace Nerva.Desktop.Helpers
             try
             {
                 if (File.Exists(oldLogFile))
+                {
                     File.Delete(oldLogFile);
+                }
 
                 if (File.Exists(logFile))
+                {
                     File.Move(logFile, oldLogFile);
+                }
             }
             catch (Exception)
             {
