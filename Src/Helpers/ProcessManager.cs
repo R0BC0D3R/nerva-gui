@@ -144,11 +144,16 @@ namespace Nerva.Desktop.Helpers
                 {
                     try
                     {
-                         if(process.ProcessName.Contains(processName))
-                         {
-                             Logger.LogDebug("PM.GEBN", "Found process: " + process.ProcessName + " | ID: " + process.Id + " | MWT: " + process.MainWindowTitle + " | MMFN: " + process.MainModule.FileName + " | MMMN: " + process.MainModule.ModuleName);
-                             processList.Add(process);
-                         }
+                        if(process.ProcessName.Contains("nerva"))
+                        {
+                            Logger.LogDebug("PM.GEBN", "Found nerva: " + process.ProcessName + " | ID: " + process.Id + " | MWT: " + process.MainWindowTitle + " | MMFN: " + process.MainModule.FileName + " | MMMN: " + process.MainModule.ModuleName);
+                        }
+
+                        if(process.ProcessName.Contains(processName))
+                        {
+                            Logger.LogDebug("PM.GEBN", "Found process: " + process.ProcessName + " | ID: " + process.Id + " | MWT: " + process.MainWindowTitle + " | MMFN: " + process.MainModule.FileName + " | MMMN: " + process.MainModule.ModuleName);
+                            processList.Add(process);
+                        }
                     }
                     catch (Exception ex1)
                     {
