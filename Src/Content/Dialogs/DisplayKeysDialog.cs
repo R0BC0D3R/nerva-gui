@@ -1,4 +1,5 @@
 using Eto.Forms;
+using Eto.Drawing;
 using Nerva.Rpc;
 using Nerva.Rpc.Wallet;
 using Nerva.Desktop.CLI;
@@ -21,6 +22,8 @@ namespace Nerva.Desktop.Content.Dialogs
 
         public DisplayKeysDialog() : base("Restore Info")
         {
+            this.MinimumSize = new Size(300, 400);
+
             Helpers.TaskFactory.Instance.RunTask("getkeys", $"Retrieving wallet keys", () =>
             {
                 WalletRpc.QueryKey("all_keys", (QueryKeyResponseData r) =>

@@ -1,5 +1,6 @@
 using System.Text;
 using Eto.Forms;
+using Eto.Drawing;
 using Nerva.Desktop.Helpers;
 
 namespace Nerva.Desktop.Content.Dialogs
@@ -16,8 +17,12 @@ namespace Nerva.Desktop.Content.Dialogs
 
         public AddressBookAddDialog(AddressBookEntry e) : base(e == null ? "Add To Address Book" : "Edit Address Book")
         {
+            this.MinimumSize = new Size(300, 330);
+
             if (e == null)
+            {
                 return;
+            }
 
             txtName.Text = e.Name;
             txtAddress.Text = e.Address;

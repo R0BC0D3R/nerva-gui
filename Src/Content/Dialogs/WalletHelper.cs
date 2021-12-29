@@ -23,10 +23,7 @@ namespace Nerva.Desktop.Content.Dialogs
 				Icon = new Icon(iconFile);
 			}
 
-#if UNIX
-                this.Width = 400;
-#endif
-
+            this.Width = 400;
             this.Resizable = true;
             //Topmost = true;
             var scr = Screen.PrimaryScreen;
@@ -39,15 +36,6 @@ namespace Nerva.Desktop.Content.Dialogs
 
             btnOk.Click += (s, e) => OnOk();
             btnCancel.Click += (s, e) => OnCancel();
-        }
-
-        protected override void OnShown(System.EventArgs e)
-        {
-            //HACK On Windows, setting the width in the constructor automatically changes the height
-            //So we set the width here and it seems to work
-#if WINDOWS
-                this.Width = 400;
-#endif
         }
 
         protected virtual void ConstructContent()

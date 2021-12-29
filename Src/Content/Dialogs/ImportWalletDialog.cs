@@ -1,5 +1,6 @@
 using System.Text;
 using Eto.Forms;
+using Eto.Drawing;
 using Nerva.Desktop.Helpers;
 
 namespace Nerva.Desktop.Content.Dialogs
@@ -42,7 +43,10 @@ namespace Nerva.Desktop.Content.Dialogs
         TabControl tc = new TabControl();
         ComboBox cbxLang = new ComboBox();
 
-        public ImportWalletDialog() : base("Import Wallet") { }
+        public ImportWalletDialog() : base("Import Wallet") 
+        { 
+            this.MinimumSize = new Size(300, 500);
+        }
 
         bool importStarted = false;
         protected override void OnOk()

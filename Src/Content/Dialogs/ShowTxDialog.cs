@@ -1,5 +1,6 @@
 using AngryWasp.Helpers;
 using Eto.Forms;
+using Eto.Drawing;
 using Nerva.Rpc.Wallet;
 using Nerva.Desktop.Helpers;
 
@@ -23,6 +24,8 @@ namespace Nerva.Desktop.Content.Dialogs
 
         public ShowTxDialog(GetTransferByTxIDResponseData tx, string title = "Transaction Details") : base(title)
         {
+			this.MinimumSize = new Size(300, 400);
+
 			lblAddress.Text = tx.Address;
 			lblTxId.Text = tx.TxId;
 			lblPaymentId.Text = tx.PaymentId;

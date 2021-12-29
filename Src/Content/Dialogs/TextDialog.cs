@@ -1,4 +1,5 @@
 using Eto.Forms;
+using Eto.Drawing;
 
 namespace Nerva.Desktop.Content.Dialogs
 {
@@ -11,6 +12,8 @@ namespace Nerva.Desktop.Content.Dialogs
 
         public TextDialog(string title, bool readOnly, string text = null) : base(title)
         {
+            this.MinimumSize = new Size(300, 140);
+
             this.text = text;
             txtText.Text = text;
             txtText.ReadOnly = readOnly;

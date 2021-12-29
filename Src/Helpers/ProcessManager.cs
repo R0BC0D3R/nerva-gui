@@ -20,7 +20,7 @@ namespace Nerva.Desktop.Helpers
         {
             try
             {
-                Logger.LogDebug("PM.KIL", "Exe: " + exe);
+                //Logger.LogDebug("PM.KIL", "Exe: " + exe);
                 List<Process> processList = GetRunningByName(exe);
 
                 if (processList.Count == 0)
@@ -46,64 +46,16 @@ namespace Nerva.Desktop.Helpers
             }
         }
 
-#if UNIX
-
-        public static Process[] PsFindByName(string fileName)
-        {
-            // Mac has a fucked up launchd process with the same name which messes up a simple search by name
-            // So we need this mostrosity of a command to get the pid of the actual process and not the launchd process
-            Process process = Process.Start(new ProcessStartInfo(Path.Combine(Configuration.StorageDirectory, "FindProcesses.sh"), fileName)
-            {
-                UseShellExecute = false,
-                RedirectStandardError = true,
-                RedirectStandardOutput = true,
-                CreateNoWindow = true
-            });
-
-            process.WaitForExit();
-
-            var result = process.StandardOutput.ReadToEnd().Trim();
-            Logger.LogDebug("PM.PFBN", "Result: " + result);
-
-            if (string.IsNullOrEmpty(result))
-            {
-                return new Process[0];
-            }
-
-            string[] split = result.Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries);
-
-            List<Process> returnValue = new List<Process>();
-
-            foreach (string processString in split)
-            {
-                int pid;
-                if (int.TryParse(processString, out pid))
-                {
-                    returnValue.Add(Process.GetProcessById(pid));
-                }
-                else
-                {
-                    Debugger.Break();
-                }
-
-                Logger.LogDebug("PM.PFBN", "Process: " + processString + " | PID: " + pid);
-            }
-
-            return returnValue.ToArray();
-        }
-
-#endif
-
         public static bool IsRunning(string exe, out Process process)
         {
             process = null;
 
             try
             {
-                Logger.LogDebug("PM.IR", "Exe: " + exe);
+                //Logger.LogDebug("PM.IR", "Exe: " + exe);
                 List<Process> processList = GetRunningByName(exe);
 
-                Logger.LogDebug("PM.IR", "Process count: " + processList.Count);
+                //Logger.LogDebug("PM.IR", "Process count: " + processList.Count);
                 if (processList.Count == 0)
                 {
                     return false;
@@ -136,7 +88,7 @@ namespace Nerva.Desktop.Helpers
             try
             {                 
                 string processName = ExeNameToProcessName(exe);
-                Logger.LogDebug("PM.GEBN", "Exe: " + exe + " | Process Name: " + processName);
+                //Logger.LogDebug("PM.GEBN", "Exe: " + exe + " | Process Name: " + processName);
 
                 IList<Process> runningProcesses = Process.GetProcesses();
 
@@ -146,7 +98,7 @@ namespace Nerva.Desktop.Helpers
                     {
                         // macOS seems to be limited to 15 chars for process.ProcessName so use process.MainModule.ModuleName instead:
                         // Found nerva: nerva-wallet-rp | ID: 949 | MWT:  | MMFN: /Users/devmac/.nerva-gui/cli/nerva-wallet-rpc | MMMN: nerva-wallet-rpc
-                        
+
                         //if(process.ProcessName.Contains("nerva"))
                         //{
                         //    Logger.LogDebug("PM.GEBN", "Found nerva: " + process.ProcessName + " | ID: " + process.Id + " | MWT: " + process.MainWindowTitle + " | MMFN: " + process.MainModule.FileName + " | MMMN: " + process.MainModule.ModuleName);
@@ -157,7 +109,7 @@ namespace Nerva.Desktop.Helpers
                             // We're looking at all processes and some will not have MainModule so we need above check first
                             if(process.MainModule.ModuleName.Contains(processName))
                             {
-                                Logger.LogDebug("PM.GEBN", "Found process: " + process.ProcessName + " | ID: " + process.Id + " | MWT: " + process.MainWindowTitle + " | MMFN: " + process.MainModule.FileName + " | MMMN: " + process.MainModule.ModuleName);
+                                //Logger.LogDebug("PM.GEBN", "Found process: " + process.ProcessName + " | ID: " + process.Id + " | MWT: " + process.MainWindowTitle + " | MMFN: " + process.MainModule.FileName + " | MMMN: " + process.MainModule.ModuleName);
                                 processList.Add(process);
                             }
                         }

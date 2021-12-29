@@ -1,5 +1,6 @@
 using System.IO;
 using Eto.Forms;
+using Eto.Drawing;
 
 namespace Nerva.Desktop.Content.Dialogs
 {
@@ -12,10 +13,16 @@ namespace Nerva.Desktop.Content.Dialogs
 
         public OpenWalletDialog(string title = "Open Wallet") : base(title)
         {
+            this.MinimumSize = new Size(300, 210);
+
             FileInfo[] files;
             if (WalletHelper.GetWalletFiles(out files))
+            {
                 foreach (var f in files)
+                {
                     ddName.Items.Add(Path.GetFileNameWithoutExtension(f.FullName));
+                }
+            }
 
             ddName.SelectedIndex = 0;
         }

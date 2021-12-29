@@ -1,5 +1,6 @@
 using System;
 using Eto.Forms;
+using Eto.Drawing;
 using Nerva.Desktop.Helpers;
 
 namespace Nerva.Desktop.Content.Dialogs
@@ -17,11 +18,9 @@ namespace Nerva.Desktop.Content.Dialogs
 
         public AddressBookDialog() : base("Address Book")
         {
-            this.DefaultButton = btnCancel;
+            this.MinimumSize = new Size(300, 260);
 
-#if UNIX
-            this.Height = 400;
-#endif
+            this.DefaultButton = btnCancel;
 
             btnAdd.Click += (s, e) =>
             {
@@ -59,13 +58,6 @@ namespace Nerva.Desktop.Content.Dialogs
                 AddressBook.Instance.Entries.RemoveAt(grid.SelectedRow);
                 grid.DataStore = AddressBook.Instance.Entries;
             };
-        }
-
-        protected override void OnShown(EventArgs e)
-        {
-#if WINDOWS
-                this.Height = 400;
-#endif
         }
 
         protected override Control ConstructChildContent()

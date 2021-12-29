@@ -1,6 +1,7 @@
 using System;
 using AngryWasp.Helpers;
 using Eto.Forms;
+using Eto.Drawing;
 using Nerva.Desktop.Config;
 using Nerva.Desktop.Helpers;
 
@@ -37,6 +38,8 @@ namespace Nerva.Desktop.Content.Dialogs
 
         public PreferencesDialog() : base("Preferences")
         {
+            this.MinimumSize = new Size(300, 325);
+            
             btnGenRandDaemonPort.Click += (s, e) => nsDaemonPort.Value = MathHelper.Random.NextInt((int)nsDaemonPort.MinValue, (int)nsDaemonPort.MaxValue);
             btnUseDefaultPort.Click += (s, e) => nsDaemonPort.Value = (chkTestnet.Checked.Value ? Constants.NERVAD_RPC_PORT_TESTNET : Constants.NERVAD_RPC_PORT_MAINNET);
 
@@ -71,7 +74,7 @@ namespace Nerva.Desktop.Content.Dialogs
         }
 
         protected override Control ConstructChildContent()
-        {
+        {        
             txtToolsPath.Text = Configuration.Instance.ToolsPath;
             chkTestnet.Checked = Configuration.Instance.Testnet;
 

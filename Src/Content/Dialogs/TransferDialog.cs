@@ -2,6 +2,7 @@ using System;
 using System.Text;
 using AngryWasp.Helpers;
 using Eto.Forms;
+using Eto.Drawing;
 using Nerva.Rpc.Wallet;
 using Nerva.Desktop.Helpers;
 
@@ -34,6 +35,8 @@ namespace Nerva.Desktop.Content.Dialogs
 
         public TransferDialog(SubAddressAccount accData) : base("Transfer NERVA")
         {
+            this.MinimumSize = new Size(300, 410);
+
             this.accData = accData;
             lblAccount.Text = $"{Conversions.WalletAddressShortForm(accData.BaseAddress)} ({(string.IsNullOrEmpty(accData.Label) ? "No Label" : accData.Label)})";
             lblAmount.Text = Conversions.FromAtomicUnits4Places(accData.Balance).ToString();

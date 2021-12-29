@@ -45,26 +45,6 @@ namespace Nerva.Desktop
 			string logFile = ProcessManager.CycleLogFile(Path.Combine(Configuration.StorageDirectory, "nerva-gui"));
 			string configFile = Path.Combine(Configuration.StorageDirectory, "app.config");
 
-#if UNIX
-			string[] unixScripts = new string[] {
-				"FindProcesses.sh"
-			};
-
-			foreach (var us in unixScripts)
-			{
-				var p = Path.Combine(Configuration.StorageDirectory, us);
-				if (!File.Exists(p))
-				{
-					var rs = Assembly.GetExecutingAssembly().GetManifestResourceStream(us);
-					using (var sr = new StreamReader(rs))
-					{
-						File.WriteAllText(p, sr.ReadToEnd());
-						UnixNative.Chmod(p, 33261);
-					}
-				}
-			}
-#endif
-
 			Logger.InitializeLog(logFile);
 			Serializer.Initialize();
 			AddressBook.Load();

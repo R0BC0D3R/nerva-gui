@@ -22,8 +22,9 @@ namespace Nerva.Desktop
 
 		public void ConstructLayout()
 		{
-			Title = $"NERVA Desktop Wallet and Miner {Version.LONG_VERSION}";
-			ClientSize = new Size(640, 480);
+			this.Title = $"NERVA Desktop Wallet and Miner {Version.LONG_VERSION}";
+			this.ClientSize = new Size(640, 480);
+			this.MinimumSize = new Size(440, 400);
 
 			// Set Icon but only if found. Otherwise, app will not work correctly
 			string iconFile = GlobalMethods.GetAppIcon();
@@ -69,7 +70,7 @@ namespace Nerva.Desktop
 			};
 
 			// File
-			var file_Preferences = new Command { MenuText = "Preferences", ToolBarText = "Preferences" };	
+			var file_Preferences = new Command { MenuText = "Preferences", ToolBarText = "Preferences", Shortcut = Application.Instance.CommonModifier | Keys.P };	
 			file_Preferences.Executed += file_Preferences_Clicked;
 
 			var quitCommand = new Command { MenuText = "Quit", Shortcut = Application.Instance.CommonModifier | Keys.Q };
@@ -77,10 +78,10 @@ namespace Nerva.Desktop
 
 
 			// Daemon
-			var daemon_ToggleMining = new Command { MenuText = "Toggle Miner", ToolBarText = "Toggle Miner" };			
+			var daemon_ToggleMining = new Command { MenuText = "Toggle Miner", ToolBarText = "Toggle Miner", Shortcut = Application.Instance.CommonModifier | Keys.T };			
 			daemon_ToggleMining.Executed += daemon_ToggleMining_Clicked;
 
-			var daemon_Restart = new Command { MenuText = "Restart", ToolBarText = "Restart" };
+			var daemon_Restart = new Command { MenuText = "Restart", ToolBarText = "Restart", Shortcut = Application.Instance.CommonModifier | Keys.R };
 			daemon_Restart.Executed += daemon_Restart_Clicked;
 
 			var daemonRestartQuickSync = new Command { MenuText = "Restart with QuickSync", ToolBarText = "Restart with QuickSync" };
@@ -91,7 +92,7 @@ namespace Nerva.Desktop
 
 
 			// Wallet			
-			var wallet_Open = new Command { MenuText = "Open", ToolBarText = "Open" };
+			var wallet_Open = new Command { MenuText = "Open", ToolBarText = "Open", Shortcut = Application.Instance.CommonModifier | Keys.O };
 			wallet_Open.Executed += wallet_Open_Clicked;
 
 			var wallet_New = new Command { MenuText = "New", ToolBarText = "New" };
@@ -100,10 +101,10 @@ namespace Nerva.Desktop
 			var wallet_Import = new Command { MenuText = "Import", ToolBarText = "Import" };
 			wallet_Import.Executed += wallet_Import_Clicked;
 
-			var wallet_Store = new Command { MenuText = "Save", ToolBarText = "Save" };
+			var wallet_Store = new Command { MenuText = "Save", ToolBarText = "Save", Shortcut = Application.Instance.CommonModifier | Keys.S };
 			wallet_Store.Executed += wallet_Store_Clicked;
 
-			var wallet_Stop = new Command { MenuText = "Close", ToolBarText = "Close wallet" };
+			var wallet_Stop = new Command { MenuText = "Close", ToolBarText = "Close wallet", Shortcut = Application.Instance.CommonModifier | Keys.C };
 			wallet_Stop.Executed += wallet_Stop_Clicked;
 
 			var wallet_Account_Create = new Command { MenuText = "New Sub-Account", ToolBarText = "New Sub-Account" };
@@ -120,7 +121,7 @@ namespace Nerva.Desktop
 
 
 			// Help
-			var debugFolderCommand = new Command { MenuText = "Debug Folder" };
+			var debugFolderCommand = new Command { MenuText = "Debug Folder", Shortcut = Application.Instance.CommonModifier | Keys.D };
 			debugFolderCommand.Executed += debugFolderCommand_Clicked;
 
 			var discordCommand = new Command { MenuText = "Discord" };
@@ -132,7 +133,7 @@ namespace Nerva.Desktop
 			var redditCommand = new Command { MenuText = "Reddit" };
 			redditCommand.Executed += reddit_Clicked;
 
-			var file_UpdateCheck = new Command { MenuText = "Check for Updates", ToolBarText = "Check for Updates" };	
+			var file_UpdateCheck = new Command { MenuText = "Check for Updates", ToolBarText = "Check for Updates", Shortcut = Application.Instance.CommonModifier | Keys.U };	
 			file_UpdateCheck.Executed += file_UpdateCheck_Clicked;
 
 			var aboutCommand = new Command { MenuText = "About..." };

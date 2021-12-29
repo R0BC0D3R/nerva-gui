@@ -1,4 +1,5 @@
 using Eto.Forms;
+using Eto.Drawing;
 using Nerva.Desktop.CLI;
 
 namespace Nerva.Desktop.Content.Dialogs
@@ -16,6 +17,8 @@ namespace Nerva.Desktop.Content.Dialogs
 
         public NewWalletDialog(string title = "Create New Wallet") : base(title)
         {
+            this.MinimumSize = new Size(300, 240);
+
             //the RPC wallet needs to be open to create a new wallet
             //WalletProcess.ResumeCrashCheck();
         }
