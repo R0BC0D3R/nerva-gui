@@ -13,6 +13,8 @@ namespace Nerva.Desktop.Config
 
         public string Pass { get; set; } = "";
 
+        public uint LogLevel { get; set; } = 1;
+
         public static RpcDetails New(uint port)
         {
             return new RpcDetails

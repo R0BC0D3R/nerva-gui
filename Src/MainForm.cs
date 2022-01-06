@@ -148,7 +148,7 @@ namespace Nerva.Desktop
 
                 // If kill master process is issued at any point, skip everything else and do not restrt master timer
 
-                if(_cliToolsRunningLastCheck.AddSeconds(30) < DateTime.Now)
+                if(_cliToolsRunningLastCheck.AddSeconds(5) < DateTime.Now)
                 {
                     _cliToolsRunningLastCheck = DateTime.Now;
 
@@ -992,37 +992,42 @@ namespace Nerva.Desktop
                 {
                     Configuration.Save();
 
-                    if (d.RestartCliRequired)
+                    if (d.RestartDaemonRequired)
                     {
                         //if thge daemon has to be restarted, there is a good chance the wallet has to be restarted, so just do it
-                        MessageBox.Show(this, "NERVA backend will now restart to apply your changes", MessageBoxButtons.OK, MessageBoxType.Information);
+                        MessageBox.Show(this, "NERVA Daemon Process will now restart to apply your changes", MessageBoxButtons.OK, MessageBoxType.Information);
 
-                        Logger.LogDebug("MF.FPC", "Restarting CLI");
+                        Logger.LogDebug("MF.FPC", "Restarting Daemon...");
 
-                        Helpers.TaskFactory.Instance.RunTask("restartcli", "Restarting the CLI", () =>
+                        // Only close processes here. They will be started by MasterUpdateProcess when it sees that they're not running
+                        DaemonProcess.ForceClose();
+                        WalletProcess.ForceClose();
+
+                        Application.Instance.AsyncInvoke( () =>
                         {
-                            DaemonProcess.ForceClose();
-                            WalletProcess.ForceClose();
-
-                            Application.Instance.AsyncInvoke( () =>
-                            {
-                                daemonPage.UpdateInfo(null);
-                                daemonPage.UpdateConnections(null);
-                                daemonPage.UpdateMinerStatus(null);
-                                balancesPage.Update(null);
-                                transfersPage.Update(null);
-                            });
+                            daemonPage.UpdateInfo(null);
+                            daemonPage.UpdateConnections(null);
+                            daemonPage.UpdateMinerStatus(null);
+                            balancesPage.Update(null);
+                            transfersPage.Update(null);
                         });
+
                     }
-                    else
+                    else if(d.RestartWalletRequired)
                     {
-                        if (d.RestartMinerRequired)
-                        {
-                            DaemonRpc.StopMining();
-                            Logger.LogDebug("MF.FPC", "Mining stopped");
-                            DaemonRpc.StartMining();
-                            Logger.LogDebug("MF.FPC", "Mining started");
-                        }
+                        MessageBox.Show(this, "NERVA Wallet Process will now restart to apply your changes", MessageBoxButtons.OK, MessageBoxType.Information);
+
+                        Logger.LogDebug("MF.FPC", "Restarting Wallet RPC...");
+
+                        // Only close process here. It will be started by MasterUpdateProcess when it sees that wallet rpc is not running
+                        WalletProcess.ForceClose();
+                    }
+                    else if (d.RestartMinerRequired)
+                    {
+                        DaemonRpc.StopMining();
+                        Logger.LogDebug("MF.FPC", "Mining stopped");
+                        DaemonRpc.StartMining();
+                        Logger.LogDebug("MF.FPC", "Mining started");
                     }
                 }
             }

@@ -178,7 +178,7 @@ namespace Nerva.Desktop.Helpers
             }
 
             arg += $" --rpc-bind-port {d.Port}";
-            arg += " --log-level 1";
+            arg += " --log-level " + d.LogLevel;
 
             return arg;
         }

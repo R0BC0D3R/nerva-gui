@@ -20,21 +20,25 @@ namespace Nerva.Desktop.Content.Dialogs
         private NumericStepper nsMiningThreads = new NumericStepper { MinValue = 1, MaxValue = Environment.ProcessorCount, DecimalPlaces = 0, MaximumDecimalPlaces = 0, ToolTip = "Number of CPU threads to use for mining" };
 
         private NumericStepper nsDaemonPort = new NumericStepper { MinValue = 1000, MaxValue = 50000, DecimalPlaces = 0, MaximumDecimalPlaces = 0, ToolTip = "Daemon port. Default is recommended" };
+        private NumericStepper nsDaemonLogLevel = new NumericStepper { MinValue = 0, MaxValue = 4, DecimalPlaces = 0, MaximumDecimalPlaces = 0, ToolTip = "Daemon log level" };
         private Button btnGenRandDaemonPort = new Button { Text = "Random", ToolTip = "Generate a random port number" };
         private Button btnUseDefaultPort = new Button { Text = "Default", ToolTip = "Use default port (Recommended)" };
         
         private TextBox txtWalletPath = new TextBox { PlaceholderText = "Wallet path", ToolTip = "Enter the full path to save NERVA wallets", ReadOnly = true };
         private Button btnWalletBrowse = new Button { Text = "Browse", ToolTip = "Find NERVA Wallets" };
         
-        private NumericStepper nsWalletPort = new NumericStepper { MinValue = 1000, MaxValue = 50000, DecimalPlaces = 0, MaximumDecimalPlaces = 0, ToolTip = "Wallet port" };
+        private NumericStepper nsWalletPort = new NumericStepper { MinValue = 1000, MaxValue = 50000, DecimalPlaces = 0, MaximumDecimalPlaces = 0, ToolTip = "Wallet PRC port number" };
+        private NumericStepper nsWalletLogLevel = new NumericStepper { MinValue = 0, MaxValue = 4, DecimalPlaces = 0, MaximumDecimalPlaces = 0, ToolTip = "Wallet RPC log level" };
+
         private Button btnGenRandWalletPort = new Button { Text = "Random", ToolTip = "Generate a random port number" };
 
-        private bool restartCliRequired = false;
+        private bool restartDaemonRequired = false;
+        private bool restartWalletRequired = false;
         private bool restartMinerRequired = false;
 
-        public bool RestartMinerRequired => restartMinerRequired;
-
-        public bool RestartCliRequired => restartCliRequired;
+        public bool RestartDaemonRequired => restartDaemonRequired;
+        public bool RestartWalletRequired => restartWalletRequired;
+        public bool RestartMinerRequired => restartMinerRequired; 
 
         public PreferencesDialog() : base("Preferences")
         {
@@ -67,7 +71,9 @@ namespace Nerva.Desktop.Content.Dialogs
             {
                 SelectFolderDialog d = new SelectFolderDialog { Directory = txtWalletPath.Text };
                 if (d.ShowDialog(this) == DialogResult.Ok)
+                {
                     txtWalletPath.Text = d.Directory;
+                }
             };
 
             btnGenRandWalletPort.Click += (s, e) => nsWalletPort.Value = MathHelper.Random.NextInt((int)nsWalletPort.MinValue, (int)nsWalletPort.MaxValue);
@@ -84,9 +90,11 @@ namespace Nerva.Desktop.Content.Dialogs
             txtMiningAddress.Text = Configuration.Instance.Daemon.MiningAddress;
             nsMiningThreads.Value = Configuration.Instance.Daemon.MiningThreads;
             nsDaemonPort.Value = Configuration.Instance.Daemon.Rpc.Port;
+            nsDaemonLogLevel.Value = Configuration.Instance.Daemon.Rpc.LogLevel;
 
             txtWalletPath.Text = Configuration.Instance.Wallet.WalletDir;
             nsWalletPort.Value = Configuration.Instance.Wallet.Rpc.Port;
+            nsWalletLogLevel.Value = Configuration.Instance.Wallet.Rpc.LogLevel;
 
             return new TabControl
             {
@@ -169,9 +177,22 @@ namespace Nerva.Desktop.Content.Dialogs
                                     Spacing = 10,
                                     Items =
                                     {
+                                        new StackLayoutItem(new Label { Text = "Port Number" }, true),
+                                        new Label { Text = "Log Level       " }
+                                    }
+                                },
+                                new StackLayout
+                                {
+                                    Orientation = Orientation.Horizontal,
+                                    HorizontalContentAlignment = HorizontalAlignment.Right,
+                                    VerticalContentAlignment = VerticalAlignment.Center,
+                                    Spacing = 10,
+                                    Items =
+                                    {
                                         new StackLayoutItem(nsDaemonPort, true),
                                         btnUseDefaultPort,
                                         btnGenRandDaemonPort,
+                                        new StackLayoutItem(nsDaemonLogLevel, false)
                                     }
                                 }
                             }
@@ -210,10 +231,23 @@ namespace Nerva.Desktop.Content.Dialogs
                                     Spacing = 10,
                                     Items =
                                     {
-                                        new StackLayoutItem(nsWalletPort, true),
-                                        btnGenRandWalletPort
+                                        new StackLayoutItem(new Label { Text = "Port Number" }, true),
+                                        new Label { Text = "Log Level       " }
                                     }
-                                }
+                                },
+                                new StackLayout
+                                {
+                                    Orientation = Orientation.Horizontal,
+                                    HorizontalContentAlignment = HorizontalAlignment.Right,
+                                    VerticalContentAlignment = VerticalAlignment.Center,
+                                    Spacing = 10,
+                                    Items =
+                                    {
+                                        new StackLayoutItem(nsWalletPort, true),
+                                        btnGenRandWalletPort,
+                                        new StackLayoutItem(nsWalletLogLevel, false)
+                                    }
+                                }                                                            
                             }
                         }
                     }
@@ -235,19 +269,28 @@ namespace Nerva.Desktop.Content.Dialogs
                 return;
             }
 
-            if (chkTestnet.Checked != Configuration.Instance.Testnet || // network type changed
-                txtToolsPath.Text != Configuration.Instance.ToolsPath || // tool path changed
-                nsDaemonPort.Value != Configuration.Instance.Daemon.Rpc.Port || // daemon port changed
-                nsWalletPort.Value != Configuration.Instance.Wallet.Rpc.Port ||
-                txtWalletPath.Text != Configuration.Instance.Wallet.WalletDir || // wallet port changed
-                txtAdditionalArguments.Text != Configuration.Instance.Daemon.AdditionalArguments) 
-            {
-                restartCliRequired = true;
-            }
+            if (chkTestnet.Checked != Configuration.Instance.Testnet || // Network type changed
+                txtToolsPath.Text != Configuration.Instance.ToolsPath || // Tool path changed
+                nsDaemonPort.Value != Configuration.Instance.Daemon.Rpc.Port || // Daemon port changed
+                nsDaemonLogLevel.Value != Configuration.Instance.Daemon.Rpc.LogLevel || // Daemon log level changed
 
-            //Miner details have changed. Only restart miner
-            if (txtMiningAddress.Text != Configuration.Instance.Daemon.MiningAddress || nsMiningThreads.Value != Configuration.Instance.Daemon.MiningThreads)
-            {
+                txtAdditionalArguments.Text != Configuration.Instance.Daemon.AdditionalArguments
+            ) {
+                // Restart Daemon and everything else
+                restartDaemonRequired = true;
+            }
+            else if(
+                nsWalletPort.Value != Configuration.Instance.Wallet.Rpc.Port || // Wallet RPC port changed
+                nsWalletLogLevel.Value != Configuration.Instance.Wallet.Rpc.LogLevel || // Wallet RPC log level changed
+                txtWalletPath.Text != Configuration.Instance.Wallet.WalletDir // Wallet port changed
+            ) {
+                // Only restart Wallet RPC
+                restartWalletRequired = true;
+            }
+            else if (txtMiningAddress.Text != Configuration.Instance.Daemon.MiningAddress ||
+                nsMiningThreads.Value != Configuration.Instance.Daemon.MiningThreads                
+            ) {
+                // Only restart miner
                 restartMinerRequired = true;
             }
                 
@@ -259,9 +302,11 @@ namespace Nerva.Desktop.Content.Dialogs
             Configuration.Instance.Daemon.MiningAddress = txtMiningAddress.Text;
             Configuration.Instance.Daemon.MiningThreads = (int)nsMiningThreads.Value;
             Configuration.Instance.Daemon.Rpc.Port = (uint)nsDaemonPort.Value;
+            Configuration.Instance.Daemon.Rpc.LogLevel = (uint)nsDaemonLogLevel.Value;
 
             Configuration.Instance.Wallet.WalletDir = txtWalletPath.Text;
             Configuration.Instance.Wallet.Rpc.Port = (uint)nsWalletPort.Value;
+            Configuration.Instance.Wallet.Rpc.LogLevel = (uint)nsWalletLogLevel.Value;
 
             Configuration.Instance.Daemon.AdditionalArguments = txtAdditionalArguments.Text;
 
