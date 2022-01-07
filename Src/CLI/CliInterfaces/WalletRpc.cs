@@ -3,6 +3,7 @@ using Nerva.Desktop.Helpers;
 using Nerva.Rpc.Wallet;
 using System.Collections.Generic;
 using Nerva.Rpc;
+using Nerva.Rpc.Wallet.Helpers;
 using Nerva.Desktop.Config;
 using Configuration = Nerva.Desktop.Config.Configuration;
 
@@ -110,9 +111,23 @@ namespace Nerva.Desktop.CLI
                 TxID = txid
             }, successAction, errorAction, Configuration.Instance.Wallet.Rpc.Host, Configuration.Instance.Wallet.Rpc.Port).Run();
 
-        public static bool TransferFunds(SubAddressAccount acc, string address, string paymentId, double amount, Send_Priority priority, 
+        public static bool TransferFunds(SubAddressAccount acc, string address, string paymentId, double amount, SendPriority priority, 
             Action<TransferResponseData> successAction, Action<RequestError> errorAction) =>
             new Transfer(new TransferRequestData {
+                AccountIndex = acc.Index,
+                Priority = (uint)priority,
+                PaymentId = paymentId,
+                Destinations = new List<TransferDestination> {
+                    new TransferDestination {
+                        Address = address,
+                        Amount = Conversions.ToAtomicUnits(amount)
+                    }
+                }
+            }, successAction, errorAction, Configuration.Instance.Wallet.Rpc.Host, Configuration.Instance.Wallet.Rpc.Port).Run();
+
+            public static bool TransferSplitFunds(SubAddressAccount acc, string address, string paymentId, double amount, SendPriority priority, 
+            Action<TransferSplitResponseData> successAction, Action<RequestError> errorAction) =>
+            new TransferSplit(new TransferSplitRequestData {
                 AccountIndex = acc.Index,
                 Priority = (uint)priority,
                 PaymentId = paymentId,

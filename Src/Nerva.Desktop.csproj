@@ -1,22 +1,18 @@
 <Project Sdk="Microsoft.NET.Sdk">
-    <Import Project="../External/AngryWasp.Build/AngryWasp.Build.Application.targets"/>
     <PropertyGroup>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <AssemblyName>Nerva.Desktop</AssemblyName>
+        <TargetFrameworks>netcoreapp3.1;net5.0</TargetFrameworks>
+        <PlatformTarget>AnyCPU</PlatformTarget>
     </PropertyGroup>
+    <!--
     <ItemGroup>
         <PackageReference Include="Eto.Forms" Version="*"/>
         <PackageReference Include="System.IO.Compression" Version="*"/>
         <PackageReference Include="Newtonsoft.Json" Version="*"/>
         <PackageReference Include="DnsClient" Version="*"/>
-        <PackageReference Include="AngryWasp.Logger" Version="*"/>
-        <PackageReference Include="AngryWasp.Helpers" Version="*"/>
-        <PackageReference Include="AngryWasp.Serializer" Version="*"/>
-        <PackageReference Include="AngryWasp.Cli" Version="*"/>
-        <PackageReference Include="Nerva.Rpc.CSharp" Version="*"/>
     </ItemGroup>
-    <!-- Uncomment below direct references for easy debugging -->
-    <!--
+    -->
     <ItemGroup>
         <Reference Include="Eto.dll">
             <HintPath>..\Dlls\Eto.dll</HintPath>
@@ -27,11 +23,11 @@
         <Reference Include="Newtonsoft.Json.dll">
             <HintPath>..\Dlls\Newtonsoft.Json.dll</HintPath>
         </Reference>
-        <Reference Include="Nerva.Rpc.dll">
-            <HintPath>..\Dlls\Nerva.Rpc.dll</HintPath>
-        </Reference>
         <Reference Include="DnsClient.dll">
             <HintPath>..\Dlls\DnsClient.dll</HintPath>
+        </Reference>         
+        <Reference Include="Nerva.Rpc.dll">
+            <HintPath>..\Dlls\Nerva.Rpc.dll</HintPath>
         </Reference>
         <Reference Include="AngryWasp.Cli.dll">
             <HintPath>..\Dlls\AngryWasp.Cli.dll</HintPath>
@@ -46,7 +42,6 @@
             <HintPath>..\Dlls\AngryWasp.Serializer.dll</HintPath>
         </Reference>
     </ItemGroup>
-    -->
     <ItemGroup>
         <EmbeddedResource Include="../Content/NERVA-Logo.png">
             <LogicalName>NERVA-Logo.png</LogicalName>

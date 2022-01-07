@@ -191,31 +191,62 @@ namespace Nerva.Desktop.Content
 				if (grid.SelectedRow == -1)
 					return;
 
-				SubAddressAccount a = accounts[grid.SelectedRow];
+				SubAddressAccount acctount = accounts[grid.SelectedRow];
 
-				TransferDialog d = new TransferDialog(a);
-				if (d.ShowModal() == DialogResult.Ok)
+				TransferDialog transferDialog = new TransferDialog(acctount);
+				if (transferDialog.ShowModal() == DialogResult.Ok)
 				{
-                    Helpers.TaskFactory.Instance.RunTask("transfer", $"Transferring {d.Amount} XNV to {d.Address}", () =>
+					if(transferDialog.IsTransferSplit)
 					{
-						WalletRpc.TransferFunds(a, d.Address, d.PaymentId, d.Amount, d.Priority,
-						(TransferResponseData r) =>
+						WalletRpc.TransferSplitFunds(acctount, transferDialog.Address, transferDialog.PaymentId, transferDialog.Amount, transferDialog.Priority,
+						(TransferSplitResponseData response) =>
 						{
 							Application.Instance.AsyncInvoke(() =>
 							{
-								MessageBox.Show(Application.Instance.MainForm, 
-								$"Sent: {Conversions.FromAtomicUnits4Places(r.Amount)}\r\nFees: {Conversions.FromAtomicUnits4Places(r.Fee)}\r\nHash: {r.TxHash}\r\nKey: {r.TxKey}", 
-								"TX Results", MessageBoxType.Information);
+								Logger.LogInfo("BP.TRFS", "TransferSplitFunds was successful");
+
+								StringBuilder transferMassage = new StringBuilder();
+								transferMassage.AppendLine("Transfer Split Successful. See log for more details");
+								
+								for(int ct = 0; ct < response.AmountList.Count; ct++)
+								{
+									Logger.LogInfo("BP.TRFS", "#" + ct + ", sent: " + Conversions.FromAtomicUnits4Places(response.AmountList[ct]) + ", fees: " + Conversions.FromAtomicUnits4Places(response.FeeList[ct]) + ", hash: " + response.TxHashList[ct] + ", key: " + response.TxKeyList[ct]);
+									transferMassage.AppendLine("#" + ct + ", sent: " + Conversions.FromAtomicUnits4Places(response.AmountList[ct]) + ", fees: " + Conversions.FromAtomicUnits4Places(response.FeeList[ct]));
+								}								
+
+								MessageBox.Show(Application.Instance.MainForm, transferMassage.ToString(), MessageBoxType.Information);
 							});
 						}, (RequestError err) =>
 						{
 							Application.Instance.AsyncInvoke(() =>
 							{
-								Logger.LogError("BP.TRF", "The transfer request failed: " + err.Message);
-								MessageBox.Show(Application.Instance.MainForm, "The transfer request failed", MessageBoxType.Error);
+								Logger.LogError("BP.TRF", "TransferSplitFunds request failed: " + err.Message);
+								MessageBox.Show(Application.Instance.MainForm, "The transfer request failed\r\n" + err.Message, MessageBoxType.Error);
 							});
 						});
-					});
+					}
+					else 
+					{
+						WalletRpc.TransferFunds(acctount, transferDialog.Address, transferDialog.PaymentId, transferDialog.Amount, transferDialog.Priority,
+						(TransferResponseData response) =>
+						{
+							Application.Instance.AsyncInvoke(() =>
+							{
+								Logger.LogInfo("BP.TRF", "TransferFunds was successful");
+								Logger.LogInfo("BP.TRF", "Sent " + Conversions.FromAtomicUnits4Places(response.Amount) + ", fees: " + Conversions.FromAtomicUnits4Places(response.Fee) + ", hash: " + response.TxHash + ", txKey: " + response.TxKey);
+
+								string transferMassage = "Transfer Successful. See log for more details\r\nSent: " + Conversions.FromAtomicUnits4Places(response.Amount) + "\r\nFees: " + Conversions.FromAtomicUnits4Places(response.Fee);								
+								MessageBox.Show(Application.Instance.MainForm, transferMassage, MessageBoxType.Information);
+							});
+						}, (RequestError err) =>
+						{
+							Application.Instance.AsyncInvoke(() =>
+							{
+								Logger.LogError("BP.TRF", "TransferFunds request failed: " + err.Message);
+								MessageBox.Show(Application.Instance.MainForm, "The transfer request failed\r\n" + err.Message, MessageBoxType.Error);
+							});
+						});
+					}
 				}
 			};
 

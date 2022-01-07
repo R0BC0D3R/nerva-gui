@@ -4,6 +4,7 @@ using AngryWasp.Helpers;
 using Eto.Forms;
 using Eto.Drawing;
 using Nerva.Rpc.Wallet;
+using Nerva.Rpc.Wallet.Helpers;
 using Nerva.Desktop.Helpers;
 
 namespace Nerva.Desktop.Content.Dialogs
@@ -19,17 +20,20 @@ namespace Nerva.Desktop.Content.Dialogs
         Label lblAccount = new Label();
         Label lblAmount = new Label();
         Button btnAddressBook = new Button{ Text = "Address Book"};
+        CheckBox cbxTransferSplit = new CheckBox { Text = "Split Transfer?", ToolTip = "Use this option if you get error stating that your transaction would be too large" };
 
         private double amt;
         private string address;
         private string payid;
-        private Send_Priority priority;
+        private SendPriority priority;
+        private bool isTransferSplit;
 
         public string Address => address;
         public string PaymentId => payid;
         public double Amount => amt;
+        public bool IsTransferSplit => isTransferSplit;
 
-        public Send_Priority Priority => priority;
+        public SendPriority Priority => priority;
 
         Button btnGenPayId = new Button { Text = "Generate" };
 
@@ -40,7 +44,7 @@ namespace Nerva.Desktop.Content.Dialogs
             this.accData = accData;
             lblAccount.Text = $"{Conversions.WalletAddressShortForm(accData.BaseAddress)} ({(string.IsNullOrEmpty(accData.Label) ? "No Label" : accData.Label)})";
             lblAmount.Text = Conversions.FromAtomicUnits4Places(accData.Balance).ToString();
-            cbxPriority.DataStore = Enum.GetNames(typeof(Send_Priority));
+            cbxPriority.DataStore = Enum.GetNames(typeof(SendPriority));
             cbxPriority.SelectedIndex = 0;
 
             btnGenPayId.Click += (s, e) => txtPaymentId.Text = StringHelper.GenerateRandomHexString(64);
@@ -85,7 +89,8 @@ namespace Nerva.Desktop.Content.Dialogs
 
                 address = txtAddress.Text;
                 payid = txtPaymentId.Text;
-                priority = (Send_Priority)cbxPriority.SelectedIndex;
+                priority = (SendPriority)cbxPriority.SelectedIndex;
+                isTransferSplit = (bool)cbxTransferSplit.Checked;
 
                 this.Close(DialogResult.Ok);
             }
@@ -129,7 +134,8 @@ namespace Nerva.Desktop.Content.Dialogs
                         HorizontalContentAlignment = HorizontalAlignment.Right,
                         VerticalContentAlignment = VerticalAlignment.Center,
                         Items =
-                        {
+                        {                            
+                            cbxTransferSplit,
                             new StackLayoutItem(null, true),
                             btnAddressBook
                         }
