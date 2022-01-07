@@ -4,6 +4,11 @@
         <AssemblyName>Nerva.Desktop</AssemblyName>
         <TargetFrameworks>netcoreapp3.1;net5.0</TargetFrameworks>
         <PlatformTarget>AnyCPU</PlatformTarget>
+        <GenerateFullPaths>true</GenerateFullPaths>
+        <TrimUnusedDependencies>true</TrimUnusedDependencies>
+        <AppendTargetFrameworkToOutputPath>true</AppendTargetFrameworkToOutputPath>
+        <AppendRuntimeIdentifierToOutputPath>true</AppendRuntimeIdentifierToOutputPath>
+        <OutputPath>$(SolutionDir)Bin/$(Configuration)</OutputPath>
     </PropertyGroup>
     <!--
     <ItemGroup>

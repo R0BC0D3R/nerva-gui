@@ -20,7 +20,7 @@ namespace Nerva.Desktop.Content.Dialogs
         Label lblAccount = new Label();
         Label lblAmount = new Label();
         Button btnAddressBook = new Button{ Text = "Address Book"};
-        CheckBox cbxTransferSplit = new CheckBox { Text = "Split Transfer?", ToolTip = "Use this option if you get error stating that your transaction would be too large" };
+        CheckBox cbxTransferSplit = new CheckBox { Text = "Split Transfer", ToolTip = "Use this option if your transaction is too large and would not get processed otherwise" };
 
         private double amt;
         private string address;
