@@ -987,14 +987,19 @@ namespace Nerva.Desktop
         {
             try
             {
-                PreferencesDialog d = new PreferencesDialog();
-                if (d.ShowModal() == DialogResult.Ok)
+                PreferencesDialog dialog = new PreferencesDialog();
+                if (dialog.ShowModal() == DialogResult.Ok)
                 {
                     Configuration.Save();
 
-                    if (d.RestartDaemonRequired)
+                    if(Convert.ToInt32(daemonPage.nsMiningThreads.Value) != Configuration.Instance.Daemon.MiningThreads)
                     {
-                        //if thge daemon has to be restarted, there is a good chance the wallet has to be restarted, so just do it
+                        daemonPage.nsMiningThreads.Value = Configuration.Instance.Daemon.MiningThreads;
+                    }
+
+                    if (dialog.RestartDaemonRequired)
+                    {
+                        // If the daemon has to be restarted, there is a good chance the wallet has to be restarted, so just do it
                         MessageBox.Show(this, "NERVA Daemon Process will now restart to apply your changes", MessageBoxButtons.OK, MessageBoxType.Information);
 
                         Logger.LogDebug("MF.FPC", "Restarting Daemon...");
@@ -1011,9 +1016,8 @@ namespace Nerva.Desktop
                             balancesPage.Update(null);
                             transfersPage.Update(null);
                         });
-
                     }
-                    else if(d.RestartWalletRequired)
+                    else if(dialog.RestartWalletRequired)
                     {
                         MessageBox.Show(this, "NERVA Wallet Process will now restart to apply your changes", MessageBoxButtons.OK, MessageBoxType.Information);
 
@@ -1022,7 +1026,7 @@ namespace Nerva.Desktop
                         // Only close process here. It will be started by MasterUpdateProcess when it sees that wallet rpc is not running
                         WalletProcess.ForceClose();
                     }
-                    else if (d.RestartMinerRequired)
+                    else if (dialog.RestartMinerRequired)
                     {
                         DaemonRpc.StopMining();
                         Logger.LogDebug("MF.FPC", "Mining stopped");

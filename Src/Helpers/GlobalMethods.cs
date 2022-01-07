@@ -25,7 +25,7 @@ namespace Nerva.Desktop.Helpers
                     {
                         if (DaemonRpc.StartMining())
                         {
-                            Logger.LogInfo("GM.SSM",$"Mining started for @ {Conversions.WalletAddressShortForm(Configuration.Instance.Daemon.MiningAddress)} on {Configuration.Instance.Daemon.MiningThreads} threads");
+                            Logger.LogInfo("GM.SSM",$"Mining started to {Conversions.WalletAddressShortForm(Configuration.Instance.Daemon.MiningAddress)} on {Configuration.Instance.Daemon.MiningThreads} threads");
                             MessageBox.Show(Application.Instance.MainForm, "Mining started", MessageBoxButtons.OK, MessageBoxType.Information);
                         }
                         else

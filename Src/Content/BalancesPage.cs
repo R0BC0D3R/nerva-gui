@@ -49,7 +49,9 @@ namespace Nerva.Desktop.Content
 				Logger.LogDebug("BP.CTL", "Mining stopped");
 
 				if (DaemonRpc.StartMining())
-					Logger.LogDebug("BP.CTL", $"Mining started for @ {Conversions.WalletAddressShortForm(Configuration.Instance.Daemon.MiningAddress)} on {Configuration.Instance.Daemon.MiningThreads} threads");
+				{
+					Logger.LogDebug("BP.CTL", $"Mining started to {Conversions.WalletAddressShortForm(Configuration.Instance.Daemon.MiningAddress)} on {Configuration.Instance.Daemon.MiningThreads} threads");
+				}
 			};
 
 			ctx_Info.Executed += (s, e) =>
