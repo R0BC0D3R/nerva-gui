@@ -32,7 +32,8 @@ namespace Nerva.Desktop.Helpers
                         {
                             Application.Instance.AsyncInvoke( () =>
                             {
-                                MessageBox.Show(Application.Instance.MainForm, $"Failed to start mining\r\n\r\nMake sure you are synchronized and that you have mining address set under File > Preferences > Daemon", "Start/Stop Miner",
+                                MessageBox.Show(Application.Instance.MainForm, 
+                                    $"Failed to start mining\r\n\r\nMake sure you are synchronized and that you have mining address set under File > Preferences > Daemon", "Start/Stop Miner",
                                     MessageBoxButtons.OK, MessageBoxType.Error, MessageBoxDefaultButton.OK);
                             });
                         }

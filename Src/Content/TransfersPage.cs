@@ -66,7 +66,7 @@ namespace Nerva.Desktop.Content
                     new GridColumn { DataCell = new TextBoxCell { Binding = Binding.Property<TransferItem, string>(r => r.Height.ToString())}, HeaderText = "Height", Width = 80 },
                     new GridColumn { DataCell = new TextBoxCell { Binding = Binding.Property<TransferItem, string>(r => DateTimeHelper.UnixTimestampToDateTime(r.Timestamp).ToString())}, HeaderText = "Time", Width = 160 },
                     new GridColumn { DataCell = new TextBoxCell { Binding = Binding.Property<TransferItem, string>(r => Conversions.FromAtomicUnits4Places(r.Amount).ToString())}, HeaderText = "Amount", Width = 80 },
-                    new GridColumn { DataCell = new TextBoxCell { Binding = Binding.Property<TransferItem, string>(r => Conversions.WalletAddressShortForm(r.TxId))}, HeaderText = "TxID", Expand = true },
+                    new GridColumn { DataCell = new TextBoxCell { Binding = Binding.Property<TransferItem, string>(r => Conversions.WalletAddressShortForm(r.TxId))}, HeaderText = "TxID", Width = 200 },
                 }
             };
 

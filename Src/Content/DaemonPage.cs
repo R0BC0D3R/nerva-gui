@@ -25,21 +25,22 @@ namespace Nerva.Desktop.Content
 
 		GridView grid;
 	
-		private Label lblHeight = new Label() { Text = ".", ToolTip = "Network height you're on" };
+		private Label lblTwoSpaces = new Label() { Text = "  " };
+		private Label lblNetHeight = new Label() { Text = ".", ToolTip = "Network height" };
+		private Label lblHeight = new Label() { Text = ".", ToolTip = "The height you're on" };
 		private Label lblRunTime = new Label() { Text = ".", ToolTip = "How long your Daemon process has been running" };
 		private Label lblNetHash = new Label() { Text = ".", ToolTip = "Combined hash rate of NERVA network" };
 		private Label lblNetwork = new Label() { Text = ".", ToolTip = "Network you're currently on" };
 
 		private Label lblMinerStatus = new Label { Text = "Miner (Inactive)" };
 		private Label lblMiningAddress = new Label() { Text = ".", ToolTip = "Address you're mining to" };
-		private Label lblMiningThreads = new Label() { Text = ".", ToolTip = "Number of CPU threads you're mining with"  };
 		private Label lblMiningHashrate = new Label() { Text = ".", ToolTip = "The speed with which you're mining" };
 		private Label lblTimeToBlock = new Label() { Text = ".", ToolTip = "Approximately how long it will take to find a block with current hash rate" };
 
 		public Button btnStartStopMining = new Button { Text = "Start Mining", ToolTip = "Start mining process", Enabled = false };
 
-		public Button btnChangeMiningThreads = new Button { Text = "Set", Enabled = false, Size = new Eto.Drawing.Size(50, 22), ToolTip = "Change number of CPU threads used for mining" };
-		public NumericStepper nsMiningThreads = new NumericStepper { MinValue = 1, MaxValue = Environment.ProcessorCount, DecimalPlaces = 0, MaximumDecimalPlaces = 0, Enabled = false, Size = new Eto.Drawing.Size(50, 22), ToolTip = "Number of CPU threads to use for mining"  };
+		public Button btnChangeMiningThreads = new Button { Text = "Set", Enabled = false, Size = new Eto.Drawing.Size(80, 22), ToolTip = "Change number of CPU threads used for mining" };
+		public NumericStepper nsMiningThreads = new NumericStepper { MinValue = 1, MaxValue = Environment.ProcessorCount, DecimalPlaces = 0, MaximumDecimalPlaces = 0, Enabled = false, Size = new Eto.Drawing.Size(60, 22), ToolTip = "Number of CPU threads to use for mining"  };
 
         #endregion
 
@@ -60,7 +61,7 @@ namespace Nerva.Desktop.Content
 						new GridColumn { DataCell = new TextBoxCell { Binding = Binding.Property<GetConnectionsResponseData, string>(r => r.Address)}, HeaderText = "Address", Width = 200 },
 						new GridColumn { DataCell = new TextBoxCell { Binding = Binding.Property<GetConnectionsResponseData, string>(r => r.Height.ToString())}, HeaderText = "Height", Width = 100 },
 						new GridColumn { DataCell = new TextBoxCell { Binding = Binding.Property<GetConnectionsResponseData, string>(r => TimeSpan.FromSeconds(r.LiveTime).ToString(@"hh\:mm\:ss"))}, HeaderText = "Live Time", Width = 100 },
-						new GridColumn { DataCell = new TextBoxCell { Binding = Binding.Property<GetConnectionsResponseData, string>(r => r.State)}, HeaderText = "State", Expand = true }
+						new GridColumn { DataCell = new TextBoxCell { Binding = Binding.Property<GetConnectionsResponseData, string>(r => r.State)}, HeaderText = "State", Width = 200 }
 					}
 				};
 
@@ -95,15 +96,15 @@ namespace Nerva.Desktop.Content
 							Rows =
 							{
 								new TableRow(
-									new TableCell(new Label { Text = "Daemon" }),
-									new TableCell(null),
+									new TableCell(new Label { Text = "Net Height:" }),
+									new TableCell(lblNetHeight),
 									new TableCell(null, true),
 									new TableCell(lblMinerStatus),
 									new TableCell(btnStartStopMining),
 									new TableCell(null)
 								),
 								new TableRow(
-									new TableCell(new Label { Text = "Height:" }),
+									new TableCell(new Label { Text = "Your Height:" }),
 									new TableCell(lblHeight),
 									new TableCell(null, true),
 									new TableCell(new Label { Text = "Threads:" }),
@@ -111,24 +112,22 @@ namespace Nerva.Desktop.Content
 										new StackLayout
 										{
 											Orientation = Orientation.Horizontal,
-											HorizontalContentAlignment = HorizontalAlignment.Right,
+											HorizontalContentAlignment = HorizontalAlignment.Stretch,
 											VerticalContentAlignment = VerticalAlignment.Center,
-											Spacing = 15,
 											Items =
 											{
-												lblMiningThreads,
 												nsMiningThreads,
+												lblTwoSpaces,
 												btnChangeMiningThreads
 											}
-										}
-									),
+										}),
 									new TableCell(null)
 								),
 								new TableRow(
 									new TableCell(new Label { Text = "Run Time:" }),
 									new TableCell(lblRunTime),
 									new TableCell(null, true),
-									new TableCell(new Label { Text = "Address:" }),
+									new TableCell(new Label { Text = "Address:", Height = 22 }),
 									new TableCell(lblMiningAddress),
 									new TableCell(null)
 								),
@@ -136,7 +135,7 @@ namespace Nerva.Desktop.Content
 									new TableCell(new Label { Text = "Net Hash:" }),
 									new TableCell(lblNetHash),
 									new TableCell(null, true),
-									new TableCell(new Label { Text = "Hash Rate:" }),
+									new TableCell(new Label { Text = "Hash Rate:", Height = 22 }),
 									new TableCell(lblMiningHashrate),
 									new TableCell(null)
 								),
@@ -204,6 +203,13 @@ namespace Nerva.Desktop.Content
 				if (info != null)
 				{					
 					// Update the daemon info
+					ulong netHeight = (info.TargetHeight > info.Height ? info.TargetHeight : info.Height);
+					if (!lblNetHeight.Text.Equals(netHeight.ToString())) 
+					{
+						lblNetHeight.Text = netHeight.ToString(); 
+						hasAnythingChanged = true;
+					}
+
 					if (!lblHeight.Text.Equals(info.Height.ToString())) 
 					{
 						lblHeight.Text = info.Height.ToString(); 
@@ -252,6 +258,11 @@ namespace Nerva.Desktop.Content
 					if (!lblNetwork.Text.Equals("-"))
 					{
 						lblNetwork.Text = "-";
+						hasAnythingChanged = true;
+					}					
+					if (!lblNetHeight.Text.Equals("-"))
+					{
+						lblNetHeight.Text = "-";
 						hasAnythingChanged = true;
 					}
 					if (!lblHeight.Text.Equals("-"))
@@ -315,9 +326,21 @@ namespace Nerva.Desktop.Content
 					{
 						btnStartStopMining.Text = "Stop Mining";
 						btnStartStopMining.ToolTip = "Stop mining process";
+					}					
+
+					if(!nsMiningThreads.Enabled) { nsMiningThreads.Enabled = true; }
+					if(mStatus.ThreadCount == Convert.ToUInt32(nsMiningThreads.Value))
+					{
+						// Mining threads the same as on screen. Set button should be disabled
+						if(btnChangeMiningThreads.Enabled) { btnChangeMiningThreads.Enabled = false; }
 					}
+					else 
+					{
+						// Minigh threads changed. Set button should be enabled
+						if(!btnChangeMiningThreads.Enabled) { btnChangeMiningThreads.Enabled = true; }
+					}
+
 					if (!lblMiningAddress.Text.Equals(Conversions.WalletAddressShortForm(mStatus.Address))) { lblMiningAddress.Text = Conversions.WalletAddressShortForm(mStatus.Address); }
-					if (!lblMiningThreads.Text.Equals(mStatus.ThreadCount.ToString())) { lblMiningThreads.Text = mStatus.ThreadCount.ToString(); }
 
 					string speed = string.Empty;
 					if (mStatus.Speed > 1000)
@@ -360,10 +383,10 @@ namespace Nerva.Desktop.Content
 						btnStartStopMining.Text = "Start Mining";
 						btnStartStopMining.ToolTip = "Stop mining process";
 					}
+					if(nsMiningThreads.Enabled) { nsMiningThreads.Enabled = false; }
 					if (!lblMiningAddress.Text.Equals("-")) { lblMiningAddress.Text = "-"; }
-					if (!lblMiningThreads.Text.Equals("-")) { lblMiningThreads.Text = "-"; }
 					if (!lblMiningHashrate.Text.Equals("-")) { lblMiningHashrate.Text = "-"; }
-					if (!lblTimeToBlock.Text.Equals("-")) { lblTimeToBlock.Text = "-"; }
+					if (!lblTimeToBlock.Text.Equals("-")) { lblTimeToBlock.Text = "-"; }					
 				}
 			}
 			catch (Exception ex)

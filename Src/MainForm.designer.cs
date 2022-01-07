@@ -70,7 +70,7 @@ namespace Nerva.Desktop
 			};
 
 			// File
-			var file_Preferences = new Command { MenuText = "Preferences", ToolBarText = "Preferences", Shortcut = Application.Instance.CommonModifier | Keys.P };	
+			var file_Preferences = new Command { MenuText = "Preferences", ToolBarText = "Preferences", Shortcut = Application.Instance.CommonModifier | Keys.Comma };	
 			file_Preferences.Executed += file_Preferences_Clicked;
 
 			var quitCommand = new Command { MenuText = "Quit", Shortcut = Application.Instance.CommonModifier | Keys.Q };
@@ -104,7 +104,7 @@ namespace Nerva.Desktop
 			var wallet_Store = new Command { MenuText = "Save", ToolBarText = "Save", Shortcut = Application.Instance.CommonModifier | Keys.S };
 			wallet_Store.Executed += wallet_Store_Clicked;
 
-			var wallet_Stop = new Command { MenuText = "Close", ToolBarText = "Close wallet", Shortcut = Application.Instance.CommonModifier | Keys.C };
+			var wallet_Stop = new Command { MenuText = "Close", ToolBarText = "Close wallet", Shortcut = Application.Instance.CommonModifier | Keys.X };
 			wallet_Stop.Executed += wallet_Stop_Clicked;
 
 			var wallet_Account_Create = new Command { MenuText = "New Sub-Account", ToolBarText = "New Sub-Account" };
