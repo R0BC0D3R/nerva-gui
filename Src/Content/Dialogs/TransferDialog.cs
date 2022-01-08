@@ -56,7 +56,7 @@ namespace Nerva.Desktop.Content.Dialogs
 
             foreach(SubAddressAccount account in accountList)
             {
-                string addressText = Conversions.WalletAddressShortForm(account.BaseAddress) + " (" + (string.IsNullOrEmpty(account.Label) ? "No Label" : account.Label) + ")";
+                string addressText = (string.IsNullOrEmpty(account.Label) ? "No Label" : account.Label) + " (" + Conversions.WalletAddressShortForm(account.BaseAddress) + ")";
                 ddAccounts.Items.Add(addressText, account.Index.ToString());
 
                 if(selectedAccount == null)

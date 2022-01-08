@@ -18,7 +18,8 @@ namespace Nerva.Desktop.Content.Dialogs
 
         public AddressBookDialog() : base("Address Book")
         {
-            this.MinimumSize = new Size(300, 260);
+            this.Width = 540;
+            this.MinimumSize = new Size(500, 260);
 
             this.DefaultButton = btnCancel;
 
@@ -67,12 +68,12 @@ namespace Nerva.Desktop.Content.Dialogs
 				GridLines = GridLines.Horizontal,
 				Columns = 
 				{
-					new GridColumn { DataCell = new TextBoxCell { Binding = Binding.Property<AddressBookEntry, string>(r => r.Name)}, HeaderText = "Name" },
-					new GridColumn { DataCell = new TextBoxCell { Binding = Binding.Property<AddressBookEntry, string>(r => r.Description)}, HeaderText = "Description" },
+					new GridColumn { DataCell = new TextBoxCell { Binding = Binding.Property<AddressBookEntry, string>(r => r.Name)}, HeaderText = "Name", Width = 120 },
+					new GridColumn { DataCell = new TextBoxCell { Binding = Binding.Property<AddressBookEntry, string>(r => r.Description)}, HeaderText = "Description", Width = 100 },
 					new GridColumn { DataCell = new TextBoxCell { Binding = Binding.Property<AddressBookEntry, string>(r => 
-                        Conversions.WalletAddressShortForm(r.Address))}, HeaderText = "Address" },
+                        Conversions.WalletAddressShortForm(r.Address))}, HeaderText = "Address", Width = 180 },
                     new GridColumn { DataCell = new TextBoxCell { Binding = Binding.Property<AddressBookEntry, string>(r => 
-                        Conversions.WalletAddressShortForm(r.PaymentId))}, HeaderText = "Pay ID" }    
+                        Conversions.WalletAddressShortForm(r.PaymentId))}, HeaderText = "Pay ID", Width = 100 }    
 				},
                 DataStore = AddressBook.Instance.Entries
 			};
@@ -81,6 +82,11 @@ namespace Nerva.Desktop.Content.Dialogs
             {
                 btnRemove.Enabled = grid.SelectedRow != -1;
                 selectedEntry = grid.SelectedRow != -1 ? AddressBook.Instance.Entries[grid.SelectedRow] : null;
+            };
+
+            grid.CellDoubleClick += (s, e) =>
+            {
+                OnOk();
             };
 
             return new StackLayout
