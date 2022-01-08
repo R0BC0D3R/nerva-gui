@@ -8,6 +8,7 @@ namespace Nerva.Desktop.Config
     public class Wallet
 	{
         private string walletDir;
+        public int NumTransfersToDisplay { get; set; } = 50;
 
 		public RpcDetails Rpc { get; set; }
 
@@ -25,8 +26,6 @@ namespace Nerva.Desktop.Config
                 walletDir = value;
             }
         }
-
-        public int NumTransfersToDisplay { get; set; } = 25;
 
 		public static Wallet New()
         {

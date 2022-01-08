@@ -29,6 +29,7 @@ namespace Nerva.Desktop.Content.Dialogs
         
         private NumericStepper nsWalletPort = new NumericStepper { MinValue = 1000, MaxValue = 50000, DecimalPlaces = 0, MaximumDecimalPlaces = 0, ToolTip = "Wallet PRC port number" };
         private NumericStepper nsWalletLogLevel = new NumericStepper { MinValue = 0, MaxValue = 4, DecimalPlaces = 0, MaximumDecimalPlaces = 0, ToolTip = "Wallet RPC log level" };
+        private NumericStepper nsNumberTransfersToDisplay = new NumericStepper() { MinValue = 1, MaxValue = 1000, DecimalPlaces = 0, MaximumDecimalPlaces = 0, ToolTip = "Number of rows to display on Transfers tab" };
 
         private Button btnGenRandWalletPort = new Button { Text = "Random", ToolTip = "Generate a random port number" };
 
@@ -95,6 +96,7 @@ namespace Nerva.Desktop.Content.Dialogs
             txtWalletPath.Text = Configuration.Instance.Wallet.WalletDir;
             nsWalletPort.Value = Configuration.Instance.Wallet.Rpc.Port;
             nsWalletLogLevel.Value = Configuration.Instance.Wallet.Rpc.LogLevel;
+            nsNumberTransfersToDisplay.Value = Configuration.Instance.Wallet.NumTransfersToDisplay;
 
             return new TabControl
             {
@@ -247,7 +249,9 @@ namespace Nerva.Desktop.Content.Dialogs
                                         btnGenRandWalletPort,
                                         new StackLayoutItem(nsWalletLogLevel, false)
                                     }
-                                }                                                            
+                                },
+                                new Label { Text = "Number of Transfers to Display" },
+                                nsNumberTransfersToDisplay                                                          
                             }
                         }
                     }
@@ -282,7 +286,8 @@ namespace Nerva.Desktop.Content.Dialogs
             else if(
                 nsWalletPort.Value != Configuration.Instance.Wallet.Rpc.Port || // Wallet RPC port changed
                 nsWalletLogLevel.Value != Configuration.Instance.Wallet.Rpc.LogLevel || // Wallet RPC log level changed
-                txtWalletPath.Text != Configuration.Instance.Wallet.WalletDir // Wallet port changed
+                txtWalletPath.Text != Configuration.Instance.Wallet.WalletDir || // Wallet port changed
+                nsNumberTransfersToDisplay.Value != Configuration.Instance.Wallet.NumTransfersToDisplay  // Number of Wallet transactions to show
             ) {
                 // Only restart Wallet RPC
                 restartWalletRequired = true;
@@ -307,6 +312,7 @@ namespace Nerva.Desktop.Content.Dialogs
             Configuration.Instance.Wallet.WalletDir = txtWalletPath.Text;
             Configuration.Instance.Wallet.Rpc.Port = (uint)nsWalletPort.Value;
             Configuration.Instance.Wallet.Rpc.LogLevel = (uint)nsWalletLogLevel.Value;
+            Configuration.Instance.Wallet.NumTransfersToDisplay = (int)nsNumberTransfersToDisplay.Value;
 
             Configuration.Instance.Daemon.AdditionalArguments = txtAdditionalArguments.Text;
 

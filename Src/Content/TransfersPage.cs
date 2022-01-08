@@ -30,30 +30,7 @@ namespace Nerva.Desktop.Content
 
             ctx_TxDetails.Executed += (s, e) =>
             {
-                if (grid.SelectedRow == -1)
-                    return;
-
-                var t = txList[grid.SelectedRow];
-
-                Helpers.TaskFactory.Instance.RunTask("gettx", $"Fetching transaction information", () =>
-                {
-                    var txid = WalletRpc.GetTransferByTxID(t.TxId,
-                    (GetTransferByTxIDResponseData r) =>
-                    {
-                        Application.Instance.AsyncInvoke( () =>
-                        {
-                            ShowTxDialog d = new ShowTxDialog(r);
-                            d.ShowModal();
-                        });
-                    }, (RequestError err) =>
-                    {
-                        Application.Instance.AsyncInvoke( () =>
-                        {
-                            MessageBox.Show(Application.Instance.MainForm, "Transfer information could not be retrieved at this time", "Transaction Details", 
-                                MessageBoxButtons.OK, MessageBoxType.Information, MessageBoxDefaultButton.OK);
-                        });
-                    });
-                });
+                GetTransactionDetails();
             };
 
             mainControl = new Scrollable();
@@ -76,6 +53,11 @@ namespace Nerva.Desktop.Content
                 {
                     ctx_TxDetails
                 }
+            };
+
+            grid.CellDoubleClick += (s, e) =>
+            {
+                GetTransactionDetails();
             };
 
             Update(null);
@@ -198,5 +180,39 @@ namespace Nerva.Desktop.Content
 
 			return x;
 		}
+
+        private void GetTransactionDetails()
+        {
+            try
+            {
+                if (grid.SelectedRow == -1)
+                {
+                    return;
+                }
+
+                var t = txList[grid.SelectedRow];
+
+                var txid = WalletRpc.GetTransferByTxID(t.TxId,
+                (GetTransferByTxIDResponseData r) =>
+                {
+                    Application.Instance.AsyncInvoke( () =>
+                    {
+                        ShowTxDialog d = new ShowTxDialog(r);
+                        d.ShowModal();
+                    });
+                }, (RequestError err) =>
+                {
+                    Application.Instance.AsyncInvoke( () =>
+                    {
+                        MessageBox.Show(Application.Instance.MainForm, "Transfer information could not be retrieved at this time", "Transaction Details", 
+                            MessageBoxButtons.OK, MessageBoxType.Information, MessageBoxDefaultButton.OK);
+                    });
+                });
+            }
+            catch (Exception ex)
+            {
+                ErrorHandler.HandleException("TP.GTD", ex, true);
+            }
+        }
     }
 }
