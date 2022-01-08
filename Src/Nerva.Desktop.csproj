@@ -4,6 +4,7 @@
         <AssemblyName>Nerva.Desktop</AssemblyName>
         <TargetFrameworks>netcoreapp3.1;net5.0</TargetFrameworks>
         <PlatformTarget>AnyCPU</PlatformTarget>
+        <OutputType>Exe</OutputType>
         <GenerateFullPaths>true</GenerateFullPaths>
         <TrimUnusedDependencies>true</TrimUnusedDependencies>
         <AppendTargetFrameworkToOutputPath>true</AppendTargetFrameworkToOutputPath>
