@@ -22,6 +22,7 @@ namespace Nerva.Desktop.Content
         private StackLayout mainControl;
         public StackLayout MainControl => mainControl;
 		public string version;
+		public string network = "-";
 
 		GridView grid;
 	
@@ -39,7 +40,7 @@ namespace Nerva.Desktop.Content
 
 		public Button btnStartStopMining = new Button { Text = "Start Mining", ToolTip = "Start mining process", Enabled = false };
 
-		public Button btnChangeMiningThreads = new Button { Text = "Set", Enabled = false, Size = new Eto.Drawing.Size(80, 22), ToolTip = "Change number of CPU threads used for mining" };
+		public Button btnChangeMiningThreads = new Button { Text = "Set", Enabled = false, Size = new Eto.Drawing.Size(64, 22), ToolTip = "Change number of CPU threads used for mining" };
 		public NumericStepper nsMiningThreads = new NumericStepper { MinValue = 1, MaxValue = Environment.ProcessorCount, DecimalPlaces = 0, MaximumDecimalPlaces = 0, Enabled = false, Size = new Eto.Drawing.Size(60, 22), ToolTip = "Number of CPU threads to use for mining"  };
 
         #endregion
@@ -92,21 +93,31 @@ namespace Nerva.Desktop.Content
 						new StackLayoutItem(new TableLayout
 						{
 							Padding = 10,
-							Spacing = new Eto.Drawing.Size(10, 10),
+							Spacing = new Eto.Drawing.Size(4, 10),
 							Rows =
 							{
 								new TableRow(
 									new TableCell(new Label { Text = "Net Height:" }),
 									new TableCell(lblNetHeight),
 									new TableCell(null, true),
+
+									new TableCell(new Label { Text = "Your Height:" }),
+									new TableCell(lblHeight),
+									new TableCell(null, true),
+
 									new TableCell(lblMinerStatus),
 									new TableCell(btnStartStopMining),
 									new TableCell(null)
 								),
 								new TableRow(
-									new TableCell(new Label { Text = "Your Height:" }),
-									new TableCell(lblHeight),
+									new TableCell(new Label { Text = "Net Hash:" }),
+									new TableCell(lblNetHash),
 									new TableCell(null, true),
+
+									new TableCell(new Label { Text = "Hash Rate:", Height = 22 }),
+									new TableCell(lblMiningHashrate),
+									new TableCell(null, true),
+
 									new TableCell(new Label { Text = "Threads:" }),
 									new TableCell(
 										new StackLayout
@@ -127,24 +138,13 @@ namespace Nerva.Desktop.Content
 									new TableCell(new Label { Text = "Run Time:" }),
 									new TableCell(lblRunTime),
 									new TableCell(null, true),
+																		
+									new TableCell(new Label { Text = "Block Time:" }),
+									new TableCell(lblTimeToBlock),
+									new TableCell(null, true),
+
 									new TableCell(new Label { Text = "Address:", Height = 22 }),
 									new TableCell(lblMiningAddress),
-									new TableCell(null)
-								),
-								new TableRow(
-									new TableCell(new Label { Text = "Net Hash:" }),
-									new TableCell(lblNetHash),
-									new TableCell(null, true),
-									new TableCell(new Label { Text = "Hash Rate:", Height = 22 }),
-									new TableCell(lblMiningHashrate),
-									new TableCell(null)
-								),
-								new TableRow(
-									new TableCell(new Label { Text = "Network:" }),
-									new TableCell(lblNetwork),
-									new TableCell(null, true),
-									new TableCell(new Label { Text = "Time to Block:" }),
-									new TableCell(lblTimeToBlock),
 									new TableCell(null)
 								)
 							}
@@ -230,15 +230,14 @@ namespace Nerva.Desktop.Content
 						lblNetHash.Text = nethash;
 						hasAnythingChanged = true;
 					}
-					
-					string network = "-";
+										
 					if (info.Mainnet)
 					{
-						network = "MainNet";
+						if(!network.Equals("MainNet")) { network = "MainNet"; }
 					}
 					else if (info.Testnet)
 					{
-						network = "TestNet";
+						if(!network.Equals("TestNet")) { network = "TestNet"; }
 					}
 					else
 					{
@@ -360,15 +359,15 @@ namespace Nerva.Desktop.Content
 
 						if((blockMinutes / 1440d) > 1)
 						{
-							timeToBlock = String.Format("{0:F1}", Math.Round(blockMinutes, 1) / 1440d) + " days (estimated)";
+							timeToBlock = String.Format("{0:F1}", Math.Round(blockMinutes, 1) / 1440d) + " days (est)";
 						}
 						else if((blockMinutes / 60.0d) > 1)
 						{
-							timeToBlock = String.Format("{0:F1}", Math.Round(blockMinutes, 1) / 60.0d) + " hours (estimated)";
+							timeToBlock = String.Format("{0:F1}", Math.Round(blockMinutes, 1) / 60.0d) + " hours (est)";
 						}
 						else 
 						{
-							timeToBlock = String.Format("{0:F0}", Math.Round(blockMinutes, 0)) + " minutes (estimated)";
+							timeToBlock = String.Format("{0:F0}", Math.Round(blockMinutes, 0)) + " minutes (est)";
 						}
 					}
 					if (!lblTimeToBlock.Text.Equals(timeToBlock)) { lblTimeToBlock.Text = timeToBlock; }

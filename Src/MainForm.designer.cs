@@ -78,7 +78,7 @@ namespace Nerva.Desktop
 
 
 			// Daemon
-			var daemon_ToggleMining = new Command { MenuText = "Toggle Miner", ToolBarText = "Toggle Miner", Shortcut = Application.Instance.CommonModifier | Keys.T };			
+			var daemon_ToggleMining = new Command { MenuText = "Toggle Miner", ToolBarText = "Toggle Miner", Shortcut = Application.Instance.CommonModifier | Keys.G };			
 			daemon_ToggleMining.Executed += daemon_ToggleMining_Clicked;
 
 			var daemon_Restart = new Command { MenuText = "Restart", ToolBarText = "Restart", Shortcut = Application.Instance.CommonModifier | Keys.R };
@@ -100,6 +100,9 @@ namespace Nerva.Desktop
 
 			var wallet_Import = new Command { MenuText = "Import", ToolBarText = "Import" };
 			wallet_Import.Executed += wallet_Import_Clicked;
+
+			var wallet_Transfer = new Command { MenuText = "Transfer", ToolBarText = "Transfer", Shortcut = Application.Instance.CommonModifier | Keys.T };
+			wallet_Transfer.Executed += wallet_Transfer_Clicked;
 
 			var wallet_Store = new Command { MenuText = "Save", ToolBarText = "Save", Shortcut = Application.Instance.CommonModifier | Keys.S };
 			wallet_Store.Executed += wallet_Store_Clicked;
@@ -174,6 +177,7 @@ namespace Nerva.Desktop
 							wallet_New,							
 							wallet_Import,
 							new SeparatorMenuItem(),
+							wallet_Transfer,
 							wallet_Store,
 							wallet_Stop,
 							new SeparatorMenuItem(),

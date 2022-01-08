@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Text;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -354,7 +355,7 @@ namespace Nerva.Desktop
 
                         daemonPage.UpdateInfo(response);
 
-                        string daemonStatus = $"Daemon: {response.OutgoingConnectionsCount}(out)+{response.IncomingConnectionsCount}(in)";                       
+                        string daemonStatus = "Connections: " + response.OutgoingConnectionsCount + "(out) + " + response.IncomingConnectionsCount + "(in)";                       
 
                         if (response.TargetHeight != 0 && response.Height < response.TargetHeight)
                         {
@@ -745,6 +746,32 @@ namespace Nerva.Desktop
             }
         }
 
+        protected void wallet_Transfer_Clicked(object sender, EventArgs e)
+        {
+            try
+            {
+				TransferDialog transferDialog = new TransferDialog(null, balancesPage.Accounts);
+                if(!transferDialog.AbortTransfer)
+                {
+                    if (transferDialog.ShowModal() == DialogResult.Ok)
+                    {
+                        if(transferDialog.IsTransferSplit)
+                        {
+                            GlobalMethods.TransferFundsUsingSplit(transferDialog);
+                        }
+                        else 
+                        {
+                            GlobalMethods.TransferFundsNoSplit(transferDialog);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorHandler.HandleException("MF.WTrC", ex, true);
+            }
+        }
+
         protected void wallet_Store_Clicked(object sender, EventArgs e)
         {
             try
@@ -897,12 +924,24 @@ namespace Nerva.Desktop
             {
                 AboutDialog ad = new AboutDialog();
 
+                StringBuilder license = new StringBuilder();
+
+                license.AppendLine("The BSD-3 License.\r\n");
+                license.AppendLine("AUTHORS\r\n");
+                license.AppendLine("Copyright © 2017-2022 NERVA Project.");
+                license.AppendLine("Copyright © 2017-2020 Angry Wasp. All Rights Reserved.\r\n");
+                license.AppendLine("Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:\r\n");
+                license.AppendLine("1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.\r\n");
+                license.AppendLine("2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.\r\n");
+                license.AppendLine("3. The name of the author may not be used to endorse or promote products derived from this software without specific prior written permission.\r\n");
+                license.AppendLine("THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS 'AS IS' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.");
+
                 ad.ProgramName = "NERVA Desktop Wallet and Miner";
                 ad.ProgramDescription = "NERVA Desktop Wallet and Miner is a one-step solution for all your NERVA needs.\r\n\r\nManage your NERVA funds - create/open wallet, check your balance, transfer funds and check history.\r\n\r\nMine on NERVA network - mine new coins and help protect NERVA network with your spare resources.\r\n\r\n1 CPU = 1 VOTE";
                 string[] names = Assembly.GetExecutingAssembly().GetManifestResourceNames();
                 ad.Title = "About NERVA Desktop Wallet and Miner";
-                ad.License = "Copyright © 2017 - 2021 NERVA Project";
-                ad.Version = $"GUI: {Version.VERSION}\r\nCLI: {daemonPage.version}";
+                ad.License = license.ToString();
+                ad.Version = "GUI: " + Version.VERSION + "\r\nCLI: " + daemonPage.version + " (" + daemonPage.network + ")";
                 ad.Logo = new Bitmap(Assembly.GetExecutingAssembly().GetManifestResourceStream("NERVA-Logo.png"));
                 ad.Website = new Uri("https://nerva.one");
                 ad.WebsiteLabel = "https://nerva.one";
