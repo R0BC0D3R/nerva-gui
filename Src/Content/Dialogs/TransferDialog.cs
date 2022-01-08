@@ -99,10 +99,6 @@ namespace Nerva.Desktop.Content.Dialogs
             };
         }
 
-        private void ddAccounts_SelectedIndexChanged(object sender, EventArgs e)
-        {
-        }
-
         protected override void OnOk()
         {
             if (MessageBox.Show(this, "Are you sure?", MessageBoxButtons.YesNo, MessageBoxType.Question, MessageBoxDefaultButton.Yes) == DialogResult.Yes)
@@ -163,7 +159,7 @@ namespace Nerva.Desktop.Content.Dialogs
                     {
                         Spacing = new Eto.Drawing.Size(10, 10),
                         Rows = {
-                            new TableRow(new TableCell(new Label { Text = "Send To" }, true), btnAddressBook)                            
+                            new TableRow(new TableCell(new Label { Text = "Send To" }, true), btnAddressBook)
                         }
                     },
                     txtAddress,
@@ -185,7 +181,7 @@ namespace Nerva.Desktop.Content.Dialogs
                         Items =
                         {                            
                             cbxTransferSplit,
-                            new StackLayoutItem(null, true)                            
+                            new StackLayoutItem(null, true)
                         }
                     })
                 }

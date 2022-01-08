@@ -23,7 +23,8 @@ namespace Nerva.Desktop.Content
 		Label lblTotalXnv = new Label();
 		Label lblUnlockedXnv = new Label();
 
-		private Button btnTransfer = new Button { Text = "Trunsfer Funds", ToolTip = "Send XNV to another address", Width = 120, Enabled = false };
+		private Button btnTransfer = new Button { Text = "Transfer Funds", ToolTip = "Send XNV to another address", Width = 120, Enabled = false };
+		private Button btnViewAddresses = new Button { Text = "View Addresses", ToolTip = "Get your address information", Width = 120, Enabled = false };
 
 		private List<SubAddressAccount> accounts = new List<SubAddressAccount>();
 		public List<SubAddressAccount> Accounts => accounts;
@@ -274,7 +275,7 @@ namespace Nerva.Desktop.Content
 							new TableRow(
 								new TableCell(new Label { Text = "Unlocked XNV" }),
 								new TableCell(lblUnlockedXnv, true),
-								new TableCell(null))
+								new TableCell(btnViewAddresses))
 						}
 					}, false),
 					new StackLayoutItem(grid, true)
@@ -285,6 +286,42 @@ namespace Nerva.Desktop.Content
 			{
 				TransferFunds();
 			};
+
+			btnViewAddresses.Click += (s, e) =>
+			{
+				ViewAddresses();
+			};
+		}
+
+		public void Update(GetAccountsResponseData a)
+		{
+			try
+			{
+				if (a != null)
+				{
+					lblTotalXnv.Text = Conversions.FromAtomicUnits4Places(a.TotalBalance).ToString();
+					lblUnlockedXnv.Text = Conversions.FromAtomicUnits4Places(a.TotalUnlockedBalance).ToString();
+					accounts = a.Accounts;
+					btnTransfer.Enabled = true;
+					btnViewAddresses.Enabled = true;
+				}
+				else
+				{
+					lblTotalXnv.Text = string.Empty;
+					lblUnlockedXnv.Text = string.Empty;
+					accounts.Clear();
+					btnTransfer.Enabled = false;
+					btnViewAddresses.Enabled = false;
+				}
+
+				int si = grid.SelectedRow;
+				grid.DataStore = accounts.Count == 0 ? null : accounts;
+				grid.SelectRow(si);
+			}
+			catch (Exception ex)
+			{
+				ErrorHandler.HandleException("BP.UPD", ex, $".NET Exception, {ex.Message}", false);
+			}
 		}
 
 		private void TransferFunds()
@@ -309,32 +346,22 @@ namespace Nerva.Desktop.Content
 			}
 		}		
 
-		public void Update(GetAccountsResponseData a)
+		private void ViewAddresses()
 		{
 			try
 			{
-				if (a != null)
+				SubAddressAccount account = null;
+				if(grid != null && grid.SelectedRow != -1)
 				{
-					lblTotalXnv.Text = Conversions.FromAtomicUnits4Places(a.TotalBalance).ToString();
-					lblUnlockedXnv.Text = Conversions.FromAtomicUnits4Places(a.TotalUnlockedBalance).ToString();
-					accounts = a.Accounts;
-					btnTransfer.Enabled = true;
-				}
-				else
-				{
-					lblTotalXnv.Text = string.Empty;
-					lblUnlockedXnv.Text = string.Empty;
-					accounts.Clear();
-					btnTransfer.Enabled = false;
+					account = accounts[grid.SelectedRow];
 				}
 
-				int si = grid.SelectedRow;
-				grid.DataStore = accounts.Count == 0 ? null : accounts;
-				grid.SelectRow(si);
+				AddressViewDialog viewAddressesDialog = new AddressViewDialog(account, accounts);
+				viewAddressesDialog.ShowModal();
 			}
 			catch (Exception ex)
 			{
-				ErrorHandler.HandleException("BP.UPD", ex, $".NET Exception, {ex.Message}", false);
+				ErrorHandler.HandleException("BP.VAD", ex, false);
 			}
 		}
     }
