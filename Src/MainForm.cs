@@ -36,6 +36,13 @@ namespace Nerva.Desktop
         {
             try 
             {
+                Constants.DaemonTabImage = Bitmap.FromResource("tab_daemon.png", Assembly.GetExecutingAssembly());
+                Constants.BalancesTabImage = Bitmap.FromResource("tab_balances.png", Assembly.GetExecutingAssembly());
+                Constants.TransfersTabImage = Bitmap.FromResource("tab_transfers.png", Assembly.GetExecutingAssembly());
+                Constants.TransferBlockImage = Bitmap.FromResource("transfer_block.png", Assembly.GetExecutingAssembly());
+                Constants.TransferInImage = Bitmap.FromResource("transfer_in.png", Assembly.GetExecutingAssembly());
+                Constants.TransferOutImage = Bitmap.FromResource("transfer_out.png", Assembly.GetExecutingAssembly());
+
                 SuspendLayout();
                 ConstructLayout();
                 ResumeLayout();
@@ -379,10 +386,10 @@ namespace Nerva.Desktop
                         }
                         else
                         {
-                            daemonStatus += " | Sync OK";
+                            daemonStatus += "  |  Sync OK";
                         }
 
-                        daemonStatus += " | Status " + response.Status;
+                        daemonStatus += "  |  Status " + response.Status;
 
                         if (!lblDaemonStatus.Text.Equals(daemonStatus)) { lblDaemonStatus.Text = daemonStatus; }
 
@@ -949,7 +956,7 @@ namespace Nerva.Desktop
                 ad.Title = "About NERVA Desktop Wallet and Miner";
                 ad.License = license.ToString();
                 ad.Version = "GUI: " + Version.VERSION + "\r\nCLI: " + daemonPage.version + " (" + daemonPage.network + ")";
-                ad.Logo = new Bitmap(Assembly.GetExecutingAssembly().GetManifestResourceStream("NERVA-Logo.png"));
+                ad.Logo = new Bitmap(Assembly.GetExecutingAssembly().GetManifestResourceStream("nerva_logo.png"));
                 ad.Website = new Uri("https://nerva.one");
                 ad.WebsiteLabel = "https://nerva.one";
                 

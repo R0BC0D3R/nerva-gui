@@ -40,9 +40,9 @@ namespace Nerva.Desktop
 			TabControl tabs = new TabControl
 			{
 				Pages = {
-					new TabPage { Text = "Daemon", Content = daemonPage.MainControl },
-					new TabPage { Text = "Balances", Content = balancesPage.MainControl },
-					new TabPage { Text = "Transfers", Content = transfersPage.MainControl }
+					new TabPage { Text = "Daemon", Content = daemonPage.MainControl, Image =  Constants.DaemonTabImage },
+					new TabPage { Text = "Balances", Content = balancesPage.MainControl, Image =  Constants.BalancesTabImage },
+					new TabPage { Text = "Transfers", Content = transfersPage.MainControl, Image =  Constants.TransfersTabImage }
 				}
 			};
 
@@ -52,10 +52,10 @@ namespace Nerva.Desktop
 				Rows = {
 					new TableRow (
 						new TableCell(lblDaemonStatus, true),
-						new TableCell(lblTaskList)),
+						new TableCell(lblVersion)),
 					new TableRow (
 						new TableCell(lblWalletStatus, true),
-						new TableCell(lblVersion))
+						new TableCell(lblTaskList))
 				}
 			};
 

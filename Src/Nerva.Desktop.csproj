@@ -49,8 +49,26 @@
         </Reference>
     </ItemGroup>
     <ItemGroup>
-        <EmbeddedResource Include="../Content/NERVA-Logo.png">
-            <LogicalName>NERVA-Logo.png</LogicalName>
+        <EmbeddedResource Include="../Content/nerva_logo.png">
+            <LogicalName>nerva_logo.png</LogicalName>
+        </EmbeddedResource>
+        <EmbeddedResource Include="../Content/tab_daemon.png">
+            <LogicalName>tab_daemon.png</LogicalName>
+        </EmbeddedResource>
+        <EmbeddedResource Include="../Content/tab_balances.png">
+            <LogicalName>tab_balances.png</LogicalName>
+        </EmbeddedResource>
+        <EmbeddedResource Include="../Content/tab_transfers.png">
+            <LogicalName>tab_transfers.png</LogicalName>
+        </EmbeddedResource>
+        <EmbeddedResource Include="../Content/transfer_block.png">
+            <LogicalName>transfer_block.png</LogicalName>
+        </EmbeddedResource>
+        <EmbeddedResource Include="../Content/transfer_in.png">
+            <LogicalName>transfer_in.png</LogicalName>
+        </EmbeddedResource>
+        <EmbeddedResource Include="../Content/transfer_out.png">
+            <LogicalName>transfer_out.png</LogicalName>
         </EmbeddedResource>
     </ItemGroup>
 

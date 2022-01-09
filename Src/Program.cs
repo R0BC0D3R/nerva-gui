@@ -80,7 +80,7 @@ namespace Nerva.Desktop
 			catch (Exception ex)
 			{
 				ErrorHandler.HandleException("P.M", ex, true);
-				Shutdown(true);
+				Shutdown(false);
 			}
 			
 			Shutdown(false);

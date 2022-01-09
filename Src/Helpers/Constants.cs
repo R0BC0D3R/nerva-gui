@@ -13,6 +13,13 @@ namespace Nerva.Desktop.Helpers
         public const uint NERVAD_RPC_PORT_MAINNET = 17566;
         public const uint NERVAD_RPC_PORT_TESTNET = 18566;
 
+        public static Eto.Drawing.Image DaemonTabImage;
+        public static Eto.Drawing.Image BalancesTabImage;
+        public static Eto.Drawing.Image TransfersTabImage;
+        public static Eto.Drawing.Image TransferBlockImage;
+        public static Eto.Drawing.Image TransferInImage;
+        public static Eto.Drawing.Image TransferOutImage;
+
         public static readonly string[] Languages = new string[]
         {
             "Deutsch",
