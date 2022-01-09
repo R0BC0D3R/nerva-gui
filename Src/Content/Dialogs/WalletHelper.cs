@@ -58,8 +58,8 @@ namespace Nerva.Desktop.Content.Dialogs
                         Items =
                         {
                             new StackLayoutItem(null, true),
-                            btnOk,
-                            btnCancel
+                            btnCancel,
+                            btnOk                            
                         }
                     })
                 }

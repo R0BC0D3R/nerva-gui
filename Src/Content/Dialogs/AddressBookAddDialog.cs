@@ -7,6 +7,7 @@ namespace Nerva.Desktop.Content.Dialogs
 {
     public class AddressBookAddDialog : DialogBase<DialogResult>
     {
+        #region Local Variables
         private AddressBookEntry entry;
         public AddressBookEntry Entry => entry;
 
@@ -14,10 +15,14 @@ namespace Nerva.Desktop.Content.Dialogs
         TextBox txtDescription = new TextBox();
         TextBox txtAddress = new TextBox();
         TextBox txtPayID = new TextBox();
+        Label lblRequiredMessage = new Label() { Text = "* Indicates required fields" };
+        #endregion // Local Variables
 
+        #region Constructor Methods
         public AddressBookAddDialog(AddressBookEntry e) : base(e == null ? "Add To Address Book" : "Edit Address Book")
         {
             this.MinimumSize = new Size(300, 330);
+            this.btnOk.Text = "Add";
 
             if (e == null)
             {
@@ -29,7 +34,9 @@ namespace Nerva.Desktop.Content.Dialogs
             txtDescription.Text = e.Description;
             txtPayID.Text = e.PaymentId;
         }
+        #endregion // Constructor Methods
 
+        #region Base Class Methods
         protected override Control ConstructChildContent()
         {
             return new StackLayout
@@ -41,14 +48,15 @@ namespace Nerva.Desktop.Content.Dialogs
 				VerticalContentAlignment = VerticalAlignment.Stretch,
                 Items =
                 {
-                    new Label { Text = "Name"},
+                    new Label { Text = "* Name"},
                     txtName,
                     new Label { Text = "Description" },
                     txtDescription,
-                    new Label { Text = "Address" },
+                    new Label { Text = "* Address" },
                     txtAddress,
                     new Label { Text = "Payment ID" },
-                    txtPayID
+                    txtPayID,
+                    lblRequiredMessage
                 }
             };
         }
@@ -69,8 +77,7 @@ namespace Nerva.Desktop.Content.Dialogs
             string errorString = errors.ToString();
             if (!string.IsNullOrEmpty(errorString))
             {
-                MessageBox.Show(this, $"Failed to add address:\r\n{errorString}", "Address Book",
-                    MessageBoxButtons.OK, MessageBoxType.Error, MessageBoxDefaultButton.OK);
+                MessageBox.Show(this, $"Failed to add address:\r\n{errorString}", "Address Book", MessageBoxButtons.OK, MessageBoxType.Error, MessageBoxDefaultButton.OK);
                 return;
             }
 
@@ -89,5 +96,6 @@ namespace Nerva.Desktop.Content.Dialogs
         {
             this.Close(DialogResult.Cancel);
         }
+        #endregion // Base Class Methods
     }
 }
