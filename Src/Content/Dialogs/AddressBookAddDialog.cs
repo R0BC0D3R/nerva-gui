@@ -19,20 +19,20 @@ namespace Nerva.Desktop.Content.Dialogs
         #endregion // Local Variables
 
         #region Constructor Methods
-        public AddressBookAddDialog(AddressBookEntry e) : base(e == null ? "Add To Address Book" : "Edit Address Book")
+        public AddressBookAddDialog(AddressBookEntry entry) : base(entry == null ? "Add To Address Book" : "Edit Address Book")
         {
             this.MinimumSize = new Size(300, 330);
             this.btnOk.Text = "Add";
 
-            if (e == null)
+            if (entry == null)
             {
                 return;
             }
 
-            txtName.Text = e.Name;
-            txtAddress.Text = e.Address;
-            txtDescription.Text = e.Description;
-            txtPayID.Text = e.PaymentId;
+            txtName.Text = entry.Name;
+            txtAddress.Text = entry.Address;
+            txtDescription.Text = entry.Description;
+            txtPayID.Text = entry.PaymentId;
         }
         #endregion // Constructor Methods
 
@@ -69,10 +69,18 @@ namespace Nerva.Desktop.Content.Dialogs
             //Description and payment id are not required
 
             if (string.IsNullOrEmpty(txtName.Text))
+            {
                 errors.AppendLine("Name is not provided");
+            }
 
             if (string.IsNullOrEmpty(txtAddress.Text))
+            {
                 errors.AppendLine("Address is not provided");
+            }
+            else if(txtAddress.Text.Length < 30)
+            {
+                errors.AppendLine("Address is too short");
+            }
 
             string errorString = errors.ToString();
             if (!string.IsNullOrEmpty(errorString))

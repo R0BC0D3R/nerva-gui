@@ -1,5 +1,6 @@
-using System.Collections.Generic;
+using System;
 using System.IO;
+using System.Collections.Generic;
 using AngryWasp.Helpers;
 using AngryWasp.Serializer;
 using Nerva.Desktop.Config;
@@ -37,24 +38,38 @@ namespace Nerva.Desktop.Helpers
 
         public static void Load()
         {
-            if (!File.Exists(file))
+            try
             {
-                instance = New();
+                if (!File.Exists(file))
+                {
+                    instance = New();
         
-                Logger.LogDebug("AB.LOAD", $"Address Book created at '{file}'");
-                new ObjectSerializer().Serialize(instance, file);
+                    Logger.LogDebug("AB.LOAD", $"Address Book created at '{file}'");
+                    new ObjectSerializer().Serialize(instance, file);
+                }
+                else
+                {
+                    Logger.LogDebug("AB.LOAD", $"Address Book loaded from '{file}'");
+                    instance = new ObjectSerializer().Deserialize<AddressBook>(XHelper.LoadDocument(file));
+                }
             }
-            else
+            catch (Exception ex)
             {
-                Logger.LogDebug("AB.LOAD", $"Address Book loaded from '{file}'");
-                instance = new ObjectSerializer().Deserialize<AddressBook>(XHelper.LoadDocument(file));
+                ErrorHandler.HandleException("AB.LOD", ex, true);
             }
         }
 
         public static void Save()
         {
-            new ObjectSerializer().Serialize(instance, file);
-            Logger.LogDebug("AB.SAVE", $"Address Book saved to '{file}'");
+            try
+            {
+                new ObjectSerializer().Serialize(instance, file);
+                Logger.LogDebug("AB.SAVE", $"Address Book saved to '{file}'");
+            }
+            catch (Exception ex)
+            {
+                ErrorHandler.HandleException("AB.SAV", ex, true);
+            }
         }
     }
 }

@@ -750,18 +750,25 @@ namespace Nerva.Desktop
         {
             try
             {
-				TransferDialog transferDialog = new TransferDialog(null, balancesPage.Accounts);
-                if(!transferDialog.AbortTransfer)
+                if(balancesPage == null || balancesPage.Accounts.Count == 0)
                 {
-                    if (transferDialog.ShowModal() == DialogResult.Ok)
+                    MessageBox.Show(this, "No accounts loaded. Please open Wallet and try again.", MessageBoxButtons.OK, MessageBoxType.Error, MessageBoxDefaultButton.OK);
+                }
+                else 
+                {
+                    TransferDialog transferDialog = new TransferDialog(null, balancesPage.Accounts);
+                    if(!transferDialog.AbortTransfer)
                     {
-                        if(transferDialog.IsTransferSplit)
+                        if (transferDialog.ShowModal() == DialogResult.Ok)
                         {
-                            GlobalMethods.TransferFundsUsingSplit(transferDialog);
-                        }
-                        else 
-                        {
-                            GlobalMethods.TransferFundsNoSplit(transferDialog);
+                            if(transferDialog.IsTransferSplit)
+                            {
+                                GlobalMethods.TransferFundsUsingSplit(transferDialog);
+                            }
+                            else
+                            {
+                                GlobalMethods.TransferFundsNoSplit(transferDialog);
+                            }
                         }
                     }
                 }

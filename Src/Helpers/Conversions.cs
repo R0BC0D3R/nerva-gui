@@ -10,12 +10,14 @@ namespace Nerva.Desktop.Helpers
 
         public static ulong ToAtomicUnits(double i) => (ulong)(i * 1000000000000.0d);
 
-        public static string WalletAddressShortForm(string a)
+        public static string WalletAddressShortForm(string address)
         {
-            if (string.IsNullOrEmpty(a))
+            if (string.IsNullOrEmpty(address))
+            {
                 return null;
+            }
 
-            return $"{a.Substring(0, 10)}...{a.Substring(a.Length - 10, 10)}";
+            return address.Length > 20 ? address.Substring(0, 10) + "..." + address.Substring(address.Length - 10, 10) : address;
         }
 
         public static int VersionStringToInt(string vs)
