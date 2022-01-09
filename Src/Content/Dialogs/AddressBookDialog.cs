@@ -2,6 +2,7 @@ using System;
 using Eto.Forms;
 using Eto.Drawing;
 using Nerva.Desktop.Helpers;
+using System.Collections.Generic;
 
 namespace Nerva.Desktop.Content.Dialogs
 {
@@ -50,7 +51,11 @@ namespace Nerva.Desktop.Content.Dialogs
                 DataStore = AddressBook.Instance.Entries
 			};
 
-            grid.SelectRow(0);
+            if(((List<AddressBookEntry>)grid.DataStore).Count > 0)
+            {
+                grid.SelectRow(0);
+                grid_SelectedRowsChanged(new object(), new EventArgs());
+            }
 
             grid.SelectedRowsChanged += new EventHandler<EventArgs>(grid_SelectedRowsChanged);
             grid.CellDoubleClick += new EventHandler<GridCellMouseEventArgs>(grid_CellDoubleClick);
@@ -177,7 +182,10 @@ namespace Nerva.Desktop.Content.Dialogs
         {
             try
             {
-                OnOk();
+                if(((List<AddressBookEntry>)grid.DataStore).Count > 0 && grid.SelectedRow > -1)
+                {
+                    OnOk();
+                }
             }
             catch (Exception ex)
             {

@@ -51,6 +51,11 @@ namespace Nerva.Desktop.Helpers
                 {
                     Logger.LogDebug("AB.LOAD", $"Address Book loaded from '{file}'");
                     instance = new ObjectSerializer().Deserialize<AddressBook>(XHelper.LoadDocument(file));
+
+                    if (instance.entries == null)
+                    {
+                        instance.entries = new List<AddressBookEntry>();
+                    }
                 }
             }
             catch (Exception ex)

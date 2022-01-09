@@ -81,6 +81,10 @@ namespace Nerva.Desktop.Content.Dialogs
             {
                 errors.AppendLine("Address is too short");
             }
+            else if(txtAddress.Text.Contains(' '))
+            {
+                errors.AppendLine("Address cannot contain spaces");
+            }
 
             string errorString = errors.ToString();
             if (!string.IsNullOrEmpty(errorString))
