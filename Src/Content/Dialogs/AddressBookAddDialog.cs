@@ -21,7 +21,7 @@ namespace Nerva.Desktop.Content.Dialogs
         #region Constructor Methods
         public AddressBookAddDialog(AddressBookEntry entry) : base(entry == null ? "Add To Address Book" : "Edit Address Book")
         {
-            this.MinimumSize = new Size(300, 330);
+            this.MinimumSize = new Size(300, 360);
             this.btnOk.Text = "Save";
 
             if (entry == null)

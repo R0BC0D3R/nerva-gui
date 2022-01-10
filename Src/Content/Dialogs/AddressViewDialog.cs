@@ -31,7 +31,7 @@ namespace Nerva.Desktop.Content.Dialogs
         {
             try
             {        
-                this.MinimumSize = new Size(500, 420);
+                this.MinimumSize = new Size(500, 440);
                 this.btnOk.Visible = false;
                 this.btnCancel.Text = "Close";
 

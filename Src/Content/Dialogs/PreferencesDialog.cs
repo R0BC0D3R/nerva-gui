@@ -43,7 +43,7 @@ namespace Nerva.Desktop.Content.Dialogs
 
         public PreferencesDialog() : base("Preferences")
         {
-            this.MinimumSize = new Size(300, 325);
+            this.MinimumSize = new Size(380, 360);
             
             btnGenRandDaemonPort.Click += (s, e) => nsDaemonPort.Value = MathHelper.Random.NextInt((int)nsDaemonPort.MinValue, (int)nsDaemonPort.MaxValue);
             btnUseDefaultPort.Click += (s, e) => nsDaemonPort.Value = (chkTestnet.Checked.Value ? Constants.NERVAD_RPC_PORT_TESTNET : Constants.NERVAD_RPC_PORT_MAINNET);
@@ -250,8 +250,14 @@ namespace Nerva.Desktop.Content.Dialogs
                                         new StackLayoutItem(nsWalletLogLevel, false)
                                     }
                                 },
-                                new Label { Text = "Number of Transfers to Display" },
-                                nsNumberTransfersToDisplay                                                          
+                                new Label { Text = "Number of Transfers to Display in Grid" },
+                                new TableLayout
+                                {
+                                    Spacing = new Eto.Drawing.Size(10, 10),
+                                    Rows = {
+                                        new TableRow(new TableCell(nsNumberTransfersToDisplay), new Label { Text = ""})
+                                    }
+                                }                                               
                             }
                         }
                     }

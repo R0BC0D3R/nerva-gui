@@ -45,7 +45,7 @@ namespace Nerva.Desktop.Content.Dialogs
 
         public ImportWalletDialog() : base("Import Wallet") 
         { 
-            this.MinimumSize = new Size(300, 500);
+            this.MinimumSize = new Size(300, 510);
         }
 
         bool importStarted = false;

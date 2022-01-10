@@ -22,9 +22,9 @@ namespace Nerva.Desktop
 
 		public void ConstructLayout()
 		{
-			this.Title = $"NERVA Desktop Wallet and Miner {Version.LONG_VERSION}";
+			this.Title = "NERVA Desktop Wallet and Miner " + Version.LONG_VERSION;
 			this.ClientSize = new Size(640, 480);
-			this.MinimumSize = new Size(440, 400);
+			this.MinimumSize = new Size(560, 400);
 
 			// Set Icon but only if found. Otherwise, app will not work correctly
 			string iconFile = GlobalMethods.GetAppIcon();
