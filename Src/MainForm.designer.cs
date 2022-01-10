@@ -101,8 +101,11 @@ namespace Nerva.Desktop
 			var wallet_Import = new Command { MenuText = "Import", ToolBarText = "Import" };
 			wallet_Import.Executed += wallet_Import_Clicked;
 
-			var wallet_Transfer = new Command { MenuText = "Transfer", ToolBarText = "Transfer", Shortcut = Application.Instance.CommonModifier | Keys.T };
+			var wallet_Transfer = new Command { MenuText = "Transfer Funds", ToolBarText = "Transfer Funds", Shortcut = Application.Instance.CommonModifier | Keys.T };
 			wallet_Transfer.Executed += wallet_Transfer_Clicked;
+
+			var wallet_AddressInfo = new Command { MenuText = "Address Info", ToolBarText = "Address Info", Shortcut = Application.Instance.CommonModifier | Keys.I };
+			wallet_AddressInfo.Executed += wallet_AddressInfo_Clicked;
 
 			var wallet_Store = new Command { MenuText = "Save", ToolBarText = "Save", Shortcut = Application.Instance.CommonModifier | Keys.S };
 			wallet_Store.Executed += wallet_Store_Clicked;
@@ -174,10 +177,12 @@ namespace Nerva.Desktop
 						Items =
 						{
 							wallet_Open,
-							wallet_New,							
+							wallet_New,
 							wallet_Import,
 							new SeparatorMenuItem(),
+							wallet_AddressInfo,
 							wallet_Transfer,
+							new SeparatorMenuItem(),
 							wallet_Store,
 							wallet_Stop,
 							new SeparatorMenuItem(),

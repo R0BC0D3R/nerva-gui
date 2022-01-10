@@ -786,6 +786,26 @@ namespace Nerva.Desktop
             }
         }
 
+        protected void wallet_AddressInfo_Clicked(object sender, EventArgs e)
+        {
+            try
+            {
+                if(balancesPage == null || balancesPage.Accounts.Count == 0)
+                {
+                    MessageBox.Show(this, "No accounts loaded. Please open Wallet and try again.", MessageBoxButtons.OK, MessageBoxType.Error, MessageBoxDefaultButton.OK);
+                }
+                else 
+                {
+                    AddressViewDialog viewAddressesDialog = new AddressViewDialog(null, balancesPage.Accounts);
+                    viewAddressesDialog.ShowModal();                
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorHandler.HandleException("MF.WAIC", ex, true);
+            }
+        }
+
         protected void wallet_Store_Clicked(object sender, EventArgs e)
         {
             try

@@ -40,7 +40,6 @@ namespace Nerva.Desktop.Content
 			try
 			{		
 				var cmdInfo = new Command { MenuText = "Address Info" };
-				var cmdIntAddr = new Command { MenuText = "Integrated Address" };
 				var cmdRename = new Command { MenuText = "Rename" };
 				var cmdMine = new Command { MenuText = "Mine" };					
 				var cmdTransfer = new Command { MenuText = "Transfer Funds" };
@@ -51,7 +50,6 @@ namespace Nerva.Desktop.Content
 					Items = 
 					{
 						cmdInfo,
-						cmdIntAddr,
 						cmdRename,
 						cmdMine,
 						new SeparatorMenuItem(),					
@@ -101,15 +99,16 @@ namespace Nerva.Desktop.Content
 				};
 
 				cmdMine.Executed += new EventHandler<EventArgs>(cmdMine_Executed);		
-				cmdInfo.Executed += new EventHandler<EventArgs>(cmdInfo_Executed);
-				cmdIntAddr.Executed += new EventHandler<EventArgs>(cmdIntAddr_Executed);		
+				cmdInfo.Executed += new EventHandler<EventArgs>(cmdInfo_Executed);		
 				cmdExportTransfers.Executed += new EventHandler<EventArgs>(cmdExportTransfers_Executed);		
 				cmdTransfer.Executed += new EventHandler<EventArgs>(cmdTransfer_Executed);
 				cmdRename.Executed += new EventHandler<EventArgs>(cmdRename_Executed);
 
-				grid.MouseDown += new EventHandler<MouseEventArgs>(grid_MouseDown);
 				btnTransfer.Click += new EventHandler<EventArgs>(btnTransfer_Click);
 				btnViewAddresses.Click += new EventHandler<EventArgs>(btnViewAddresses_Click);
+
+				grid.MouseDown += new EventHandler<MouseEventArgs>(grid_MouseDown);
+				grid.CellDoubleClick += new EventHandler<GridCellMouseEventArgs>(grid_CellDoubleClick);
 			}
 			catch (Exception ex)
 			{
@@ -237,43 +236,7 @@ namespace Nerva.Desktop.Content
             {
                 ErrorHandler.HandleException("BP.CIE", ex, true);
             }
-		}
-
-		private void cmdIntAddr_Executed(object sender, EventArgs e)
-		{
-            try
-            {
-				if (grid.SelectedRow == -1)
-				{
-					return;
-				}
-
-				SubAddressAccount a = accounts[grid.SelectedRow];
-
-				Helpers.TaskFactory.Instance.RunTask("makeintaddr", $"Creating integrated address", () =>
-				{
-					WalletRpc.MakeIntegratedAddress(a.BaseAddress, (MakeIntegratedAddressResponseData r) =>
-					{
-						Application.Instance.AsyncInvoke(() =>
-						{
-							MessageBox.Show(Application.Instance.MainForm, 
-							$"Address: {r.IntegratedAddress}\r\nPayment ID: {r.PaymentId}", 
-							"Integrated Address", MessageBoxType.Information);
-						});
-					}, (RequestError err) =>
-					{
-						Application.Instance.AsyncInvoke(() =>
-						{
-							MessageBox.Show(Application.Instance.MainForm, "Could not create integrated address", MessageBoxType.Error);
-						});
-					});
-				});
-            }
-            catch (Exception ex)
-            {
-                ErrorHandler.HandleException("BP.CIAE", ex, true);
-            }
-		}
+		}		
 
 		private void cmdTransfer_Executed(object sender, EventArgs e)
 		{
@@ -461,6 +424,21 @@ namespace Nerva.Desktop.Content
                 ErrorHandler.HandleException("BP.GMD", ex, false);
             }
 		}
+
+		private void grid_CellDoubleClick(object sender, EventArgs e)
+        {
+            try
+            {
+                if(grid.DataStore != null && ((List<SubAddressAccount>)grid.DataStore).Count > 0 && grid.SelectedRow > -1)
+                {
+                    ViewAddresses();
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorHandler.HandleException("BP.GCDC", ex, true);
+            }
+        }
 		#endregion // Event Methods
     }
 }
