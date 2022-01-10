@@ -15,66 +15,238 @@ namespace Nerva.Desktop.Content
 {
     public class BalancesPage
 	{
+		#region Local Variables
 		private StackLayout mainControl;
         public StackLayout MainControl => mainControl;
 
 		GridView grid;
+		ContextMenu context;
 
 		Label lblTotalXnv = new Label();
 		Label lblUnlockedXnv = new Label();
 
 		private Button btnTransfer = new Button { Text = "Transfer Funds", ToolTip = "Send XNV to another address", Width = 120, Enabled = false };
-		private Button btnViewAddresses = new Button { Text = "View Addresses", ToolTip = "Get your address information", Width = 120, Enabled = false };
+		private Button btnViewAddresses = new Button { Text = "Address Info", ToolTip = "Get your address information", Width = 120, Enabled = false };
 
 		private List<SubAddressAccount> accounts = new List<SubAddressAccount>();
 		public List<SubAddressAccount> Accounts => accounts;
+		#endregion // Local Variables
 
+		#region Constructor Methods
 		public BalancesPage() { }
 
         public void ConstructLayout()
-		{			
-			var ctx_Info = new Command { MenuText = "Address" };
-			var ctx_IntAddr = new Command { MenuText = "Integrated Address" };
-			var ctx_Rename = new Command { MenuText = "Rename" };
-			var ctx_Mine = new Command { MenuText = "Mine" };					
-			var ctx_Transfer = new Command { MenuText = "Transfer" };
-			var ctx_ExportTransfers = new Command { MenuText = "Export Transfers" };
+		{
+			try
+			{		
+				var cmdInfo = new Command { MenuText = "Address Info" };
+				var cmdIntAddr = new Command { MenuText = "Integrated Address" };
+				var cmdRename = new Command { MenuText = "Rename" };
+				var cmdMine = new Command { MenuText = "Mine" };					
+				var cmdTransfer = new Command { MenuText = "Transfer Funds" };
+				var cmdExportTransfers = new Command { MenuText = "Export Transfers" };
 
-			ctx_Mine.Executed += (s, e) =>
+				context = new ContextMenu
+				{
+					Items = 
+					{
+						cmdInfo,
+						cmdIntAddr,
+						cmdRename,
+						cmdMine,
+						new SeparatorMenuItem(),					
+						cmdTransfer,
+						cmdExportTransfers
+					}
+				};
+
+				grid = new GridView
+				{
+					GridLines = GridLines.Horizontal,
+					Columns = 
+					{
+						new GridColumn { DataCell = new TextBoxCell { Binding = Binding.Property<SubAddressAccount, string>(r => r.Index.ToString())}, HeaderText = "#", Width = 30 },
+						new GridColumn { DataCell = new TextBoxCell { Binding = Binding.Property<SubAddressAccount, string>(r => r.Label)}, HeaderText = "Label", Width = 150 },
+						new GridColumn { DataCell = new TextBoxCell { Binding = Binding.Property<SubAddressAccount, string>(r => Conversions.WalletAddressShortForm(r.BaseAddress))}, HeaderText = "Address", Width = 200 },
+						new GridColumn { DataCell = new TextBoxCell { Binding = Binding.Property<SubAddressAccount, string>(r => Conversions.FromAtomicUnits4Places(r.Balance).ToString())}, HeaderText = "Balance", Width = 100 },
+						new GridColumn { DataCell = new TextBoxCell { Binding = Binding.Property<SubAddressAccount, string>(r => Conversions.FromAtomicUnits4Places(r.UnlockedBalance).ToString())}, HeaderText = "Unlocked", Width = 120 },
+					}
+				};
+			
+				mainControl = new StackLayout
+				{
+					Orientation = Orientation.Vertical,
+					HorizontalContentAlignment = HorizontalAlignment.Stretch,
+					VerticalContentAlignment = VerticalAlignment.Stretch,
+					Items = 
+					{
+						new StackLayoutItem(new TableLayout
+						{
+							Padding = 10,
+							Spacing = new Eto.Drawing.Size(10, 10),
+							Rows =
+							{
+								new TableRow(
+									new TableCell(new Label { Text = "Total XNV" }),
+									new TableCell(lblTotalXnv, true),
+									new TableCell(btnTransfer)),
+								new TableRow(
+									new TableCell(new Label { Text = "Unlocked XNV" }),
+									new TableCell(lblUnlockedXnv, true),
+									new TableCell(btnViewAddresses))
+							}
+						}, false),
+						new StackLayoutItem(grid, true)
+					}
+				};
+
+				cmdMine.Executed += new EventHandler<EventArgs>(cmdMine_Executed);		
+				cmdInfo.Executed += new EventHandler<EventArgs>(cmdInfo_Executed);
+				cmdIntAddr.Executed += new EventHandler<EventArgs>(cmdIntAddr_Executed);		
+				cmdExportTransfers.Executed += new EventHandler<EventArgs>(cmdExportTransfers_Executed);		
+				cmdTransfer.Executed += new EventHandler<EventArgs>(cmdTransfer_Executed);
+				cmdRename.Executed += new EventHandler<EventArgs>(cmdRename_Executed);
+
+				grid.MouseDown += new EventHandler<MouseEventArgs>(grid_MouseDown);
+				btnTransfer.Click += new EventHandler<EventArgs>(btnTransfer_Click);
+				btnViewAddresses.Click += new EventHandler<EventArgs>(btnViewAddresses_Click);
+			}
+			catch (Exception ex)
 			{
+				ErrorHandler.HandleException("BP.CSL", ex, true);
+			}
+		}
+		#endregion // Constructor Methods
+
+		#region Helper Methods
+		public void Update(GetAccountsResponseData a)
+		{
+			try
+			{
+				if (a != null)
+				{
+					lblTotalXnv.Text = Conversions.FromAtomicUnits4Places(a.TotalBalance).ToString();
+					lblUnlockedXnv.Text = Conversions.FromAtomicUnits4Places(a.TotalUnlockedBalance).ToString();
+					accounts = a.Accounts;
+					btnTransfer.Enabled = true;
+					btnViewAddresses.Enabled = true;
+				}
+				else
+				{
+					lblTotalXnv.Text = string.Empty;
+					lblUnlockedXnv.Text = string.Empty;
+					accounts.Clear();
+					btnTransfer.Enabled = false;
+					btnViewAddresses.Enabled = false;
+				}
+
+				int si = grid.SelectedRow;
+				grid.DataStore = accounts.Count == 0 ? null : accounts;
+				grid.SelectRow(si);
+			}
+			catch (Exception ex)
+			{
+				ErrorHandler.HandleException("BP.UPD", ex, false);
+			}
+		}
+
+		private void TransferFunds()
+		{
+			try
+			{				
+				SubAddressAccount account = null;
+				if(grid != null && grid.SelectedRow != -1)
+				{
+					account = accounts[grid.SelectedRow];
+				}
+				
+				TransferDialog transferDialog = new TransferDialog(account, accounts);
+				if (transferDialog.ShowModal() == DialogResult.Ok)
+				{
+					if(transferDialog.IsTransferSplit)
+					{
+						GlobalMethods.TransferFundsUsingSplit(transferDialog);
+					}
+					else 
+					{
+						GlobalMethods.TransferFundsNoSplit(transferDialog);
+					}
+				}
+			}
+			catch (Exception ex)
+			{
+				ErrorHandler.HandleException("BP.TRF", ex, true);
+			}
+		}		
+
+		private void ViewAddresses()
+		{
+			try
+			{
+				SubAddressAccount account = null;
+				if(grid != null && grid.SelectedRow != -1)
+				{
+					account = accounts[grid.SelectedRow];
+				}
+
+				AddressViewDialog viewAddressesDialog = new AddressViewDialog(account, accounts);
+				viewAddressesDialog.ShowModal();
+			}
+			catch (Exception ex)
+			{
+				ErrorHandler.HandleException("BP.VAD", ex, true);
+			}
+		}
+		#endregion // Helper Methods
+
+		#region Event Methods
+		private void cmdMine_Executed(object sender, EventArgs e)
+		{
+            try
+            {
 				if (grid.SelectedRow == -1)
+				{
 					return;
+				}
 
 				SubAddressAccount a = accounts[grid.SelectedRow];
 				Configuration.Instance.Daemon.MiningAddress = a.BaseAddress;
 				Configuration.Save();
 
 				DaemonRpc.StopMining();
-				Logger.LogDebug("BP.CTL", "Mining stopped");
+				Logger.LogDebug("BP.CME", "Mining stopped");
 
 				if (DaemonRpc.StartMining())
 				{
-					Logger.LogDebug("BP.CTL", $"Mining started to {Conversions.WalletAddressShortForm(Configuration.Instance.Daemon.MiningAddress)} on {Configuration.Instance.Daemon.MiningThreads} threads");
+					Logger.LogDebug("BP.CME", $"Mining started to {Conversions.WalletAddressShortForm(Configuration.Instance.Daemon.MiningAddress)} on {Configuration.Instance.Daemon.MiningThreads} threads");
 				}
-			};
+            }
+            catch (Exception ex)
+            {
+                ErrorHandler.HandleException("BP.CME", ex, true);
+            }
+		}
 
-			ctx_Info.Executed += (s, e) =>
-			{
+		private void cmdInfo_Executed(object sender, EventArgs e)
+		{
+            try
+            {
+				ViewAddresses();
+            }
+            catch (Exception ex)
+            {
+                ErrorHandler.HandleException("BP.CIE", ex, true);
+            }
+		}
+
+		private void cmdIntAddr_Executed(object sender, EventArgs e)
+		{
+            try
+            {
 				if (grid.SelectedRow == -1)
+				{
 					return;
-
-				SubAddressAccount a = accounts[grid.SelectedRow];
-
-				string lbl = string.IsNullOrEmpty(a.Label) ? "No Label" : a.Label;
-
-				TextDialog d = new TextDialog($"Address for account '{lbl}'", true, a.BaseAddress);
-				d.ShowModal();
-			};
-
-			ctx_IntAddr.Executed += (s, e) =>
-			{
-				if (grid.SelectedRow == -1)
-					return;
+				}
 
 				SubAddressAccount a = accounts[grid.SelectedRow];
 
@@ -96,10 +268,54 @@ namespace Nerva.Desktop.Content
 						});
 					});
 				});
-			};
+            }
+            catch (Exception ex)
+            {
+                ErrorHandler.HandleException("BP.CIAE", ex, true);
+            }
+		}
 
-			ctx_ExportTransfers.Executed += (s, e) =>
-			{
+		private void cmdTransfer_Executed(object sender, EventArgs e)
+		{
+            try
+            {
+				TransferFunds();
+            }
+            catch (Exception ex)
+            {
+                ErrorHandler.HandleException("BP.CTE", ex, true);
+            }
+		}
+
+		private void cmdRename_Executed(object sender, EventArgs e)
+		{
+            try
+            {
+				if (grid.SelectedRow == -1)
+				{
+					return;
+				}
+
+				TextDialog d = new TextDialog("Select Account Name", false);
+
+				if (d.ShowModal() == DialogResult.Ok)
+				{
+					if (!WalletRpc.LabelAccount((uint)grid.SelectedRow, d.Text))
+					{
+						MessageBox.Show(this.MainControl, "Failed to rename account", "Wallet rename", MessageBoxButtons.OK, MessageBoxType.Error, MessageBoxDefaultButton.OK);
+					}
+				}
+            }
+            catch (Exception ex)
+            {
+                ErrorHandler.HandleException("BP.CRE", ex, true);
+            }
+		}
+
+		private void cmdExportTransfers_Executed(object sender, EventArgs e)
+		{
+            try
+            {
 				if (grid.SelectedRow == -1) { return; }
 
 				SaveFileDialog saveDialog = new SaveFileDialog();
@@ -177,192 +393,74 @@ namespace Nerva.Desktop.Content
 								}
 								catch (Exception ex)
 								{
-									ErrorHandler.HandleException("BP.ETE", ex, true);
+									ErrorHandler.HandleException("BP.CETE", ex, true);
 								}
 							});
 						}, (RequestError error) =>
 						{
 							Application.Instance.AsyncInvoke(() =>
 							{
-								Logger.LogError("BP.ETE", "Error exporting transfers: " + error.Message);
+								Logger.LogError("BP.CETE", "Error exporting transfers: " + error.Message);
 								MessageBox.Show(Application.Instance.MainForm, "Error exporting transfers", MessageBoxType.Error);
 							});
 						});
 					}
 				}
-			};
+            }
+            catch (Exception ex)
+            {
+                ErrorHandler.HandleException("BP.CETE", ex, true);
+            }
+		}
 
-			ctx_Transfer.Executed += (s, e) =>
-			{
+		private void btnTransfer_Click(object sender, EventArgs e)
+		{
+            try
+            {
 				TransferFunds();
-			};
+            }
+            catch (Exception ex)
+            {
+                ErrorHandler.HandleException("BP.BTC", ex, true);
+            }
+		}
 
-			ctx_Rename.Executed += (s, e) =>
-			{
-				if (grid.SelectedRow == -1)
-					return;
+		private void btnViewAddresses_Click(object sender, EventArgs e)
+		{
+            try
+            {
+				ViewAddresses();
+            }
+            catch (Exception ex)
+            {
+                ErrorHandler.HandleException("BP.BVAC", ex, true);
+            }
+		}
 
-				TextDialog d = new TextDialog("Select Account Name", false);
-
-				if (d.ShowModal() == DialogResult.Ok)
-					if (!WalletRpc.LabelAccount((uint)grid.SelectedRow, d.Text))
-						MessageBox.Show(this.MainControl, "Failed to rename account", "Wallet rename",
-                    		MessageBoxButtons.OK, MessageBoxType.Error, MessageBoxDefaultButton.OK);
-			};
-
-			ContextMenu ctx = new ContextMenu
-			{
-				Items = 
-				{
-					ctx_Info,
-					ctx_IntAddr,
-					ctx_Rename,
-					ctx_Mine,
-					new SeparatorMenuItem(),					
-					ctx_Transfer,
-					ctx_ExportTransfers
-				}
-			};
-
-			grid = new GridView
-			{
-				GridLines = GridLines.Horizontal,
-				Columns = 
-				{
-					new GridColumn { DataCell = new TextBoxCell { Binding = Binding.Property<SubAddressAccount, string>(r => r.Index.ToString())}, HeaderText = "#", Width = 30 },
-					new GridColumn { DataCell = new TextBoxCell { Binding = Binding.Property<SubAddressAccount, string>(r => r.Label)}, HeaderText = "Label", Width = 150 },
-					new GridColumn { DataCell = new TextBoxCell { Binding = Binding.Property<SubAddressAccount, string>(r => Conversions.WalletAddressShortForm(r.BaseAddress))}, HeaderText = "Address", Width = 200 },
-					new GridColumn { DataCell = new TextBoxCell { Binding = Binding.Property<SubAddressAccount, string>(r => Conversions.FromAtomicUnits4Places(r.Balance).ToString())}, HeaderText = "Balance", Width = 100 },
-					new GridColumn { DataCell = new TextBoxCell { Binding = Binding.Property<SubAddressAccount, string>(r => Conversions.FromAtomicUnits4Places(r.UnlockedBalance).ToString())}, HeaderText = "Unlocked", Width = 120 },
-				}
-			};
-
-			grid.MouseDown += (s, e) =>
-			{
-				var cell = grid.GetCellAt(e.Location);
+		private void grid_MouseDown(object sender, EventArgs e)
+		{
+            try
+            {
+				var cell = grid.GetCellAt(((MouseEventArgs)e).Location);
 				if (cell.RowIndex == -1)
 				{
 					grid.UnselectAll();
 					return;
 				}
 
-				if (e.Buttons != MouseButtons.Alternate)
+				if (((MouseEventArgs)e).Buttons != MouseButtons.Alternate)
 					return;
 
 				if (grid.SelectedRow == -1)
 					return;
 
-				ctx.Show(grid);
-			};
-
-			mainControl = new StackLayout
-			{
-				Orientation = Orientation.Vertical,
-				HorizontalContentAlignment = HorizontalAlignment.Stretch,
-				VerticalContentAlignment = VerticalAlignment.Stretch,
-				Items = 
-				{
-					new StackLayoutItem(new TableLayout
-					{
-						Padding = 10,
-						Spacing = new Eto.Drawing.Size(10, 10),
-						Rows =
-						{
-							new TableRow(
-								new TableCell(new Label { Text = "Total XNV" }),
-								new TableCell(lblTotalXnv, true),
-								new TableCell(btnTransfer)),
-							new TableRow(
-								new TableCell(new Label { Text = "Unlocked XNV" }),
-								new TableCell(lblUnlockedXnv, true),
-								new TableCell(btnViewAddresses))
-						}
-					}, false),
-					new StackLayoutItem(grid, true)
-				}
-			};
-
-			btnTransfer.Click += (s, e) =>
-			{
-				TransferFunds();
-			};
-
-			btnViewAddresses.Click += (s, e) =>
-			{
-				ViewAddresses();
-			};
+				context.Show(grid);
+            }
+            catch (Exception ex)
+            {
+                ErrorHandler.HandleException("BP.GMD", ex, false);
+            }
 		}
-
-		public void Update(GetAccountsResponseData a)
-		{
-			try
-			{
-				if (a != null)
-				{
-					lblTotalXnv.Text = Conversions.FromAtomicUnits4Places(a.TotalBalance).ToString();
-					lblUnlockedXnv.Text = Conversions.FromAtomicUnits4Places(a.TotalUnlockedBalance).ToString();
-					accounts = a.Accounts;
-					btnTransfer.Enabled = true;
-					btnViewAddresses.Enabled = true;
-				}
-				else
-				{
-					lblTotalXnv.Text = string.Empty;
-					lblUnlockedXnv.Text = string.Empty;
-					accounts.Clear();
-					btnTransfer.Enabled = false;
-					btnViewAddresses.Enabled = false;
-				}
-
-				int si = grid.SelectedRow;
-				grid.DataStore = accounts.Count == 0 ? null : accounts;
-				grid.SelectRow(si);
-			}
-			catch (Exception ex)
-			{
-				ErrorHandler.HandleException("BP.UPD", ex, $".NET Exception, {ex.Message}", false);
-			}
-		}
-
-		private void TransferFunds()
-		{
-			SubAddressAccount account = null;
-			if(grid != null && grid.SelectedRow != -1)
-			{
-				account = accounts[grid.SelectedRow];
-			}
-			
-			TransferDialog transferDialog = new TransferDialog(account, accounts);
-			if (transferDialog.ShowModal() == DialogResult.Ok)
-			{
-				if(transferDialog.IsTransferSplit)
-				{
-					GlobalMethods.TransferFundsUsingSplit(transferDialog);
-				}
-				else 
-				{
-					GlobalMethods.TransferFundsNoSplit(transferDialog);
-				}
-			}
-		}		
-
-		private void ViewAddresses()
-		{
-			try
-			{
-				SubAddressAccount account = null;
-				if(grid != null && grid.SelectedRow != -1)
-				{
-					account = accounts[grid.SelectedRow];
-				}
-
-				AddressViewDialog viewAddressesDialog = new AddressViewDialog(account, accounts);
-				viewAddressesDialog.ShowModal();
-			}
-			catch (Exception ex)
-			{
-				ErrorHandler.HandleException("BP.VAD", ex, false);
-			}
-		}
+		#endregion // Event Methods
     }
 }

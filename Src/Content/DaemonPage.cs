@@ -59,6 +59,7 @@ namespace Nerva.Desktop.Content
 					GridLines = GridLines.Horizontal,
 					Columns =
 					{
+						new GridColumn { DataCell = new ImageViewCell { Binding = Binding.Property<GetConnectionsResponseData, Eto.Drawing.Image>(r => (r.Incoming ? Constants.TransferInImage : Constants.TransferOutImage)) }, Width = 25 },
 						new GridColumn { DataCell = new TextBoxCell { Binding = Binding.Property<GetConnectionsResponseData, string>(r => r.Address)}, HeaderText = "Address", Width = 200 },
 						new GridColumn { DataCell = new TextBoxCell { Binding = Binding.Property<GetConnectionsResponseData, string>(r => r.Height.ToString())}, HeaderText = "Height", Width = 100 },
 						new GridColumn { DataCell = new TextBoxCell { Binding = Binding.Property<GetConnectionsResponseData, string>(r => TimeSpan.FromSeconds(r.LiveTime).ToString(@"hh\:mm\:ss"))}, HeaderText = "Live Time", Width = 100 },

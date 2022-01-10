@@ -39,7 +39,7 @@ namespace Nerva.Desktop.Content
                 GridLines = GridLines.Horizontal,
                 Columns =
                 {
-                    new GridColumn { DataCell = new ImageViewCell { Binding = Binding.Property<TransferItem, Eto.Drawing.Image>(r => (r.Type.Equals("in") ? Constants.TransferInImage : (r.Type.Equals("out") ? Constants.TransferOutImage : Constants.TransferBlockImage))) }, Width = 30 },
+                    new GridColumn { DataCell = new ImageViewCell { Binding = Binding.Property<TransferItem, Eto.Drawing.Image>(r => (r.Type.ToLower().Equals("in") ? Constants.TransferInImage : (r.Type.ToLower().Equals("out") ? Constants.TransferOutImage : Constants.TransferBlockImage))) }, Width = 25 },
                     new GridColumn { DataCell = new TextBoxCell { Binding = Binding.Property<TransferItem, string>(r => r.Type)}, HeaderText = "Type", Width = 50 },
                     new GridColumn { DataCell = new TextBoxCell { Binding = Binding.Property<TransferItem, string>(r => r.Height.ToString())}, HeaderText = "Height", Width = 80 },
                     new GridColumn { DataCell = new TextBoxCell { Binding = Binding.Property<TransferItem, string>(r => DateTimeHelper.UnixTimestampToDateTime(r.Timestamp).ToString())}, HeaderText = "Time", Width = 160 },
