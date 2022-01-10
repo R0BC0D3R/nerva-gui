@@ -12,13 +12,12 @@ namespace Nerva.Desktop.Content
 {
     public class DaemonPage
 	{
+		#region Local Variables
         List<string> la = new List<string>();
 		private ulong lastReportedDiff = 0;
 		private bool _isCurrentlyMining = false;
 		public DateTime LastDaemonResponseTime = DateTime.Now;
-
-        #region Form Controls
-
+    
         private StackLayout mainControl;
         public StackLayout MainControl => mainControl;
 		public string version;
@@ -43,8 +42,9 @@ namespace Nerva.Desktop.Content
 		public Button btnChangeMiningThreads = new Button { Text = "Set", Enabled = false, Size = new Eto.Drawing.Size(64, 22), ToolTip = "Change number of CPU threads used for mining" };
 		public NumericStepper nsMiningThreads = new NumericStepper { MinValue = 1, MaxValue = Environment.ProcessorCount, DecimalPlaces = 0, MaximumDecimalPlaces = 0, Enabled = false, Size = new Eto.Drawing.Size(60, 22), ToolTip = "Number of CPU threads to use for mining"  };
 
-        #endregion
+        #endregion // Local Variables
 
+		#region Constructor Methods
         public DaemonPage() { }
 
         public void ConstructLayout()
@@ -52,7 +52,7 @@ namespace Nerva.Desktop.Content
 			try
 			{				
 				nsMiningThreads.Value = Configuration.Instance.Daemon.MiningThreads;
-				var peersCtx_Ban = new Command { MenuText = "Ban Peer" };
+				var cmdBanPeer = new Command { MenuText = "Ban Peer" };
 
 				grid = new GridView
 				{
@@ -71,19 +71,10 @@ namespace Nerva.Desktop.Content
 				{
 					Items = 
 					{
-						peersCtx_Ban
+						cmdBanPeer
 					}
 				};
-
-				peersCtx_Ban.Executed += (s, e) =>
-				{
-					if (grid.SelectedRow == -1)
-						return;
-
-					GetConnectionsResponseData c = (GetConnectionsResponseData)grid.DataStore.ElementAt(grid.SelectedRow);
-					DaemonRpc.BanPeer(c.IP);
-				};
-
+			
 				mainControl = new StackLayout
 				{
 					Orientation = Orientation.Vertical,
@@ -157,44 +148,18 @@ namespace Nerva.Desktop.Content
 					}
 				};
 
-				btnStartStopMining.Click += (s, e) =>
-				{
-					GlobalMethods.StartStopMining();
-				};
-
-				btnChangeMiningThreads.Click += (s, e) =>
-				{
-					if(nsMiningThreads.Value != Configuration.Instance.Daemon.MiningThreads)
-					{
-						try
-						{
-							Configuration.Instance.Daemon.MiningThreads = (int)nsMiningThreads.Value;
-							Configuration.Save();
-
-							string userMessage = "Number of mining threads changed to " + Configuration.Instance.Daemon.MiningThreads;
-							if(_isCurrentlyMining)
-							{
-								Logger.LogDebug("MF.FPC", "Restarting miner...");
-								DaemonRpc.StopMining();								
-								DaemonRpc.StartMining();
-								userMessage += " and miner restarted";
-							}
-
-							MessageBox.Show(Application.Instance.MainForm, userMessage, MessageBoxButtons.OK, MessageBoxType.Information);
-						}
-						catch (Exception ex2)
-						{
-							ErrorHandler.HandleException("DP.CY2", ex2, true);
-						}
-					}
-				};
+				cmdBanPeer.Executed += new EventHandler<EventArgs>(cmdBanPeer_Executed);
+				btnStartStopMining.Click += new EventHandler<EventArgs>(btnStartStopMining_Click);
+				btnChangeMiningThreads.Click += new EventHandler<EventArgs>(btnChangeMiningThreads_Click);				
 			}
 			catch (Exception ex)
 			{
-				ErrorHandler.HandleException("DP.CY", ex, true);
+				ErrorHandler.HandleException("DP.CL", ex, true);
 			}
         }
+		#endregion // Constructor Methods
 
+		#region Helper Methods
 		public void UpdateInfo(GetInfoResponseData info)
 		{
 			try
@@ -294,14 +259,16 @@ namespace Nerva.Desktop.Content
 			{
 				ErrorHandler.HandleException("DP.UI", ex, false);
 			}
-		}
-
+		}	
+		
 		public void UpdateConnections(List<GetConnectionsResponseData> connections)
 		{
 			try
 			{
 				if (connections == null)
+				{
 					connections = new List<GetConnectionsResponseData>();
+				}
 
 				int si = grid.SelectedRow;
 				grid.DataStore = connections;
@@ -394,5 +361,65 @@ namespace Nerva.Desktop.Content
 				ErrorHandler.HandleException("DP.UMS", ex, false);
 			}
 		}
+		#endregion // Helper Methods
+
+		#region Event Methods
+		private void cmdBanPeer_Executed(object sender, EventArgs e)
+		{
+            try
+            {
+				if (grid.SelectedRow == -1)
+				{
+					return;
+				}
+
+				GetConnectionsResponseData response = (GetConnectionsResponseData)grid.DataStore.ElementAt(grid.SelectedRow);
+				DaemonRpc.BanPeer(response.IP);
+            }
+            catch (Exception ex)
+            {
+                ErrorHandler.HandleException("DP.CBPE", ex, true);
+            }
+		}
+
+		private void btnStartStopMining_Click(object sender, EventArgs e)
+		{
+            try
+            {
+				GlobalMethods.StartStopMining();
+            }
+            catch (Exception ex)
+            {
+                ErrorHandler.HandleException("DP.BSMC", ex, true);
+            }
+		}
+
+		private void btnChangeMiningThreads_Click(object sender, EventArgs e)
+		{
+            try
+            {
+				if(nsMiningThreads.Value != Configuration.Instance.Daemon.MiningThreads)
+				{
+					Configuration.Instance.Daemon.MiningThreads = (int)nsMiningThreads.Value;
+					Configuration.Save();
+
+					string userMessage = "Number of mining threads changed to " + Configuration.Instance.Daemon.MiningThreads;
+					if(_isCurrentlyMining)
+					{
+						Logger.LogDebug("MF.FPC", "Restarting miner...");
+						DaemonRpc.StopMining();								
+						DaemonRpc.StartMining();
+						userMessage += " and miner restarted";
+					}
+
+					MessageBox.Show(Application.Instance.MainForm, userMessage, MessageBoxButtons.OK, MessageBoxType.Information);
+				}
+            }
+            catch (Exception ex)
+            {
+                ErrorHandler.HandleException("DP.BCTC", ex, true);
+            }
+		}
+		#endregion // Event Methods
     }
 }

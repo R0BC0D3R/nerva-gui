@@ -14,6 +14,7 @@ namespace Nerva.Desktop.Content
 {
     public class TransfersPage
     {
+        #region Local Variables
         private Scrollable mainControl;
         public Scrollable MainControl => mainControl;
 
@@ -21,17 +22,14 @@ namespace Nerva.Desktop.Content
         List<TransferItem> txList = new List<TransferItem>();
         bool needGridUpdate = false;
         uint lastHeight = 0;
+        #endregion // Local Variables
 
+        #region Constructor Methods
         public TransfersPage() { }
 
         public void ConstructLayout()
         {
-            var ctx_TxDetails = new Command { MenuText = "Details" };
-
-            ctx_TxDetails.Executed += (s, e) =>
-            {
-                GetTransactionDetails();
-            };
+            var cmdTxDetails = new Command { MenuText = "Details" };
 
             mainControl = new Scrollable();
             grid = new GridView
@@ -52,18 +50,18 @@ namespace Nerva.Desktop.Content
             {
                 Items =
                 {
-                    ctx_TxDetails
+                    cmdTxDetails
                 }
             };
 
-            grid.CellDoubleClick += (s, e) =>
-            {
-                GetTransactionDetails();
-            };
+            cmdTxDetails.Executed += new EventHandler<EventArgs>(cmdTxDetails_Executed);
+            grid.CellDoubleClick += new EventHandler<GridCellMouseEventArgs>(grid_CellDoubleClick);
 
             Update(null);
         }
+        #endregion // Constructor Methods
 
+        #region Helper Methods
         public void Update(GetTransfersResponseData t)
         {
             try
@@ -215,5 +213,32 @@ namespace Nerva.Desktop.Content
                 ErrorHandler.HandleException("TP.GTD", ex, true);
             }
         }
+        #endregion // Helper Methods
+
+        #region Event Methods
+        private void cmdTxDetails_Executed(object sender, EventArgs e)
+		{
+            try
+            {
+                GetTransactionDetails();
+            }
+            catch (Exception ex)
+            {
+                ErrorHandler.HandleException("TP.CTDE", ex, true);
+            }
+		}
+
+        private void grid_CellDoubleClick(object sender, EventArgs e)
+		{
+            try
+            {
+                GetTransactionDetails();
+            }
+            catch (Exception ex)
+            {
+                ErrorHandler.HandleException("TP.GCDC", ex, true);
+            }
+		}
+        #endregion // Event Methods
     }
 }
