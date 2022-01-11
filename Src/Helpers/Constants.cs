@@ -19,6 +19,7 @@ namespace Nerva.Desktop.Helpers
         public static Eto.Drawing.Image TransferBlockImage;
         public static Eto.Drawing.Image TransferInImage;
         public static Eto.Drawing.Image TransferOutImage;
+        public static Eto.Drawing.Image WalletImage;
 
         public static readonly string[] Languages = new string[]
         {

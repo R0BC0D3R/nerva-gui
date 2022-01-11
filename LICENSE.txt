@@ -1,7 +1,7 @@
 The BSD-3 License.
 
 AUTHORS
-Copyright © 2017-2022 NERVA Project.
+Copyright © 2018-2022 NERVA Project.
 Copyright © 2017-2020 Angry Wasp. All Rights Reserved.
 
 Redistribution and use in source and binary forms, with or without modification, are permitted 

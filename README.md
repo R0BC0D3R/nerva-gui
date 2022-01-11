@@ -42,7 +42,7 @@ If you get error that above dotnet-sdk package cannot be found, you might need t
 
 #### MacOS
 
-`sudo ./build "osx-x64"`
+`./build "osx-x64"`
 
 #### Windows
 

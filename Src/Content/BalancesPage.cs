@@ -63,11 +63,12 @@ namespace Nerva.Desktop.Content
 					GridLines = GridLines.Horizontal,
 					Columns = 
 					{
-						new GridColumn { DataCell = new TextBoxCell { Binding = Binding.Property<SubAddressAccount, string>(r => r.Index.ToString())}, HeaderText = "#", Width = 30 },
+						new GridColumn { DataCell = new ImageViewCell { Binding = Binding.Property<SubAddressAccount, Eto.Drawing.Image>(r => r.Index > 0 ? Constants.WalletImage : Constants.WalletImage) }, Width = 25 },
+						new GridColumn { DataCell = new TextBoxCell { Binding = Binding.Property<SubAddressAccount, string>(r => r.Index.ToString())}, HeaderText = "#", Width = 25 },
 						new GridColumn { DataCell = new TextBoxCell { Binding = Binding.Property<SubAddressAccount, string>(r => r.Label)}, HeaderText = "Label", Width = 150 },
 						new GridColumn { DataCell = new TextBoxCell { Binding = Binding.Property<SubAddressAccount, string>(r => Conversions.WalletAddressShortForm(r.BaseAddress))}, HeaderText = "Address", Width = 200 },
 						new GridColumn { DataCell = new TextBoxCell { Binding = Binding.Property<SubAddressAccount, string>(r => Conversions.FromAtomicUnits4Places(r.Balance).ToString())}, HeaderText = "Balance", Width = 100 },
-						new GridColumn { DataCell = new TextBoxCell { Binding = Binding.Property<SubAddressAccount, string>(r => Conversions.FromAtomicUnits4Places(r.UnlockedBalance).ToString())}, HeaderText = "Unlocked", Width = 120 },
+						new GridColumn { DataCell = new TextBoxCell { Binding = Binding.Property<SubAddressAccount, string>(r => Conversions.FromAtomicUnits4Places(r.UnlockedBalance).ToString())}, HeaderText = "Unlocked", Width = 100 },
 					}
 				};
 			

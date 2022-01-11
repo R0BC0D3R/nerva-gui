@@ -42,6 +42,7 @@ namespace Nerva.Desktop
                 Constants.TransferBlockImage = Bitmap.FromResource("transfer_block.png", Assembly.GetExecutingAssembly());
                 Constants.TransferInImage = Bitmap.FromResource("transfer_in.png", Assembly.GetExecutingAssembly());
                 Constants.TransferOutImage = Bitmap.FromResource("transfer_out.png", Assembly.GetExecutingAssembly());
+                Constants.WalletImage = Bitmap.FromResource("wallet.png", Assembly.GetExecutingAssembly());
 
                 SuspendLayout();
                 ConstructLayout();
@@ -962,7 +963,7 @@ namespace Nerva.Desktop
 
                 license.AppendLine("The BSD-3 License.\r\n");
                 license.AppendLine("AUTHORS\r\n");
-                license.AppendLine("Copyright © 2017-2022 NERVA Project.");
+                license.AppendLine("Copyright © 2018-2022 NERVA Project.");
                 license.AppendLine("Copyright © 2017-2020 Angry Wasp. All Rights Reserved.\r\n");
                 license.AppendLine("Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:\r\n");
                 license.AppendLine("1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.\r\n");
