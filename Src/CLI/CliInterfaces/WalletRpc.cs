@@ -75,14 +75,16 @@ namespace Nerva.Desktop.CLI
                 KeyType = keyType
             }, successAction, errorAction, Configuration.Instance.Wallet.Rpc.Host, Configuration.Instance.Wallet.Rpc.Port).Run();
 
-        public static bool GetTransfers(ulong scanFromHeight, Action<GetTransfersResponseData> successAction, Action<RequestError> errorAction)
+        public static bool GetTransfers(ulong scanFromHeight, uint accountIndex, bool allAccounts, Action<GetTransfersResponseData> successAction, Action<RequestError> errorAction)
         {
             //suppress error code -13: No wallet file
             var l = Nerva.Rpc.Log.Presets.Normal;
             l.SuppressRpcCodes.Add(-13);
 
             return new GetTransfers(new GetTransfersRequestData {
-                ScanFromHeight = scanFromHeight
+                ScanFromHeight = scanFromHeight,
+                AccountIndex = accountIndex,
+                AllAccounts = allAccounts
             }, successAction, errorAction, Configuration.Instance.Wallet.Rpc.Host, Configuration.Instance.Wallet.Rpc.Port, l).Run();
         }
 

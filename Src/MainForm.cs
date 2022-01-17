@@ -281,7 +281,7 @@ namespace Nerva.Desktop
                     });
                 }, WalletUpdateFailed);
 
-                WalletRpc.GetTransfers(lastTxHeight, (GetTransfersResponseData rt) =>
+                WalletRpc.GetTransfers(lastTxHeight, 0, true, (GetTransfersResponseData rt) =>
                 {
                     Application.Instance.AsyncInvoke( () =>
                     {

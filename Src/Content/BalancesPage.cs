@@ -293,7 +293,7 @@ namespace Nerva.Desktop.Content
 
 					if(!string.IsNullOrEmpty(saveFile))
 					{
-						WalletRpc.GetTransfers(0, (GetTransfersResponseData responseData) =>
+						WalletRpc.GetTransfers(0, subAddress.Index, false, (GetTransfersResponseData responseData) =>
 						{
 							Application.Instance.AsyncInvoke( () =>
 							{
