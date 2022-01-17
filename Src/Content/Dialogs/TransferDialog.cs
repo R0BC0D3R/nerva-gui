@@ -155,38 +155,43 @@ namespace Nerva.Desktop.Content.Dialogs
 
         protected override void OnOk()
         {
-            if (MessageBox.Show(this, "Are you sure?", MessageBoxButtons.YesNo, MessageBoxType.Question, MessageBoxDefaultButton.Yes) == DialogResult.Yes)
+            StringBuilder errors = new StringBuilder();
+
+            if(string.IsNullOrEmpty(txtAmount.Text))
             {
-                StringBuilder errors = new StringBuilder();
+                errors.AppendLine("Amount is required");
+            }
+            else if (!double.TryParse(txtAmount.Text, out amt))
+            {
+                errors.AppendLine("Amount has incorrect format");
+            }
 
-                if (!double.TryParse(txtAmount.Text, out amt))
-                {
-                    errors.AppendLine("Amount to send is incorrect format");
-                }
+            if (cbxPriority.SelectedIndex == -1)
+            {
+                errors.AppendLine("Priority not specified");
+            }
 
-                if (cbxPriority.SelectedIndex == -1)
-                {
-                    errors.AppendLine("Priority not specified");
-                }
+            //todo: need to validate address that it is correct format
+            if (string.IsNullOrEmpty(txtAddress.Text))
+            {
+                errors.AppendLine("Address is required");
+            }
 
-                //todo: need to validate address that it is correct format
-                if (string.IsNullOrEmpty(txtAddress.Text))
-                {
-                    errors.AppendLine("Address not provided");
-                }
+            if (txtPaymentId.Text.Length != 0 && (txtPaymentId.Text.Length != 16 && txtPaymentId.Text.Length != 64))
+            {
+                errors.AppendLine($"Payment ID must be 16 or 64 characters long\r\nCurrent Payment ID length is {txtPaymentId.Text.Length} characters");
+            }
 
-                if (txtPaymentId.Text.Length != 0 && (txtPaymentId.Text.Length != 16 && txtPaymentId.Text.Length != 64))
-                {
-                    errors.AppendLine($"Payment ID must be 16 or 64 characters long\r\nCurrent Payment ID length is {txtPaymentId.Text.Length} characters");
-                }
+            string errorString = errors.ToString();
+            if (!string.IsNullOrEmpty(errorString))
+            {
+                MessageBox.Show(this, $"Transfer failed:\r\n{errorString}", "Transfer Nerva", MessageBoxButtons.OK, MessageBoxType.Error, MessageBoxDefaultButton.OK);
+                return;
+            }
 
-                string errorString = errors.ToString();
-                if (!string.IsNullOrEmpty(errorString))
-                {
-                    MessageBox.Show(this, $"Transfer failed:\r\n{errorString}", "Transfer Nerva", MessageBoxButtons.OK, MessageBoxType.Error, MessageBoxDefaultButton.OK);
-                    return;
-                }
-
+            string boxMsg = "You're about to send " + txtAmount.Text + " XNV\r\n\r\nOnce transfer is started, it cannot be stopped\r\n\r\nDo you want to continue?";
+            if (MessageBox.Show(this, boxMsg, MessageBoxButtons.YesNo, MessageBoxType.Question, MessageBoxDefaultButton.Yes) == DialogResult.Yes)
+            {
                 address = txtAddress.Text;
                 payid = txtPaymentId.Text;
                 priority = (SendPriority)cbxPriority.SelectedIndex;
