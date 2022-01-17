@@ -19,7 +19,8 @@ namespace Nerva.Desktop.Content.Dialogs
         TextBox txtAmount = new TextBox();
         ComboBox cbxPriority = new ComboBox();
         DropDown ddAccounts = new DropDown();
-        Label lblAmount = new Label();
+        Label lblBalance = new Label();
+        Label lblUnlockedBalance = new Label();
         Button btnAddressBook = new Button{ Text = "Address Book", Width = 100, Height = 24 };
         CheckBox cbxTransferSplit = new CheckBox { Text = "Split Transfer", ToolTip = "Use this option if your transaction is too large and would not get processed otherwise" };
         Label lblRequiredMessage = new Label() { Text = "* Indicates required fields" };
@@ -47,7 +48,7 @@ namespace Nerva.Desktop.Content.Dialogs
         {
             try
             {                
-                this.MinimumSize = new Size(500, 420);
+                this.MinimumSize = new Size(500, 440);
                 this.btnOk.Text = "Send";
 
                 if(accountList == null || accountList.Count == 0)
@@ -77,7 +78,8 @@ namespace Nerva.Desktop.Content.Dialogs
                 }
 
                 ddAccounts.SelectedKey = selectedAccount.Index.ToString();
-                lblAmount.Text = Conversions.FromAtomicUnits4Places(selectedAccount.Balance).ToString();
+                lblBalance.Text = Conversions.FromAtomicUnits4Places(selectedAccount.Balance).ToString();
+                lblUnlockedBalance.Text = Conversions.FromAtomicUnits4Places(selectedAccount.UnlockedBalance).ToString();
 
                 cbxPriority.DataStore = Enum.GetNames(typeof(SendPriority));
                 cbxPriority.SelectedIndex = 0;
@@ -113,7 +115,8 @@ namespace Nerva.Desktop.Content.Dialogs
                     {
                         Spacing = new Eto.Drawing.Size(10, 10),
                         Rows = {
-                            new TableRow(new TableCell(new Label { Text = "Balance:" }), lblAmount)
+                            new TableRow(new TableCell(new Label { Text = "Balance (XNV): " }), lblBalance),
+                            new TableRow(new TableCell(new Label { Text = "Unlocked (XNV):" }), lblUnlockedBalance)
                         }
                     },
                     new TableLayout
@@ -247,7 +250,8 @@ namespace Nerva.Desktop.Content.Dialogs
                     }
                 }                
 
-                lblAmount.Text = Conversions.FromAtomicUnits4Places(selectedAccount.Balance).ToString();                
+                lblBalance.Text = Conversions.FromAtomicUnits4Places(selectedAccount.Balance).ToString();
+                lblUnlockedBalance.Text = Conversions.FromAtomicUnits4Places(selectedAccount.UnlockedBalance).ToString();
             }
             catch (Exception ex)
             {
