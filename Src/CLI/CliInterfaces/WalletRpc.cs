@@ -108,9 +108,10 @@ namespace Nerva.Desktop.CLI
                 Label = label
             }, null, null, Configuration.Instance.Wallet.Rpc.Host, Configuration.Instance.Wallet.Rpc.Port).Run();
 
-        public static bool GetTransferByTxID(string txid, Action<GetTransferByTxIDResponseData> successAction, Action<RequestError> errorAction) =>
+        public static bool GetTransferByTxID(string txid, uint accountIndex, Action<GetTransferByTxIDResponseData> successAction, Action<RequestError> errorAction) =>
             new GetTransferByTxID(new GetTransferByTxIDRequestData {
-                TxID = txid
+                TxID = txid,
+                AccountIndex = accountIndex
             }, successAction, errorAction, Configuration.Instance.Wallet.Rpc.Host, Configuration.Instance.Wallet.Rpc.Port).Run();
 
         public static bool TransferFunds(SubAddressAccount acc, string address, string paymentId, double amount, SendPriority priority, 

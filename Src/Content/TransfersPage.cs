@@ -189,9 +189,9 @@ namespace Nerva.Desktop.Content
                     return;
                 }
 
-                var t = txList[grid.SelectedRow];
+                TransferItem transferItem = txList[grid.SelectedRow];
 
-                var txid = WalletRpc.GetTransferByTxID(t.TxId,
+                var txid = WalletRpc.GetTransferByTxID(transferItem.TxId, transferItem.SubaddrIndex.Major,
                 (GetTransferByTxIDResponseData r) =>
                 {
                     Application.Instance.AsyncInvoke( () =>
